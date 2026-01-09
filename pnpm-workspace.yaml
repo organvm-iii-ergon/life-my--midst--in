@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+  - infra
+  - docs
+  - scripts
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - unrs-resolver

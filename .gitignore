@@ -1,0 +1,15 @@
+__pycache__/
+.pytest_cache/
+.DS_Store
+node_modules/
+dist/
+build/
+.next/
+.env
+.env.local
+.venv/
+*.log
+.turbo/
+coverage/
+.vitest/
+*.env.op.sh.pnpm-store/

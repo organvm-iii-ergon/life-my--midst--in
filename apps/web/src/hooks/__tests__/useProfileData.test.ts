@@ -1,0 +1,355 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import { useProfileData } from "../useProfileData";
+import type { Profile, CVEntry } from "@in-midst-my-life/schema";
+
+// Mock fetch
+global.fetch = vi.fn();
+
+const mockProfile: Profile = {
+  id: "profile-1",
+  userId: "user-1",
+  name: "John Doe",
+  email: "john@example.com",
+  summary: "Complete person with many capabilities",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const mockCVData = {
+  id: "cv-1",
+  profileId: "profile-1",
+  version: 1,
+  entries: [] as CVEntry[],
+};
+
+describe("useProfileData", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("initializes with loading state", () => {
+    (global.fetch as any).mockImplementation(() =>
+      new Promise(() => {}) // Never resolves
+    );
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    expect(result.current.loading).toBe(true);
+    expect(result.current.profile).toBeNull();
+    expect(result.current.cv).toBeNull();
+    expect(result.current.error).toBeNull();
+  });
+
+  it("fetches profile and CV data on mount", async () => {
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: mockProfile }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.profile).toEqual(mockProfile);
+    expect(result.current.cv).toEqual(mockCVData);
+    expect(result.current.error).toBeNull();
+  });
+
+  it("handles fetch errors gracefully", async () => {
+    const errorMessage = "Network error";
+    (global.fetch as any).mockRejectedValue(new Error(errorMessage));
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toContain(errorMessage);
+    expect(result.current.profile).toBeNull();
+    expect(result.current.cv).toBeNull();
+  });
+
+  it("provides refetch function to reload data", async () => {
+    let callCount = 0;
+    (global.fetch as any).mockImplementation((url: string) => {
+      callCount++;
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: { ...mockProfile, name: `Name ${callCount}` } }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const initialName = result.current.profile?.name;
+
+    // Call refetch
+    await result.current.refetch();
+
+    await waitFor(() => {
+      expect(result.current.profile?.name).not.toBe(initialName);
+    });
+  });
+
+  it("provides addEntry function to create new CV entries", async () => {
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: mockProfile }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      if (url.includes("POST") && url.includes("/entries")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            id: "entry-1",
+            type: "experience",
+            content: "New entry",
+          }),
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const newEntry = await result.current.addEntry({
+      type: "experience",
+      content: "New entry",
+    });
+
+    expect(newEntry).toBeDefined();
+    expect(newEntry?.type).toBe("experience");
+  });
+
+  it("provides updateEntry function to modify existing entries", async () => {
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: mockProfile }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      if (url.includes("PATCH") && url.includes("/entries/entry-1")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            id: "entry-1",
+            type: "achievement",
+            content: "Updated entry",
+          }),
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const updated = await result.current.updateEntry("entry-1", {
+      type: "achievement",
+      content: "Updated entry",
+    });
+
+    expect(updated).toBeDefined();
+    expect(updated?.type).toBe("achievement");
+  });
+
+  it("provides deleteEntry function", async () => {
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: mockProfile }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      if (url.includes("DELETE") && url.includes("/entries/entry-1")) {
+        return Promise.resolve({ ok: true });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const deleted = await result.current.deleteEntry("entry-1");
+
+    expect(deleted).toBe(true);
+  });
+
+  it("provides filterEntries function with CVFilter", async () => {
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: mockProfile }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      if (url.includes("POST") && url.includes("/filter")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ data: [], total: 0 }),
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    await result.current.filterEntries({
+      includePersonae: ["persona-1"],
+      minPriority: 70,
+    });
+
+    // Verify filter was called
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/filter"),
+      expect.objectContaining({
+        method: "POST",
+      })
+    );
+  });
+
+  it("handles invalid profile ID", async () => {
+    (global.fetch as any).mockRejectedValue(new Error("404: Not found"));
+
+    const { result } = renderHook(() => useProfileData("invalid-id"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBeDefined();
+    expect(result.current.profile).toBeNull();
+  });
+
+  it("sets loading to false after successful fetch", async () => {
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: mockProfile }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result } = renderHook(() => useProfileData("profile-1"));
+
+    expect(result.current.loading).toBe(true);
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+  });
+
+  it("maintains referential stability for functions", async () => {
+    (global.fetch as any).mockImplementation((url: string) => {
+      if (url.includes("/profiles/profile-1") && !url.includes("/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ profile: mockProfile }),
+        });
+      }
+      if (url.includes("/profiles/profile-1/cv")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => mockCVData,
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
+    });
+
+    const { result, rerender } = renderHook(() => useProfileData("profile-1"));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const refetchFn = result.current.refetch;
+    const addEntryFn = result.current.addEntry;
+
+    rerender();
+
+    // Functions should maintain same reference
+    expect(result.current.refetch).toBe(refetchFn);
+    expect(result.current.addEntry).toBe(addEntryFn);
+  });
+});
