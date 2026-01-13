@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "inmidst.orchestratorName" . }}
+spec:
+  replicas: {{ .Values.orchestrator.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "inmidst.orchestratorName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "inmidst.orchestratorName" . }}
+    spec:
+      containers:
+        - name: orchestrator
+          image: "{{ .Values.image.repository }}-orchestrator:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range $key, $value := .Values.orchestrator.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
+          ports:
+            - containerPort: {{ .Values.orchestrator.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "inmidst.orchestratorName" . }}
+spec:
+  selector:
+    app: {{ include "inmidst.orchestratorName" . }}
+  ports:
+    - name: http
+      port: {{ .Values.orchestrator.service.port }}
+      targetPort: {{ .Values.orchestrator.service.port }}

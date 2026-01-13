@@ -1,0 +1,264 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: in-midst-my-life
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: 'in-midst-my-life'
+        environment: 'production'
+    
+    # Alertmanager configuration
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+                - alertmanager:9093
+
+    # Rule files
+    rule_files:
+      - '/etc/prometheus/rules/*.yml'
+
+    scrape_configs:
+      # Prometheus itself
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      # API service
+      - job_name: 'api'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - in-midst-my-life
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: api
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: metrics
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+
+      # Orchestrator service
+      - job_name: 'orchestrator'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - in-midst-my-life
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: orchestrator
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: metrics
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+
+      # Kubelet metrics
+      - job_name: 'kubelet'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+          - target_label: __address__
+            replacement: kubernetes.default.svc:443
+          - source_labels: [__meta_kubernetes_node_name]
+            regex: (.+)
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/${1}/proxy/metrics
+
+      # Kubernetes API server
+      - job_name: 'kube-apiserver'
+        kubernetes_sd_configs:
+          - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: default;kubernetes;https
+
+  rules.yml: |
+    groups:
+      - name: application.rules
+        interval: 15s
+        rules:
+          # API metrics
+          - alert: APIHighErrorRate
+            expr: rate(api_http_requests_total{status=~"5.."}[5m]) > 0.1
+            for: 5m
+            annotations:
+              summary: "API high error rate"
+              description: "API error rate is {{ $value | humanizePercentage }}"
+
+          - alert: APIHighLatency
+            expr: histogram_quantile(0.95, rate(api_http_duration_seconds_bucket[5m])) > 1
+            for: 5m
+            annotations:
+              summary: "API high latency"
+              description: "API p95 latency is {{ $value }}s"
+
+          # Orchestrator metrics
+          - alert: OrchestratorHighTaskFailureRate
+            expr: rate(orchestrator_task_failures_total[5m]) / rate(orchestrator_tasks_total[5m]) > 0.1
+            for: 5m
+            annotations:
+              summary: "Orchestrator high task failure rate"
+              description: "Task failure rate is {{ $value | humanizePercentage }}"
+
+          - alert: OrchestratorQueueTooLarge
+            expr: orchestrator_queue_size > 1000
+            for: 5m
+            annotations:
+              summary: "Orchestrator queue too large"
+              description: "Queue size is {{ $value }}"
+
+          # Database metrics
+          - alert: DatabaseConnectionPoolExhausted
+            expr: pg_stat_activity_count / pg_settings_max_connections > 0.8
+            for: 5m
+            annotations:
+              summary: "Database connection pool exhausted"
+              description: "Connection pool usage is {{ $value | humanizePercentage }}"
+
+          - alert: DatabaseSlowQueries
+            expr: rate(pg_slow_queries_total[5m]) > 1
+            for: 5m
+            annotations:
+              summary: "Database slow queries detected"
+              description: "{{ $value | humanize }} slow queries/sec"
+
+          # Node metrics
+          - alert: NodeHighCPUUsage
+            expr: (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (instance)) > 0.8
+            for: 5m
+            annotations:
+              summary: "Node high CPU usage"
+              description: "CPU usage is {{ $value | humanizePercentage }}"
+
+          - alert: NodeHighMemoryUsage
+            expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+            for: 5m
+            annotations:
+              summary: "Node high memory usage"
+              description: "Memory usage is {{ $value | humanizePercentage }}"
+
+          - alert: NodeDiskSpaceLow
+            expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+            for: 5m
+            annotations:
+              summary: "Node disk space low"
+              description: "Available disk space is {{ $value | humanizePercentage }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: in-midst-my-life
+  labels:
+    app: prometheus
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+      name: web
+  selector:
+    app: prometheus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: in-midst-my-life
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      
+      containers:
+        - name: prometheus
+          image: prom/prometheus:latest
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time=30d
+            - --web.enable-lifecycle
+            - --web.enable-admin-api
+          
+          ports:
+            - containerPort: 9090
+              name: web
+          
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: web
+            initialDelaySeconds: 30
+            periodSeconds: 5
+
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: web
+            initialDelaySeconds: 30
+            periodSeconds: 5
+          
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+            - name: rules
+              mountPath: /etc/prometheus/rules
+            - name: storage
+              mountPath: /prometheus
+      
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+        - name: rules
+          emptyDir: {}
+        - name: storage
+          emptyDir: {}

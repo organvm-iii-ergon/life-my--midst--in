@@ -1,0 +1,435 @@
+version: 1
+
+project:
+  name: "in-midst-my-life"
+  codename: "interactive-cv"
+  description: >
+    An interactive, mask-based CV/résumé system that behaves like a living,
+    queryable, multi-perspective profile rather than a static document.
+  owners:
+    - handle: "ivviiviivvi"
+      role: "product-architecture"
+  repo:
+    org: "ivviiviivvi"
+    monorepo: true
+    package_manager: "pnpm"
+    apps:
+      - name: "web"
+        path: "apps/web"
+        type: "nextjs"
+        description: "Interactive CV UI with mask switching and timeline views"
+      - name: "api"
+        path: "apps/api"
+        type: "fastify"
+        description: "Backend API for CV data and orchestration"
+      - name: "orchestrator"
+        path: "apps/orchestrator"
+        type: "node-service"
+        description: "Multi-agent workflow coordination system"
+    packages:
+      - name: "schema"
+        path: "packages/schema"
+        description: "Canonical data model for identity, masks, stages, epochs"
+      - name: "core"
+        path: "packages/core"
+        description: "Core business logic and utilities"
+      - name: "content-model"
+        path: "packages/content-model"
+        description: "Narrative generation and mask transformation logic"
+      - name: "design-system"
+        path: "packages/design-system"
+        description: "UI atoms and shared styling primitives"
+
+domain:
+  problem_statement: >
+    Represent a person's identity and history as a structured,
+    queryable, temporal, mask-based data model that can be rendered
+    into many narrative forms (CV, résumé, portfolio, academic profile).
+
+  non_goals:
+    - "General-purpose social network"
+    - "Anonymous multi-user identity marketplace"
+    - "Real-time chat or messaging platform"
+
+  personas:
+    - id: "owner-self"
+      description: "The subject of the CV configuring masks, timelines, outputs."
+    - id: "expert-reviewer"
+      description: "Hiring manager, committee member, or curator consuming outputs."
+    - id: "automation-layer"
+      description: "AI/agents transforming the source-of-truth into views."
+
+architecture:
+  style: "modular-monorepo"
+
+  tech_stack:
+    language: "TypeScript"
+    runtime:
+      - "Node.js (LTS)"
+    frontend:
+      - "Next.js 15 (App Router)"
+      - "React 19"
+      - "Inline styles + minimal design-system package"
+    backend:
+      - "Fastify REST APIs (apps/api, apps/orchestrator)"
+      - "Worker loop inside orchestrator service"
+    database:
+      primary: "PostgreSQL (pg)"
+      queue: "Redis (ioredis)"
+      migrations: "SQL files in apps/*/migrations executed via tsx scripts"
+    blockchain:
+      - "Planned: DID/VC integration (not implemented yet)"
+    infra:
+      hosting: "Local docker-compose; Helm scaffold in infra/helm"
+      ci_cd: "Not implemented in repo; see ARCH-003 for planned workflows"
+
+  modules:
+    core_module:
+      path: "packages/core"
+      responsibilities:
+        - "Mask matching and ranking utilities."
+        - "Shared domain logic across services."
+      public_api:
+        - "matchMasksToContext(masks, contexts)"
+        - "rankMasksByPriority(matches)"
+
+    schema_module:
+      path: "packages/schema"
+      responsibilities:
+        - "Define canonical data model for identity, profiles, masks, stages, epochs."
+        - "Provide Zod schemas and exported TypeScript types."
+      public_api:
+        - "IdentitySchema / ProfileSchema"
+        - "MaskSchema / StageSchema / EpochSchema"
+        - "AgentResponseSchema"
+
+    content_module:
+      path: "packages/content-model"
+      responsibilities:
+        - "Map schema entities to narrative blocks/fragments."
+        - "Handle mask/stage/epoch selection logic."
+        - "Generate context-specific narrative outputs."
+      public_api:
+        - "buildNarrative(view)"
+        - "buildWeightedNarrative(view)"
+        - "renderTimeline(entries, order)"
+        - "renderTimelineForMask(entries, mask, options)"
+        - "MASK_TAXONOMY / STAGE_TAXONOMY / EPOCH_TAXONOMY"
+
+    web_app:
+      path: "apps/web"
+      responsibilities:
+        - "Dashboard for API/Orchestrator status and seeded profile visibility."
+        - "Prototype mask editor UI (local state)."
+
+    api_app:
+      path: "apps/api"
+      responsibilities:
+        - "CRUD API for profiles, masks, epochs, stages."
+        - "Narrative endpoints that return weighted blocks."
+        - "Health/ready/metrics endpoints and OpenAPI stub."
+
+    orchestrator_app:
+      path: "apps/orchestrator"
+      responsibilities:
+        - "Task queue, persistence, worker dispatch."
+        - "GitHub webhook parsing into queued tasks."
+        - "LLM executor wiring with OSS/local defaults."
+
+coding_standards:
+  language: "TypeScript"
+
+  tsconfig:
+    strict: true
+    noImplicitAny: true
+    noUnusedLocals: true
+    noUnusedParameters: true
+    noImplicitReturns: true
+    esModuleInterop: true
+
+  style:
+    formatter: "prettier"
+    linter: "eslint"
+    naming:
+      types: "PascalCase"
+      interfaces: "PascalCase"
+      functions: "camelCase"
+      variables: "camelCase"
+      constants: "SCREAMING_SNAKE_CASE"
+      files: "kebab-case"
+
+  patterns:
+    allowed:
+      - "Hexagonal / ports-and-adapters architecture"
+      - "Functional core, imperative shell"
+      - "Schema-first design"
+      - "Dependency injection"
+      - "Repository pattern for data access"
+
+    forbidden:
+      - "Business logic inside React components beyond light orchestration"
+      - "Cross-module imports that bypass defined APIs"
+      - "Direct database access outside repository layer"
+      - "Mutable global state"
+
+  documentation:
+    required_for:
+      - "Non-trivial algorithms or business logic"
+      - "Public API behavior and response contracts"
+    format: "TSDoc where practical"
+    example_required_for:
+      - "Complex transformations"
+
+quality_gates:
+  ci_required_checks:
+    - "lint"
+    - "typecheck"
+    - "test"
+    - "build"
+  notes: "Checks are run manually/local; no CI workflows committed yet."
+
+  coverage:
+    thresholds:
+      statements: 0.75
+      branches: 0.65
+      functions: 0.75
+      lines: 0.75
+
+  security:
+    dependency_policy:
+      allowlist_mode: false
+      notes: "No enforced allowlist; keep dependencies minimal."
+
+    secrets:
+      management: "1Password via op loaders"
+      rules:
+        - "No secrets committed to repo (use .env.example for templates)"
+        - "Load env with ~/.config/op/load-env.sh and per-project *.env.op.sh"
+        - "Do not store plaintext credentials in repo or shell rc files"
+
+growth_objectives:
+  roadmap_epics:
+    - id: "schema-v1"
+      title: "Canonical identity & mask schema"
+      description: "Lock a first version of the schema for identity, masks, stages, and periods."
+      modules:
+        - "packages/schema"
+        - "packages/content-model"
+      effort_units: 3
+
+    - id: "editor-v1"
+      title: "Mask & timeline editor"
+      description: "Interactive UI for defining and switching between masks and stages."
+      modules:
+        - "apps/web"
+      effort_units: 5
+      dependencies: ["schema-v1"]
+
+    - id: "render-v1"
+      title: "CV/Résumé narrative generator"
+      description: "Generate static outputs for different audiences from the same source data."
+      modules:
+        - "packages/content-model"
+        - "apps/api"
+      effort_units: 4
+      dependencies: ["schema-v1"]
+
+    - id: "verification-v1"
+      title: "Verifiable credentials integration"
+      description: "DID resolution and VC verification layer."
+      modules:
+        - "apps/api"
+        - "packages/core"
+      effort_units: 6
+      dependencies: ["schema-v1", "render-v1"]
+
+    - id: "agents-v1"
+      title: "Autonomous agent orchestration"
+      description: "Multi-agent system for automated code generation and maintenance."
+      modules:
+        - "apps/orchestrator"
+        - "packages/core"
+      effort_units: 8
+      dependencies: ["schema-v1"]
+
+  priorities:
+    - "Stabilize schema before complex UI"
+    - "Maximize test coverage for schema and narrative engine"
+    - "Keep infra minimal until core value is proven"
+    - "Build autonomous agents incrementally (start with one agent, expand)"
+
+constraints:
+  repo:
+    max_lines_per_file: 1200
+    max_function_length_loc: 200
+    max_cyclomatic_complexity: 10
+    max_cognitive_complexity: 15
+    notes: "Advisory limits; not enforced by tooling."
+
+  dependencies:
+    max_new_dependencies_per_pr: 1
+    require_issue_link_for_new_dependency: true
+    require_license_check: true
+    forbidden_licenses:
+      - "GPL"
+      - "AGPL"
+    notes: "Policy only; no automated enforcement yet."
+
+  modules:
+    forbidden_imports:
+      # Apps can't import from each other
+      - from: "apps/web"
+        to: "apps/api"
+      - from: "apps/api"
+        to: "apps/web"
+      # Packages shouldn't import from apps
+      - from: "packages/*"
+        to: "apps/*"
+      # Schema is foundational, can't import from higher layers
+      - from: "packages/schema"
+        to: "packages/content-model"
+      - from: "packages/schema"
+        to: "packages/core"
+
+evaluation:
+  correctness:
+    primary_sources:
+      - "schemas in packages/schema"
+      - "SPEC-*.md at repo root"
+      - "API contracts in apps/api/openapi.yaml"
+      - "API contracts in apps/orchestrator/openapi.yaml"
+
+    invariants:
+      - "All persisted data must validate against schema"
+      - "Narrative generation must not mutate input profile"
+      - "Mask filters must preserve identity invariants"
+      - "Temporal ordering must be consistent"
+
+  regression_detection:
+    mechanisms:
+      - "Vitest unit tests (apps/*/test, packages/*/test)"
+      - "Integration tests gated by INTEGRATION_* env vars"
+
+  reward_signals:
+    - "Increased test coverage in critical paths"
+    - "Reduced lint violations"
+    - "Reduced cyclomatic complexity in core modules"
+    - "Improved performance metrics (LCP, API latency)"
+    - "Reduced bundle size"
+
+automation_contract:
+  enforced: false
+  notes: "Documented policy for future automation; not enforced by tooling."
+  ai_access:
+    read_paths:
+      - "apps/*"
+      - "packages/*"
+      - "docs/*"
+      - "*.md"
+      - "package.json"
+      - "tsconfig.json"
+
+    write_paths:
+      - "packages/schema/src/**"
+      - "packages/content-model/src/**"
+      - "packages/core/src/**"
+      - "apps/web/src/**"
+      - "apps/api/src/**"
+      - "apps/orchestrator/src/**"
+      # Tests can be written by agents
+      - "packages/*/test/**"
+      - "apps/*/test/**"
+      # Documentation
+      - "docs/**/*.md"
+
+    disallowed_writes:
+      - ".github/workflows/**"     # CI/CD is human-managed initially
+      - "infra/**"                  # Infrastructure is sensitive
+      - "seed.yaml"                 # Maintainer-only changes
+      - "package.json"              # Dependency changes need approval
+      - ".env*"                     # Secrets
+
+  task_labels:
+    auto_managed_labels:
+      - "ai-task"                   # General AI-generated task
+      - "ai-refactor"               # Refactoring task
+      - "ai-test-gen"               # Test generation
+      - "ai-docs"                   # Documentation generation
+
+  merge_policy:
+    allow_auto_merge: false         # Phase 1–2: require human for final merge
+    require_human_review_from:
+      - "4jp"
+
+    auto_merge_criteria:
+      # Future: can enable auto-merge when these are met
+      - "All CI checks pass"
+      - "Code coverage doesn't decrease"
+      - "No new high-severity linting issues"
+      - "Changes are within allowed write paths"
+      - "PR size < 500 lines changed"
+
+agent_configuration:
+  architect:
+    role: "Strategic planner and task decomposer"
+    capabilities:
+      - "Break down epics into implementable tasks"
+      - "Maintain architectural coherence"
+      - "Update roadmap and dependency graphs"
+    constraints:
+      - "Cannot write code directly"
+      - "Must respect growth_objectives priorities"
+
+  implementer:
+    role: "Code writer and feature developer"
+    capabilities:
+      - "Implement features from task descriptions"
+      - "Write tests alongside implementation"
+      - "Follow coding_standards strictly"
+    constraints:
+      - "Cannot merge own PRs"
+      - "Must write tests for all new code"
+      - "Cannot exceed file size limits"
+
+  reviewer:
+    role: "Code quality enforcer"
+    capabilities:
+      - "Run static analysis and linters"
+      - "Verify coding standards compliance"
+      - "Comment on architectural concerns"
+    constraints:
+      - "Cannot modify code, only comment"
+      - "Must be objective and constructive"
+
+  tester:
+    role: "Test coverage improver"
+    capabilities:
+      - "Generate test cases from specs"
+      - "Identify edge cases"
+      - "Improve test coverage incrementally"
+    constraints:
+      - "Cannot modify production code"
+      - "Tests must be deterministic"
+
+  maintainer:
+    role: "Final approval and integration"
+    capabilities:
+      - "Approve or reject PRs based on all criteria"
+      - "Detect architectural drift"
+      - "Enforce quality gates"
+    constraints:
+      - "Cannot bypass quality gates"
+      - "Must document rejection reasons"
+
+metadata:
+  created: "2025-12-26"
+  version: "1.0.1"
+  schema_version: "1"
+  last_updated: "2025-12-28"
+  source: "Compiled from 33 ChatGPT conversations (WORK-005), aligned to current repo"
+
+  references:
+    - "META-001-project-bible.md"
+    - "WORK-005-autonomous-code-growth.md"
+    - "SPEC-001-data-schema.md"
+    - "ARCH-001-system-architecture.md"

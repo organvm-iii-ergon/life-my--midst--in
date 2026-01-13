@@ -1,404 +1,777 @@
-# in–midst–my-life
+# in–midst–my–life 🎭
 
-> **Interactive CV/Résumé System**: A blockchain-inspired, mask-based identity platform for dynamic professional narratives
+> **Theatrical Identity Operating System**: A blockchain-inspired CV system with mask-based professional identity, autonomous job search, and philosophical depth
 
-[![Status](https://img.shields.io/badge/status-design%20phase-blue)]()
-[![Documentation](https://img.shields.io/badge/docs-comprehensive-green)]()
-[![Energy Units](https://img.shields.io/badge/roadmap-37%20EU-orange)]()
-
----
-
-## 🎯 Vision
-
-Transform the static CV/résumé into a **living, queryable, multi-dimensional identity system** that:
-
-- **Functions like a blockchain**: CV as immutable ledger, résumé as derived state snapshot
-- **Uses identity masks**: Context-specific projections (Academic, Artistic, Technical, etc.)
-- **Enables temporal navigation**: Professional epochs from Initiation → Mastery → Legacy
-- **Provides verification**: W3C Verifiable Credentials and DID integration
-- **Grows autonomously**: Multi-agent system that writes and maintains its own code
+[![Implementation Status](https://img.shields.io/badge/implementation-90%25-blue)]()
+[![Commercialization Status](https://img.shields.io/badge/commercialization-0%25-orange)]()
+[![Unified Roadmap](https://img.shields.io/badge/roadmap-140%20EU-brightgreen)]()
+[![Architecture](https://img.shields.io/badge/architecture-hexagonal-purple)]()
 
 ---
 
-## 🚀 Quick Start
+## 🎯 The Idea (In 60 Seconds)
 
-### For Readers & Implementers
+Your professional identity isn't one-dimensional. You're:
+- **Analyst** in boardrooms (data-driven, metrics-focused)
+- **Artisan** in creative projects (process-obsessed, quality-sensitive)
+- **Architect** in systems thinking (patterns, abstraction)
+- **Narrator** explaining to executives (story-driven, impact-focused)
 
-**Start here** to understand the system:
+But your CV is **singular, static, context-blind**. It fails to capture multiplicity, temporal evolution, or identity invariants.
 
-1. **[MANIFEST.md](MANIFEST.md)** - Complete overview and file organization
-2. **[META-001-project-bible.md](META-001-project-bible.md)** - Consolidated design document
-3. **[CONSOLIDATED-SPECIFICATIONS.md](CONSOLIDATED-SPECIFICATIONS.md)** - Technical specifications
-4. **[seed.yaml](seed.yaml)** - Repository "genome" defining all constraints
+**in–midst–my–life** is an **identity operating system** that:
 
-### For Developers
+1. **Stores your CV as a blockchain ledger** - Immutable, append-only work history
+2. **Generates context-specific résumés as state snapshots** - Different masks for different stages
+3. **Enables temporal navigation** - Professional epochs from Initiation → Mastery → Legacy
+4. **Provides verification** - W3C Verifiable Credentials, DID integration, attestation blocks
+5. **Powers autonomous job search** - Hunter Protocol finds jobs, analyzes gaps, tailors résumés, writes cover letters
+6. **Respects identity invariants** - Core thesis, values, competencies remain consistent across all masks
+
+**The Philosophical Covenant**: This is NOT "just another resume builder." It's an identity architecture innovation bounded by non-negotiable principles.
+
+---
+
+## 🏗️ Architecture at a Glance
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    THEATRICAL METAPHOR                   │
+├─────────────────────────────────────────────────────────┤
+│ CV ≈ Blockchain Ledger    │ Résumé ≈ State Snapshot     │
+│ Masks ≈ Identity Filters  │ Epochs ≈ Life Stages        │
+│ Scaenae ≈ Stages          │ Tabula Personarum ≈ Registry │
+└─────────────────────────────────────────────────────────┘
+                           ↓
+┌──────────────────────────────────────────────────────────┐
+│                    FULL-STACK SYSTEM                      │
+├──────────────────────────────────────────────────────────┤
+│ 📱 Frontend (Next.js 15)    │ 🔌 API (Fastify)            │
+│   - Profile Dashboard       │   - Profile CRUD            │
+│   - Mask Editor             │   - Narrative Generation    │
+│   - Timeline Visualization  │   - Multi-format Export     │
+│   - Hunter Console          │   - Verification Layer      │
+├──────────────────────────────────────────────────────────┤
+│ 🤖 Orchestrator (Node.js)      │ 💾 Data Layer             │
+│   - 9 Agent Roles             │   - PostgreSQL (ledger)    │
+│   - Job Search Automation     │   - Redis (cache/queue)    │
+│   - GitHub Webhooks          │   - JSON-LD (semantic web) │
+│   - Task Queue Management    │   - DID/VC (verification)  │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Technology Stack**:
+- **Frontend**: Next.js 15, React, TypeScript, TailwindCSS, D3.js
+- **Backend**: Fastify, Node.js 22+, TypeScript
+- **Data**: PostgreSQL + Redis, JSON-LD, Zod schemas
+- **Infrastructure**: Docker Compose, Vercel, GitHub Actions
+- **Verification**: W3C DIDs, Verifiable Credentials
+
+---
+
+## 📊 Current Status
+
+| Component | Status | Coverage |
+|-----------|--------|----------|
+| **Theatrical Framework** | ✅ COMPLETE | 21 schemas (identity, masks, epochs, narratives, etc.) |
+| **Core Engine** | ✅ COMPLETE | Mask matching, narrative generation, verification |
+| **Full-Stack Implementation** | ✅ COMPLETE | API (50+ endpoints), Frontend (40+ components), Orchestrator (9 agents) |
+| **Advanced Features** | ✅ COMPLETE | Multi-agent orchestration, GitHub integration, caching, testing |
+| **Hunter Protocol** | 🟡 60% | Search provider partial, agent tools partial, integration partial |
+| **Theatrical UI Polish** | 🟡 70% | Components built, animations/polish incomplete |
+| **Monetization** | ❌ 0% | Stripe, feature gates, billing infrastructure needed |
+| **Deployment** | ❌ 0% | Vercel, Neon, Upstash, CI/CD infrastructure needed |
+| **Marketing & Portfolio** | ❌ 0% | Landing page, docs, demo, blog, case studies needed |
+
+**Overall Progress**: **90% Implementation** (theatrical vision) + **0% Commercialization** → **Target: 100%+ (all phases complete)**
+
+---
+
+## 🚀 Quick Start for Different Audiences
+
+### 👨‍💻 For Developers (Want to Code?)
 
 ```bash
 # 1. Clone and explore
-git clone <your-repo-url>
+git clone https://github.com/4jp/life-my--midst--in.git
 cd life-my--midst--in
 
-# 2. Review the documentation structure
-ls -1 {FOUND,SPEC,ARCH,PLAN,WORK,ORCH,META}-*.md
+# 2. Read the essentials first
+cat CLAUDE.md                          # AI guidance
+cat EXECUTION-SUMMARY.md               # Overview + Phase 0
+cat docs/PHASE-ROADMAP.md              # Full 140 EU roadmap
+cat docs/PARALLEL-EXECUTION-GUIDE.md   # How to work in parallel
 
-# 3. Read the essential documents
-cat MANIFEST.md                              # System overview
-cat CONSOLIDATED-SPECIFICATIONS.md           # Technical specs
-cat seed.yaml                                # Development constraints
+# 3. Install and run
+pnpm install
+scripts/dev-up.sh                      # Start PostgreSQL + Redis
+pnpm dev                               # Start all services (web:3000, api:3001, orchestrator:3002)
 
-# 4. When ready to implement, see:
-cat QUICKSTART.md                            # Step-by-step implementation guide
+# 4. Check the database and test endpoints
+scripts/dev-shell.sh                   # Open psql interactive shell
+curl http://localhost:3001/health      # Test API
+curl http://localhost:3001/taxonomy/masks # View all masks
+
+# 5. Explore the codebase
+ls -la apps/web/src/components/        # Frontend components
+ls -la apps/api/src/routes/            # API endpoints
+ls -la packages/schema/src/             # Data models
 ```
+
+### 🎯 For 3-5 AI Assistants (Working in Parallel)
+
+**You're reading this because you're about to work on Phase 0, 1, or 2.**
+
+1. **Read these first** (order matters):
+   - `EXECUTION-SUMMARY.md` ← Start here for context + Phase 0 priorities
+   - `docs/PHASE-ROADMAP.md` ← Full 140 EU unified roadmap with philosophy
+   - `docs/PARALLEL-EXECUTION-GUIDE.md` ← Your work streams and dependencies
+   - `CLAUDE.md` ← Development guidelines and patterns
+
+2. **Find your role**:
+   - **AI #1 (Backend/Core/DevOps)**: Streams 0A, 1A, 2A/B/C/D, etc. → See parallel guide
+   - **AI #2 (Frontend/Product)**: Streams 0B, 1D, 3A/C, etc. → See parallel guide
+   - **AI #3 (Schema/Content/Research)**: Streams 1B, 2C, 3B/D, etc. → See parallel guide
+
+3. **Understand dependencies**:
+   - Phase 0 must complete before others start (Week 1-2)
+   - Stripe (1A) must complete before Billing UI (1D)
+   - See `/docs/PARALLEL-EXECUTION-GUIDE.md` for full matrix
+
+4. **Start with Phase 0** (next 2 weeks):
+   - **0A - Hunter Protocol**: Implement search provider, wire agent tools
+   - **0B - Theatrical UI**: Build mask editor, scaenae filters, timeline
+
+5. **Daily standup**:
+   - Update progress in `/DAILY-STANDUP.md` (create this file daily)
+   - Flag blockers immediately
+   - Integration test after each phase
+
+### 📚 For Researchers/Philosophers (Want to Understand the Vision?)
+
+Read in this order:
+
+1. **FOUND-001-blockchain-cv-analogy.md** - Core metaphor
+2. **META-001-project-bible.md** - Comprehensive design vision
+3. **COVENANT.md** (or EVOLUTION-PLAN.md) - Philosophical boundaries
+4. **FOUND-004-identity-narrative-questions.md** - 8 foundational identity questions
+5. **docs/PHASE-ROADMAP.md** → Section "The Philosophical Foundation"
+
+These documents explain WHY the system is designed this way.
 
 ---
 
-## 🗄️ Database Migrations & Seeds
+## 🎭 The Theatrical Metaphor (Core Philosophy)
 
-- **Services**: Postgres + Redis via `docker-compose.yml` (`scripts/dev-up.sh` spins them up, `scripts/dev-shell.sh` opens psql/redis-cli).
-- **Environment**: set `DATABASE_URL`/`POSTGRES_URL` for API and `DATABASE_URL`/`ORCH_TASK_STORE=postgres` plus `REDIS_URL` for orchestrator. Keep dev/test names distinct (e.g., `midst_dev`, `midst_test`, `midst_integration`).
-- **Run migrations**: `pnpm --filter @in-midst-my-life/api migrate` and `pnpm --filter @in-midst-my-life/orchestrator migrate` (idempotent and safe to re-run).
-- **Seed data**: `pnpm --filter @in-midst-my-life/api seed` and `pnpm --filter @in-midst-my-life/orchestrator seed` populate demo rows. Seeds use `ON CONFLICT DO NOTHING` upserts, so repeated runs are safe across environments.
-- **Taxonomy storage**: masks/epochs/stages now live in Postgres (`masks`, `epochs`, `stages` tables) with seeds for SPEC-003 taxonomy; API routes under `/taxonomy/*`.
-- **Isolation**: point integration tests to `INTEGRATION_POSTGRES_URL`/`INTEGRATION_REDIS_URL` to avoid touching dev data; migrations respect whatever URL you provide.
-- **Full stack dev**: `docker-compose up api orchestrator web` brings up DB/Redis + services; the web dashboard (http://localhost:3000) includes timeline/graph/gallery views plus the Admin Studio. Override `NEXT_PUBLIC_API_BASE_URL`/`NEXT_PUBLIC_ORCH_BASE_URL` in `.env` if needed. Helm chart scaffold lives in `infra/helm` for k8s deploys.
-- **One-shot migrations in compose**: `docker-compose --profile init run --rm migrations` applies API + Orchestrator migrations/seeds before starting the rest of the stack.
+This is **non-negotiable**. Every implementation decision must honor this covenant.
 
-## 🔌 API & Orchestrator Endpoints
-- OpenAPI: `apps/api/openapi.yaml` (served at `/openapi.yaml` when API runs).
-- Health: `/health`, readiness: `/ready`, metrics: `/metrics` (Prometheus format) on both API (port 3001) and Orchestrator (port 3002). In prod, gate `/metrics` behind network/ingress auth or a scrape token; scrape with `Accept: text/plain; version=0.0.4`.
-- Taxonomy: `/taxonomy/masks|epochs|stages` with pagination/filters; profiles under `/profiles/*`; orchestrator tasks under `/tasks`, `/tasks/:id/history`, and GitHub webhook at `/webhooks/github`.
-- Narrative contracts: `POST /profiles/{id}/masks/select` accepts `{ contexts, tags, limit }`; `POST /profiles/{id}/narrative` accepts `{ maskId?, contexts, tags, timeline[] }` and returns weighted blocks (Identity Mode, Stage Context, Timeline Sequence, etc.).
-- Exports: `/profiles/{id}/export/jsonld`, `/profiles/{id}/export/vc`, `/profiles/{id}/export/pdf`.
-- Integration env flags: `INTEGRATION_POSTGRES_URL`, `INTEGRATION_REDIS_URL` gate live DB/queue tests; absent values skip suites.
-- Sample env: `.env.integration.example` contains URLs for Postgres/Redis integration runs.
+### Core Analogies
 
-### Metrics & Health Scraping
-- API/Orchestrator return `status: ok` JSON on `/health` and 200 on `/ready` when dependencies respond. Expect 503 on degraded repos/queues (see tests).
-- Metrics are Prometheus text; example scrape: `curl -s ${API_BASE}/metrics | grep api_requests_total`. Add ingress auth (basic/OIDC) or source IP allowlists before exposing.
-- Compose: `curl localhost:3001/metrics` and `localhost:3002/metrics`. Helm: point Prometheus ServiceMonitor at `port: 3001/3002`.
+| Concept | Blockchain | CV System | Meaning |
+|---------|-----------|-----------|---------|
+| **Ledger** | Complete transaction history | Curriculum Vitae (full work history) | Immutable, append-only source of truth |
+| **State Snapshot** | Merkle root at a block height | Résumé (context-filtered) | Derived view optimized for a moment/audience |
+| **Verification** | Cryptographic signatures | Verifiable Credentials (W3C) | Proof of claims without revealing all data |
+| **Identity** | Wallet address / DID | Professional identity | Unique, persistent, publicly verifiable |
+| **Authenticity** | Non-repudiation | Attestation blocks | Third-party verification of claims |
 
----
+### The 16 Functional Masks
 
-## 📚 Repository Structure
+Not personalities—**professional lenses** that filter the same underlying truth:
 
-This repository contains **32 organized design documents** from extensive ChatGPT conversations, plus comprehensive implementation artifacts.
+**Cognitive Masks** (How you think):
+- **Analyst** - Data-driven, metrics-focused, empirical
+- **Synthesist** - Pattern-finder, connector, systems-thinker
+- **Observer** - Reflective, metacognitive, quality-aware
+- **Strategist** - Forward-looking, goal-oriented, tactical
+- **Speculator** - Creative, hypothetical, exploratory
+- **Interpreter** - Meaning-maker, communicator, translator
 
-### File Organization
+**Expressive Masks** (How you express):
+- **Artisan** - Quality-obsessed, process-driven, detail-oriented
+- **Architect** - Design-focused, abstraction-oriented, structural
+- **Narrator** - Story-driven, context-aware, explanatory
+- **Provoker** - Provocative, challenging, opinion-driven
+- **Mediator** - Diplomatic, consensus-seeking, bridge-building
 
-```
-📁 life-my--midst--in/
-│
-├── 📄 README.md                              ← You are here
-├── 📄 MANIFEST.md                            ← Complete file catalog and dependency graph
-├── 📄 CONSOLIDATED-SPECIFICATIONS.md         ← All technical specs in one place
-├── 📄 seed.yaml                              ← Repository genome (constraints & rules)
-├── 📄 CLAUDE.md                              ← Guidance for Claude Code AI
-├── 📄 docs/SECURITY.md                       ← Security checklist for secrets, ingress, and env isolation
-├── 📄 FILE-REORGANIZATION-PLAN.md            ← How files were organized
-│
-├── 📁 FOUNDATIONAL CONCEPTS [FOUND-*]        5 files
-│   ├── FOUND-001-blockchain-cv-analogy.md    Core architectural metaphor
-│   ├── FOUND-002-blockchain-cv-vs-resume.md  CV vs résumé distinction
-│   ├── FOUND-003-meta-latin-etymology.md     Linguistic foundations
-│   ├── FOUND-004-identity-narrative-questions.md  8 foundational identity questions
-│   └── FOUND-005-prospecting-research-prompts.md  Deep research frameworks
-│
-├── 📁 CORE SPECIFICATIONS [SPEC-*]           4 files
-│   ├── SPEC-001-data-schema.md               Complete TypeScript schema
-│   ├── SPEC-002-system-design.md             System design specification
-│   ├── SPEC-003-mask-taxonomy.md             15+ identity masks defined
-│   └── SPEC-004-json-schemas.md              JSON Schema definitions
-│
-├── 📁 ARCHITECTURE & TECHNICAL [ARCH-*]      5 files
-│   ├── ARCH-001-system-architecture.md       Multi-layer system architecture
-│   ├── ARCH-002-repository-layout.md         Monorepo structure
-│   ├── ARCH-003-cicd-pipeline.md             GitHub Actions workflows
-│   ├── ARCH-004-monorepo-alternatives.md     Alternative structures
-│   └── ARCH-005-monorepo-generator.md        Executable Python scaffold script
-│
-├── 📁 PLANNING & ROADMAP [PLAN-*]            4 files
-│   ├── PLAN-001-product-roadmap.md           7 phases, 37 energy units
-│   ├── PLAN-002-effort-timeline.md           Energy-based timeline
-│   ├── PLAN-003-action-items.md              Immediate next steps
-│   └── PLAN-004-task-breakdown.md            Task decomposition
-│
-├── 📁 WORKFLOWS & AUTOMATION [WORK-*]        5 files
-│   ├── WORK-001-content-pipeline.md          Content workflows
-│   ├── WORK-002-automation-spec.md           Automation specifications
-│   ├── WORK-003-bpmn-diagrams.md             Process diagrams
-│   ├── WORK-004-orchestration-graphs.md      LangGraph + CrewAI specs
-│   └── WORK-005-autonomous-code-growth.md    🔥 Self-growing codebase system
-│
-├── 📁 INTEGRATION & ORCHESTRATION [ORCH-*]   5 files
-│   ├── ORCH-001-agent-meta-prompt.md         AI agent instructions
-│   ├── ORCH-002-execution-strategy.md        Implementation sequencing
-│   ├── ORCH-003-resource-allocation.md       Resource distribution
-│   ├── ORCH-004-template-system.md           Code generation templates
-│   └── ORCH-005-master-index.md              Cross-reference system
-│
-└── 📁 META-ORGANIZATION [META-*]             4 files
-    ├── META-001-project-bible.md             🔥 Complete consolidated design
-    ├── META-002-thread-enumeration.md        Thread tracking
-    ├── META-003-dependency-graph.md          Inter-document dependencies
-    └── META-004-vision-deck.md               Presentation materials
-```
+**Operational Masks** (How you execute):
+- **Executor** - Fast, decisive, action-oriented
+- **Steward** - Caring, responsible, ethical
+- **Integrator** - Holistic, connecting silos, coherent
+- **Custodian** - Protective, preserving, maintaining
+- **Calibrator** - Balancing, optimizing, fine-tuning
 
----
+**Each mask is real—not a lie, but a perspective on the same truth.**
 
-## 🧬 Core Concepts
+### Epochs (Temporal Arcs)
 
-### 1. Blockchain-as-CV Analogy
-
-The foundational architectural metaphor:
-
-| Blockchain | CV System |
-|------------|-----------|
-| **Complete ledger** | Curriculum Vitae (full history) |
-| **State snapshot** | Résumé (context-specific view) |
-| **Consensus & signatures** | Verifiable Credentials |
-| **DID / Wallet** | Professional identity |
-| **Immutability** | Append-only work history |
-| **Zero-knowledge proofs** | Selective disclosure |
-
-**Key Insight**: Store the CV as master ledger, generate many résumés as derived proof objects.
-
-### 2. Identity Mask System
-
-**15+ functional, non-branded masks** for context-specific presentation:
-
-**Cognitive Masks**:
-- Analyst, Synthesist, Observer, Strategist, Speculator, Interpreter
-
-**Expressive Masks**:
-- Artisan, Architect, Narrator, Provoker, Mediator
-
-**Operational Masks**:
-- Executor, Steward, Integrator, Custodian, Calibrator
-
-Each mask filters the same underlying data differently, preserving identity invariants while changing presentation.
-
-### 3. Temporal Epochs
-
-Professional life organized into **meaningful periods**:
+Professional identity evolves:
 
 ```
-Initiation → Expansion → Consolidation → Divergence →
+Initiation → Emergence → Consolidation → Divergence →
 Mastery → Reinvention → Transmission → Legacy
 ```
 
-Non-chronological, functional time-blocks that map identity evolution.
+Each epoch has:
+- **Time period** (actual dates)
+- **Identity evolution** (how you changed)
+- **Key milestones** (what you accomplished)
+- **Inflection points** (what changed you)
 
-### 4. Autonomous Development
+### Scaenae (Theatrical Stages)
 
-**Revolutionary approach**: Repository as living system with formal "genome" ([seed.yaml](seed.yaml))
+Different contexts demand different masks:
 
-**Multi-Agent Crew**:
+- **Academica** - Educational, research-driven
+- **Technica** - Technical, engineering-focused
+- **Artistica** - Creative, expressive
+- **Civica** - Public, civic engagement
+- **Domestica** - Personal, intimate
+- **Occulta** - Private, hidden (fully redacted)
+
+Each stage has visibility rules:
+- Which masks are visible?
+- Which projects are highlighted?
+- What tone/voice?
+
+### Tabula Personarum (Mask Registry)
+
+Complete catalog of your professional personas with:
+- **Descriptive name** (e.g., "The Problem Solver")
+- **Core traits** (what defines this mask?)
+- **Temporal range** (when is this mask active?)
+- **Visibility rules** (on what stages?)
+- **Sample claims** (what would this mask claim?)
+
+---
+
+## 📖 Repository Organization
+
 ```
-Architect → Implementer → Reviewer → Tester → Maintainer
+life-my--midst--in/
+│
+├── 📄 README.md                          ← You are here
+├── 📄 EXECUTION-SUMMARY.md               ← Quick reference (Phase 0, parallel work)
+├── 📄 CLAUDE.md                          ← AI guidance for development
+├── 📄 COVENANT.md (or EVOLUTION-PLAN)   ← Philosophical boundaries
+│
+├── 📁 docs/
+│   ├── PHASE-ROADMAP.md                  ← Complete 140 EU unified roadmap
+│   ├── PARALLEL-EXECUTION-GUIDE.md       ← How to work in parallel (14 streams)
+│   └── SECURITY.md                       ← Security checklist
+│
+├── 📁 Foundational Docs
+│   ├── FOUND-001-blockchain-cv-analogy.md
+│   ├── FOUND-002-blockchain-cv-vs-resume.md
+│   ├── FOUND-003-meta-latin-etymology.md
+│   ├── FOUND-004-identity-narrative-questions.md
+│   └── FOUND-005-prospecting-research-prompts.md
+│
+├── 📁 Planning & Execution
+│   ├── META-001-project-bible.md         ← Comprehensive design doc
+│   ├── META-002-thread-enumeration.md
+│   ├── META-003-dependency-graph.md
+│   ├── META-004-vision-deck.md
+│   ├── ORCH-001-agent-meta-prompt.md
+│   ├── ORCH-002-execution-strategy.md
+│   ├── ORCH-003-resource-allocation.md
+│   ├── ORCH-004-template-system.md
+│   ├── ORCH-005-master-index.md
+│   ├── WORK-001-content-pipeline.md
+│   ├── WORK-002-automation-spec.md
+│   ├── WORK-003-bpmn-diagrams.md
+│   ├── WORK-004-orchestration-graphs.md
+│   └── WORK-005-autonomous-code-growth.md
+│
+├── 📁 Implementation
+│   ├── apps/
+│   │   ├── web/              (Next.js 15 dashboard, 3000)
+│   │   ├── api/              (Fastify API, 3001)
+│   │   └── orchestrator/      (Node.js worker, 3002)
+│   ├── packages/
+│   │   ├── schema/           (Zod + TypeScript models)
+│   │   ├── core/             (Business logic, masks, verification)
+│   │   ├── content-model/    (Narrative generation, JSON-LD)
+│   │   └── design-system/    (Shared UI primitives)
+│   └── infra/
+│       ├── docker-compose.yml
+│       ├── Dockerfile
+│       └── helm/ (Kubernetes)
+│
+├── 📁 Configuration
+│   ├── pnpm-lock.yaml
+│   ├── turbo.json
+│   ├── tsconfig.json
+│   ├── vitest.config.ts
+│   ├── .eslintrc.cjs
+│   ├── .prettierrc
+│   └── seed.yaml
+│
+└── 📁 Development
+    ├── scripts/
+    │   ├── dev-up.sh         (Start Docker services)
+    │   ├── dev-shell.sh      (Open psql/redis shells)
+    │   └── ...
+    └── .env.integration.example
 ```
 
-- Agents generate code through GitHub Actions
-- Self-correcting through PR review process
-- Grows within defined constraints
-- Human-in-loop initially, progressively autonomous
+---
+
+## 🛠️ Development Setup
+
+### Prerequisites
+- Node.js 22+ and pnpm (monorepo package manager)
+- Docker + Docker Compose (for PostgreSQL + Redis)
+- TypeScript knowledge
+- Familiarity with Next.js, Fastify, and SQL
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/4jp/life-my--midst--in.git
+cd life-my--midst--in
+pnpm install
+```
+
+### 2. Start Services
+
+```bash
+# Terminal 1: Start PostgreSQL + Redis
+scripts/dev-up.sh
+
+# Terminal 2: Open database shells (optional)
+scripts/dev-shell.sh
+
+# Terminal 3: Run all dev servers
+pnpm dev
+# Output:
+#   web runs on http://localhost:3000
+#   api runs on http://localhost:3001
+#   orchestrator runs on http://localhost:3002
+```
+
+### 3. Test Everything
+
+```bash
+# Unit tests
+pnpm test
+
+# Watch mode
+pnpm test:watch
+
+# Integration tests (requires INTEGRATION_POSTGRES_URL set)
+INTEGRATION_POSTGRES_URL=postgresql://localhost/midst_test pnpm integration
+
+# Type checking
+pnpm typecheck
+
+# Linting
+pnpm lint
+```
+
+### 4. Seed Demo Data
+
+```bash
+pnpm --filter @in-midst-my-life/api seed
+pnpm --filter @in-midst-my-life/orchestrator seed
+```
+
+### 5. Explore the API
+
+```bash
+# Health check
+curl http://localhost:3001/health
+
+# View all masks
+curl http://localhost:3001/taxonomy/masks
+
+# View all epochs
+curl http://localhost:3001/taxonomy/epochs
+
+# View OpenAPI spec
+curl http://localhost:3001/openapi.yaml | jq .
+```
 
 ---
 
-## 🛠️ Technology Stack
+## 🎯 Working on Phase 0 (Next 2 Weeks)
 
-### Planned Implementation
+### Stream 0A: Hunter Protocol (AI #1 - Backend Specialist)
 
-**Frontend**:
-- Next.js 15 with React Server Components
-- TypeScript (strict mode)
-- TailwindCSS
+**Goal**: Autonomous job search automation
 
-**Backend**:
-- Node 22+ / TypeScript
-- Fastify for APIs
-- GraphQL (optional, later phase)
+**Files to create/modify**:
+- `packages/core/src/search/google-jobs.ts` - Serper API integration
+- `apps/orchestrator/src/agents/hunter.ts` - Agent with 4 tools
+- `apps/orchestrator/src/repositories/jobs.ts` - Job persistence
+- Integration tests
 
-**Data Layer**:
-- PostgreSQL (primary)
-- Neo4j or ArangoDB (graph DB for career relationships)
-- Pinecone or pgvector (semantic search)
-- Redis (caching)
-- Kafka/NATS (message queue)
+**Success Criteria**:
+- ✅ Search 20+ jobs by keyword + location
+- ✅ Analyze skill gaps from job description
+- ✅ Tailor résumé per mask
+- ✅ Generate markdown cover letter
 
-**Blockchain/Web3**:
-- W3C Verifiable Credentials
-- DID methods (did:ethr, did:web)
-- Optional: Ethereum for Soulbound Tokens
+### Stream 0B: Theatrical UI Polish (AI #2 - Frontend Specialist)
 
-**Infrastructure**:
-- Vercel (web hosting)
-- Fly.io or Railway (API hosting)
-- GitHub Actions (CI/CD)
-- Kubernetes (orchestration)
+**Goal**: Complete mask-based identity interface
 
-## 🔐 Security & Env Hygiene
-- Never commit secrets. Use `.env`/`.env.local` and keep `DATABASE_URL`, `REDIS_URL`, and any optional hosted-provider keys out of git; prefer `doppler`, `1password`, or platform secrets managers.
-- Default to open-source, free-usage APIs/models; add proprietary providers only if explicitly needed later.
-- Maintain per-env DBs (`midst_dev`, `midst_test`, `midst_integration`) and unique Redis namespaces/keys. Integration suites honor `INTEGRATION_*` URLs and skip when absent.
-- Migrations/seeds are idempotent; safe to re-run during deploy hooks (Helm/compose migration steps are documented in `infra/README.md`).
-- API/Orchestrator metrics and health endpoints are public in dev; restrict/behind auth in prod ingress.
+**Files to create/modify**:
+- `apps/web/src/components/TabulaPersonarum.tsx` - Mask registry editor
+- `apps/web/src/components/ScaenaeFilter.tsx` - Stage-based visibility
+- `apps/web/src/components/AetasTimeline.tsx` - Interactive D3 timeline
+- Theatrical animations and transitions
+
+**Success Criteria**:
+- ✅ Create new mask with all attributes
+- ✅ Edit mask properties
+- ✅ Toggle visibility per stage
+- ✅ View interactive life-stage timeline
+- ✅ Smooth mask transitions
+
+**Blocker for Other Phases?** No—Phase 0 runs independently.
 
 ---
 
-## 📈 Roadmap
+## 📋 API Contract Summary
 
-**Energy-Based Planning** (37 Energy Units total, no calendar time):
+### Health & Readiness
+```
+GET /health       → { status: "ok" }
+GET /ready        → 200 if all dependencies healthy
+GET /metrics      → Prometheus format metrics
+```
 
-| Phase | Focus | EU | Status |
-|-------|-------|---:|--------|
-| **0** | Foundation & Setup | - | 🟢 In Progress |
-| **1** | Foundational Architecture | 4 | ⚪ Planned |
-| **2** | Core Engine & Data | 6 | ⚪ Planned |
-| **3** | Interaction Layer | 5 | ⚪ Planned |
-| **4** | Authoring Studio | 7 | ⚪ Planned |
-| **5** | Presentation & Export | 4 | ⚪ Planned |
-| **6** | Intelligence & Autonomy | 8 | ⚪ Planned |
-| **7** | Deployment & Reliability | 3 | ⚪ Planned |
+### Taxonomy (Reference Data)
+```
+GET /taxonomy/masks?page=1&limit=20
+GET /taxonomy/epochs?page=1&limit=20
+GET /taxonomy/stages?page=1&limit=20
+```
 
-**Current Phase 0 Progress**:
-- ✅ All design documents created and organized
-- ✅ Complete specifications consolidated
-- ✅ Repository genome (seed.yaml) defined
-- ✅ File organization system implemented
-- 🔄 Implementation artifacts being extracted
-- ⏳ Monorepo scaffold generation next
+### Profile Management
+```
+GET /profiles/:id                           → Full profile
+POST /profiles/:id/masks/select             → Select context
+POST /profiles/:id/narrative                → Generate narrative
+GET /profiles/:id/export/jsonld             → Semantic export
+GET /profiles/:id/export/vc                 → Credential export
+GET /profiles/:id/export/pdf                → PDF résumé
+```
 
-See **[PLAN-001-product-roadmap.md](PLAN-001-product-roadmap.md)** for complete phase breakdown.
+### Hunter Protocol (Phase 0)
+```
+POST /hunter/find-jobs                      → Search job board
+POST /hunter/analyze-gap                    → Skill gap analysis
+POST /hunter/tailor-resume                  → Customize résumé
+POST /hunter/write-cover-letter             → Generate letter
+```
 
----
-
-## 🎓 Key Documents
-
-### Essential Reading (Start Here)
-
-1. **[MANIFEST.md](MANIFEST.md)** - Complete catalog and dependency graph
-2. **[META-001-project-bible.md](META-001-project-bible.md)** - Consolidated design document
-3. **[CONSOLIDATED-SPECIFICATIONS.md](CONSOLIDATED-SPECIFICATIONS.md)** - All technical specs
-4. **[FOUND-001-blockchain-cv-analogy.md](FOUND-001-blockchain-cv-analogy.md)** - Core concept
-5. **[WORK-005-autonomous-code-growth.md](WORK-005-autonomous-code-growth.md)** - Revolutionary development approach
-
-### Implementation References
-
-6. **[SPEC-001-data-schema.md](SPEC-001-data-schema.md)** - Complete data model
-7. **[ARCH-001-system-architecture.md](ARCH-001-system-architecture.md)** - System design
-8. **[ARCH-005-monorepo-generator.md](ARCH-005-monorepo-generator.md)** - Scaffold generator
-9. **[seed.yaml](seed.yaml)** - Repository constraints and rules
-10. **[CLAUDE.md](CLAUDE.md)** - Guidance for AI assistants
+### Orchestrator Tasks
+```
+GET /tasks                                  → List queued tasks
+GET /tasks/:id/history                      → Execution history
+POST /webhooks/github                       → GitHub event ingestion
+```
 
 ---
 
-## 🚧 Current Status: Design Phase Complete
+## 🔐 Environment Configuration
 
-### ✅ Completed
+### Development (.env.local)
+```
+DATABASE_URL=postgresql://user:pass@localhost:5432/midst_dev
+POSTGRES_URL=postgresql://user:pass@localhost:5432/midst_dev
+REDIS_URL=redis://localhost:6379
+NODE_ENV=development
+```
 
-- [x] 33 ChatGPT conversations exported and analyzed
-- [x] Complete conceptual framework established
-- [x] Comprehensive specifications written
-- [x] System architecture designed
-- [x] File organization system implemented
-- [x] Repository genome (seed.yaml) created
-- [x] All documentation consolidated
+### Integration Testing (.env.integration.example)
+```
+INTEGRATION_POSTGRES_URL=postgresql://localhost/midst_test
+INTEGRATION_REDIS_URL=redis://localhost/1
+```
 
-### 🔄 In Progress
+### Production (Managed by CI/CD)
+```
+See docs/SECURITY.md for secrets management best practices
+Use Vercel environment variables for Next.js
+Use GitHub Secrets for API keys (Stripe, Serper, etc.)
+```
 
-- [ ] Extracting executable code artifacts
-- [ ] Creating implementation quickstart guide
-- [ ] Preparing monorepo scaffold
+---
 
-### ⏳ Next Steps
+## 🧪 Testing Strategy
 
-1. Run monorepo generator script (ARCH-005)
-2. Set up initial TypeScript project structure
-3. Implement schema package (SPEC-001)
-4. Begin Phase 1 development (see PLAN-001)
+| Test Type | Tool | When | Where |
+|-----------|------|------|-------|
+| **Unit** | Vitest | Always | `src/**/*.test.ts` |
+| **Integration** | Vitest + DB | CI or explicit | `test/integration/` |
+| **E2E** | Playwright | Manual testing | `apps/web/__tests__/` |
+| **Accessibility** | jest-axe | Part of unit tests | `src/**/*.a11y.test.ts` |
+
+Run all tests:
+```bash
+pnpm test                  # Unit (all packages)
+pnpm test:watch           # Watch mode
+pnpm integration          # Integration (requires INTEGRATION_* env vars)
+CI=true pnpm test         # Full coverage report (CI mode)
+```
+
+---
+
+## 🎯 Phase Breakdown (140 EU, 16 Weeks)
+
+| Phase | Weeks | EU | Focus | Status |
+|-------|-------|-----|--------|--------|
+| **0: Philosophical** | 1-2 | 12 | Hunter Protocol + Theatrical UI | ⏭️ **NEXT** |
+| **1: Monetization** | 2-4 | 21 | Stripe, billing, feature gates | 📋 Ready |
+| **2: Deployment** | 3-6 | 18 | Vercel, Neon, Upstash, CI/CD | 📋 Ready |
+| **3: Portfolio** | 5-8 | 30 | Landing page, docs, demo, blog | 📋 Ready |
+| **4: Stabilization** | 7-11 | 28 | UX polish, PDF, GraphQL, analytics | 📋 Ready |
+| **5: Community** | 9-13 | 16 | Content, beta, GitHub, Discord | 📋 Ready |
+| **6: Launch** | 12-16 | 15 | Product Hunt, HN, iteration | 📋 Ready |
+
+**See `/docs/PHASE-ROADMAP.md` for complete breakdown.**
+
+---
+
+## 💡 Key Design Patterns
+
+### Schema-First
+All data models defined in `packages/schema/` using Zod:
+```typescript
+// Example: packages/schema/src/mask.ts
+export const MaskSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  description: z.string(),
+  traits: z.array(z.string()),
+  visibleOn: z.array(z.enum(['Academica', 'Technica', 'Artistica', ...])),
+  // ... more fields
+});
+```
+
+### Hexagonal Architecture
+```
+┌─ routes (thin orchestration layer)
+│  ↓
+├─ services (pure business logic)
+│  ↓
+├─ repositories (data access abstraction)
+│  ↓
+└─ db (actual Postgres/Redis calls)
+```
+
+### Mask Matching
+```typescript
+// core/maskMatching.ts
+function rankMasks(
+  context: { tags: string[], audience: string },
+  availableMasks: Mask[]
+): Mask[] {
+  // Rank masks by relevance to context
+  // Preserve identity invariants
+  // Filter by visibility rules
+}
+```
+
+### Narrative Generation
+```typescript
+// content-model/narrative.ts
+function generateNarrative(
+  profile: Profile,
+  selectedMask: Mask,
+  context: { timeline, epochs, scaenae }
+): NarrativeBlock[] {
+  // Filter profile data by mask
+  // Weight blocks by epoch relevance
+  // Apply stage-based visibility rules
+  // Return narrative blocks for presentation
+}
+```
+
+---
+
+## 🚢 Deployment Targets
+
+### Development
+- **Frontend**: `pnpm dev` (Next.js dev server)
+- **API**: `pnpm --filter api dev` (Fastify dev server)
+- **Orchestrator**: `pnpm --filter orchestrator dev` (Node.js dev server)
+- **Database**: Docker Compose (PostgreSQL + Redis)
+
+### Staging / Production (Phase 2+)
+- **Frontend**: Vercel (Next.js deployment)
+- **API**: Railway or Fly.io (Fastify)
+- **Database**: Neon (Postgres) + Upstash (Redis)
+- **CI/CD**: GitHub Actions
+
+**See `docs/SECURITY.md` and `infra/README.md` for detailed deployment guides.**
 
 ---
 
 ## 🤝 Contributing
 
-This project is currently in the **design and architecture phase**.
+### Code Standards
+- **TypeScript** - Strict mode, no `any` types
+- **Testing** - 75%+ coverage minimum
+- **Formatting** - Prettier (auto-format)
+- **Linting** - ESLint with TypeScript rules
+- **File size** - Max 1200 LOC per file, max 200 LOC per function
 
-Implementation will follow the autonomous development model described in [WORK-005](WORK-005-autonomous-code-growth.md), where:
+**See `seed.yaml` for complete constraints.**
 
-1. **Human** defines the task or epic
-2. **Architect Agent** breaks it down
-3. **Implementer Agent** writes code
-4. **Reviewer Agent** provides feedback
-5. **Tester Agent** improves coverage
-6. **Maintainer Agent** approves for merge
-7. **Human** provides final approval (initially)
+### Review Process
+1. Create feature branch: `git checkout -b feature/your-feature`
+2. Make changes and test locally
+3. Create pull request with clear description
+4. Address review feedback
+5. Merge when approved
 
-All development must follow constraints in [seed.yaml](seed.yaml).
-
----
-
-## 📖 Eight Foundational Identity Questions
-
-Every implementation decision must address these invariants (from FOUND-004):
-
-1. **What is the core identity/thesis that remains invariant?**
-2. **Which claims require external verification?**
-3. **What temporal arcs define identity evolution?**
-4. **Which contradictions exist and how are they treated?**
-5. **What non-obvious intellectual lineages should be included?**
-6. **What strategic differentiators are overlooked?**
-7. **Which identity components must be modular/mask-based?**
-8. **What would skeptics challenge, and what evidence counters them?**
+### AI Assistant Workflow
+If you're an AI assistant working on a phase:
+1. Read `EXECUTION-SUMMARY.md` and your assigned stream in `PARALLEL-EXECUTION-GUIDE.md`
+2. Understand the blocked/blocking relationships
+3. Create daily standup in `/DAILY-STANDUP.md`
+4. Flag blockers immediately
+5. Run full test suite before committing
+6. Create PR for integration testing
 
 ---
 
-## 🔗 Related Resources
+## 📚 Essential Reading List
 
-### Internal References
-- [File Reorganization Plan](FILE-REORGANIZATION-PLAN.md)
-- [Consolidated Specifications](CONSOLIDATED-SPECIFICATIONS.md)
-- [Repository Genome](seed.yaml)
+**Start with these** (in order):
+1. **EXECUTION-SUMMARY.md** - Overview + Phase 0
+2. **docs/PHASE-ROADMAP.md** - Full roadmap with philosophy
+3. **docs/PARALLEL-EXECUTION-GUIDE.md** - How to work in parallel
+4. **CLAUDE.md** - Development guidelines
 
-### External Standards
+**Then explore**:
+5. **META-001-project-bible.md** - Comprehensive design vision
+6. **FOUND-001-blockchain-cv-analogy.md** - Core metaphor
+7. **FOUND-004-identity-narrative-questions.md** - Foundational questions
+8. **seed.yaml** - Development constraints
+
+**Reference while coding**:
+9. **packages/schema/** - Data models
+10. **apps/api/openapi.yaml** - API contract
+11. **CLAUDE.md** - Architecture patterns
+
+---
+
+## 🆘 Troubleshooting
+
+### Services won't start
+```bash
+# Make sure Docker is running
+docker ps
+
+# Check logs
+docker logs <container-id>
+
+# Rebuild everything
+docker-compose down -v
+docker-compose up
+```
+
+### Database connection errors
+```bash
+# Verify connection string
+echo $DATABASE_URL
+
+# Test connection
+psql $DATABASE_URL -c "SELECT 1"
+
+# Check if migrations ran
+psql $DATABASE_URL -c "\dt schema_migrations"
+```
+
+### Tests failing
+```bash
+# Run tests with verbose output
+pnpm test -- --reporter=verbose
+
+# Run specific test file
+pnpm --filter @in-midst-my-life/api test -- src/services/maskMatching.test.ts
+
+# Check coverage
+CI=true pnpm test
+```
+
+### Git issues
+```bash
+# See what's untracked
+git status
+
+# See what's staged
+git diff --cached
+
+# Reset to clean state
+git reset --hard origin/main
+```
+
+---
+
+## 🔗 Links & Resources
+
+**Internal**:
+- [EXECUTION-SUMMARY.md](EXECUTION-SUMMARY.md) - Quick reference
+- [CLAUDE.md](CLAUDE.md) - AI development guidance
+- [docs/SECURITY.md](docs/SECURITY.md) - Security checklist
+- [docs/PHASE-ROADMAP.md](docs/PHASE-ROADMAP.md) - Complete roadmap
+- [docs/PARALLEL-EXECUTION-GUIDE.md](docs/PARALLEL-EXECUTION-GUIDE.md) - Parallel work streams
+
+**External Standards**:
 - [W3C Verifiable Credentials](https://www.w3.org/TR/vc-data-model/)
-- [W3C Decentralized Identifiers](https://www.w3.org/TR/did-core/)
+- [W3C DIDs](https://www.w3.org/TR/did-core/)
 - [Schema.org Person](https://schema.org/Person)
-- [Next.js 15 Documentation](https://nextjs.org/docs)
+- [Next.js 15 Docs](https://nextjs.org/docs)
+- [Fastify Guide](https://www.fastify.io/)
+
+---
+
+## 📊 Metrics & Success
+
+### Phase 0 Success (Weeks 1-2)
+- ✅ Hunter Protocol finds 20+ jobs, tailors résumés, writes cover letters
+- ✅ Theatrical UI allows mask creation/editing with full attributes
+- ✅ Scaenae filtering works (masks show/hide per stage)
+- ✅ Aetas timeline is interactive and shows life-stage progression
+
+### Overall Success (Month 4)
+- ✅ 500+ signups attracted to philosophical depth
+- ✅ 50+ paying customers ($950+ MRR from Artisan + Dramatist tiers)
+- ✅ Full-stack system deployed to Vercel + Neon
+- ✅ Thought leadership positioning (speaking invites, media mentions)
+- ✅ 3+ client/consulting inquiries
 
 ---
 
 ## 📝 License
 
-*To be determined during implementation phase*
+To be determined during Phase 3 (portfolio phase).
 
 ---
 
-## 💡 Acknowledgments
+## 💬 Questions?
 
-This system design was developed through 33 extensive conversations exploring:
-- Identity architecture and narrative systems
-- Blockchain-inspired data structures
-- Multi-agent autonomous development
-- Temporal and contextual professional identity
-- Verifiable credential integration
-
-All conversations have been preserved, organized, and consolidated in this repository.
-
----
-
-## 📞 Contact
-
-**Project Owner**: 4jp
-**Status**: Design Phase → Implementation Preparation
-**Last Updated**: 2025-12-26
+If you're:
+- **A developer**: Check [CLAUDE.md](CLAUDE.md) and [docs/PHASE-ROADMAP.md](docs/PHASE-ROADMAP.md)
+- **An AI assistant**: Check [EXECUTION-SUMMARY.md](EXECUTION-SUMMARY.md) and [docs/PARALLEL-EXECUTION-GUIDE.md](docs/PARALLEL-EXECUTION-GUIDE.md)
+- **Philosophically curious**: Read [FOUND-001-blockchain-cv-analogy.md](FOUND-001-blockchain-cv-analogy.md) and [META-001-project-bible.md](META-001-project-bible.md)
 
 ---
 
 <div align="center">
 
-**in–midst–my-life**
-*Transforming professional identity from static document to living system*
+## **in–midst–my–life** 🎭
 
-[View Manifest](MANIFEST.md) • [Read Specs](CONSOLIDATED-SPECIFICATIONS.md) • [See Roadmap](PLAN-001-product-roadmap.md)
+*Transforming professional identity from static document to living, theatrical system*
+
+[Phase Roadmap](docs/PHASE-ROADMAP.md) • [Execution Guide](docs/PARALLEL-EXECUTION-GUIDE.md) • [Project Bible](META-001-project-bible.md) • [Security](docs/SECURITY.md)
+
+**Status**: 90% Implementation ✅ + 0% Commercialization → Ready for Phase 0 Launch 🚀
 
 </div>

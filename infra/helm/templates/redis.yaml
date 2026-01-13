@@ -1,0 +1,33 @@
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "inmidst.name" . }}-redis
+spec:
+  ports:
+    - port: {{ .Values.redis.port }}
+      targetPort: {{ .Values.redis.port }}
+  selector:
+    app: {{ include "inmidst.name" . }}-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "inmidst.name" . }}-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "inmidst.name" . }}-redis
+  template:
+    metadata:
+      labels:
+        app: {{ include "inmidst.name" . }}-redis
+    spec:
+      containers:
+        - name: redis
+          image: {{ .Values.redis.image }}
+          ports:
+            - containerPort: {{ .Values.redis.port }}
+          args: ["redis-server", "--appendonly", "yes"]
+{{- end }}

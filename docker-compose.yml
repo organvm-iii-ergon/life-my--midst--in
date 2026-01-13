@@ -1,0 +1,128 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: inmidst-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-midstsvc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD via 1Password}
+      POSTGRES_DB: ${POSTGRES_DB:-midst}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: inmidst-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: node:22-alpine
+    container_name: inmidst-api
+    working_dir: /app
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @in-midst-my-life/api dev"
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}}
+      POSTGRES_URL: ${POSTGRES_URL:-postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}}
+      PROFILE_REPO: postgres
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+
+  orchestrator:
+    image: node:22-alpine
+    container_name: inmidst-orchestrator
+    working_dir: /app
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @in-midst-my-life/orchestrator dev"
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}}
+      POSTGRES_URL: ${POSTGRES_URL:-postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}}
+      ORCH_TASK_STORE: postgres
+      ORCH_PORT: 3002
+      ORCH_LLM_RESPONSE_FORMAT: ${ORCH_LLM_RESPONSE_FORMAT:-text}
+      ORCH_TOOL_ALLOWLIST: ${ORCH_TOOL_ALLOWLIST:-}
+      ORCH_AGENT_EXECUTOR: ${ORCH_AGENT_EXECUTOR:-local}
+      LOCAL_LLM_API: ${LOCAL_LLM_API:-ollama}
+      LOCAL_LLM_URL: ${LOCAL_LLM_URL:-http://host.docker.internal:11434}
+      LOCAL_LLM_ALLOWED_HOSTS: ${LOCAL_LLM_ALLOWED_HOSTS:-host.docker.internal}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-llama3.1:8b}
+      ORCH_WORKER_ENABLED: ${ORCH_WORKER_ENABLED:-true}
+      ORCH_SCHEDULER_ENABLED: ${ORCH_SCHEDULER_ENABLED:-true}
+      TASK_QUEUE: ${TASK_QUEUE:-redis}
+      REDIS_URL: ${ORCH_REDIS_URL:-redis://redis:6379}
+      NODE_ENV: development
+      CI: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+
+  web:
+    image: node:22-alpine
+    container_name: inmidst-web
+    working_dir: /app
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @in-midst-my-life/web exec next dev --hostname 0.0.0.0 --port 3000"
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3001
+      NEXT_PUBLIC_ORCH_BASE_URL: http://localhost:3002
+      NODE_ENV: development
+    depends_on:
+      - api
+      - orchestrator
+    volumes:
+      - ./:/app
+
+  migrations:
+    image: node:22-alpine
+    container_name: inmidst-migrations
+    working_dir: /app
+    command: >
+      sh -c "corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter @in-midst-my-life/api migrate &&
+      pnpm --filter @in-midst-my-life/api seed &&
+      pnpm --filter @in-midst-my-life/orchestrator migrate &&
+      pnpm --filter @in-midst-my-life/orchestrator seed"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}}
+      POSTGRES_URL: ${POSTGRES_URL:-postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}}
+      ORCH_TASK_STORE: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - init
+
+volumes:
+  pgdata:
+  redisdata:

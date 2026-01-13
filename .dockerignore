@@ -1,0 +1,9 @@
+node_modules
+.DS_Store
+.git
+.turbo
+.next
+dist
+build
+coverage
+*.log

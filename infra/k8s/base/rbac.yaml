@@ -1,0 +1,172 @@
+---
+# API Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api
+  namespace: in-midst-my-life
+  labels:
+    app: api
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: api
+  namespace: in-midst-my-life
+rules:
+  # Allow reading config maps
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  # Allow reading secrets
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  # Allow reading service information
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: api
+  namespace: in-midst-my-life
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: api
+subjects:
+  - kind: ServiceAccount
+    name: api
+    namespace: in-midst-my-life
+
+---
+# Web Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: web
+  namespace: in-midst-my-life
+  labels:
+    app: web
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: web
+  namespace: in-midst-my-life
+rules:
+  # Allow reading config maps
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  # Allow reading service information
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: web
+  namespace: in-midst-my-life
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: web
+subjects:
+  - kind: ServiceAccount
+    name: web
+    namespace: in-midst-my-life
+
+---
+# Orchestrator Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: orchestrator
+  namespace: in-midst-my-life
+  labels:
+    app: orchestrator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: orchestrator
+  namespace: in-midst-my-life
+rules:
+  # Allow reading config maps
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  # Allow reading secrets
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  # Allow reading service information
+  - apiGroups: [""]
+    resources: ["services", "endpoints", "pods"]
+    verbs: ["get", "list", "watch"]
+  # Allow managing jobs (if using Kubernetes jobs for task distribution)
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "create", "update", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: orchestrator
+  namespace: in-midst-my-life
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: orchestrator
+subjects:
+  - kind: ServiceAccount
+    name: orchestrator
+    namespace: in-midst-my-life
+
+---
+# Monitoring Service Account (if using Prometheus)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: in-midst-my-life
+  labels:
+    app: prometheus
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-monitoring
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-monitoring
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: in-midst-my-life

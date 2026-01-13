@@ -1,0 +1,39 @@
+{
+  "name": "@in-midst-my-life/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@in-midst-my-life/content-model": "workspace:*",
+    "@in-midst-my-life/core": "workspace:*",
+    "@in-midst-my-life/schema": "workspace:*",
+    "d3-force": "^3.0.0",
+    "jose": "^6.1.3",
+    "mermaid": "^11.12.2",
+    "next": "15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@types/d3-force": "^3.0.10",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.2",
+    "jsdom": "^27.4.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.6.1"
+  }
+}

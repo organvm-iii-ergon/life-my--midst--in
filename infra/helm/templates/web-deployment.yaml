@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "inmidst.webName" . }}
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "inmidst.webName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "inmidst.webName" . }}
+    spec:
+      containers:
+        - name: web
+          image: "{{ .Values.image.repository }}-web:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range $key, $value := .Values.web.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
+          ports:
+            - containerPort: {{ .Values.web.service.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "inmidst.webName" . }}
+spec:
+  selector:
+    app: {{ include "inmidst.webName" . }}
+  ports:
+    - name: http
+      port: {{ .Values.web.service.port }}
+      targetPort: {{ .Values.web.service.port }}
