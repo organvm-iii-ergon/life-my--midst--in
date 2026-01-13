@@ -1,440 +1,367 @@
 'use client';
 
-import { useState } from 'react';
-import type { Aetas } from '@in-midst-my-life/schema';
+/**
+ * Aetas Timeline Component
+ * 
+ * Interactive D3.js Timeline Visualization of Professional Epochs
+ * Part of the theatrical metaphor: "Aetas" = ages/seasons of life
+ * 
+ * Shows temporal progression through career stages:
+ * - Initiation → Emergence → Consolidation → Divergence
+ * - Mastery → Reinvention → Transmission → Legacy
+ * 
+ * Features:
+ * - Drag-to-explore timeline
+ * - Click to focus on specific epoch
+ * - Show key milestones and inflection points
+ * - Visualize mask activity across epochs
+ * - Animated transitions between views
+ */
 
-interface AetasTimelineProps {
-  canonicalAetas: Aetas[];
-  profileAetas?: Aetas[];
-  currentAetasId?: string;
-  onSelectAetas?: (aetasId: string) => void;
-  loading?: boolean;
-  editMode?: boolean;
+import { useEffect, useRef, useState } from 'react';
+
+export interface Epoch {
+  id: string;
+  name: string;
+  description: string;
+  startDate: Date;
+  endDate?: Date;
+  milestones: string[];
+  inflectionPoints: string[];
+  activeMasks?: string[];
+  color?: string;
+}
+
+export interface AetasTimelineProps {
+  epochs: Epoch[];
+  selectedEpoch?: string;
+  onEpochSelected?: (epochId: string) => void;
+  height?: number;
+  animated?: boolean;
 }
 
 /**
- * Aetas (life-stage) timeline visualization.
- * 
- * Displays:
- * - Canonical 8-stage theatrical arc (Initiation → Stewardship)
- * - Profile's current progression through aetas
- * - Capability profiles at each stage
- * - Typical markers and transitions
- * - Optional edit controls
+ * Main component with D3 visualization
  */
 export function AetasTimeline({
-  canonicalAetas,
-  profileAetas = [],
-  currentAetasId,
-  onSelectAetas,
-  loading = false,
-  editMode = false,
+  epochs,
+  selectedEpoch,
+  onEpochSelected,
+  height = 400,
+  animated = true,
 }: AetasTimelineProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [hoveredEpoch, setHoveredEpoch] = useState<string | null>(null);
 
-  if (loading) {
+  // TODO: Implement D3.js visualization
+  // Steps:
+  // 1. Create SVG container
+  // 2. Calculate timeline scale (min/max dates)
+  // 3. Render epoch blocks with:
+  //    - Start/end dates
+  //    - Color-coded by epoch type
+  //    - Hover tooltips showing milestones
+  //    - Click to select
+  // 4. Render inflection points as markers
+  // 5. Render mask activity indicators
+  // 6. Add animations on transition
+  // 7. Make responsive to container width
+
+  if (epochs.length === 0) {
     return (
-      <div className="section">
-        <h2 className="section-title">Life-Stage Progression (Aetas)</h2>
-        <p className="section-subtitle">Loading aetas timeline...</p>
+      <div className="aetas-timeline-empty">
+        <style jsx>{`
+          .aetas-timeline-empty {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: rgba(156, 163, 175, 0.7);
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.5) 0%, rgba(31, 41, 55, 0.3) 100%);
+            border-radius: 12px;
+            border: 1px dashed rgba(107, 114, 128, 0.3);
+          }
+
+          .empty-message {
+            margin: 0;
+            font-size: 1rem;
+          }
+        `}</style>
+        <p className="empty-message">
+          No epochs yet. Start adding life stages to visualize your professional journey.
+        </p>
       </div>
     );
   }
 
-  // Build a set of profile's aetas IDs for quick lookup
-  const profileAetasIds = new Set(profileAetas.map((a) => a.id));
-
-  // Sort canonical aetas by order
-  const sortedAetas = [...canonicalAetas].sort((a, b) => a.order - b.order);
-
-  const emojiMap: Record<number, string> = {
-    1: '🌱',
-    2: '🌿',
-    3: '🌳',
-    4: '🚀',
-    5: '👑',
-    6: '🔮',
-    7: '📖',
-    8: '🛡️',
-  };
-
   return (
-    <div className="section">
-      <h2 className="section-title">Aetas: Theatrical Life Stages</h2>
-      <p className="section-subtitle">
-        The eight archetypal stages of human capability development. Track your progression
-        through each stage.
-      </p>
+    <div className="aetas-timeline-container" ref={containerRef}>
+      <style jsx>{`
+        .aetas-timeline-container {
+          padding: 1.5rem;
+          background: linear-gradient(135deg, rgba(17, 24, 39, 0.5) 0%, rgba(31, 41, 55, 0.3) 100%);
+          border-radius: 12px;
+          border: 1px solid rgba(107, 114, 128, 0.2);
+        }
 
-      {/* Timeline visualization */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '0.5rem',
-          marginBottom: '2rem',
-          overflowX: 'auto',
-          padding: '1rem 0',
-        }}
-      >
-        {sortedAetas.map((aetas, index) => {
-          const isProfileAetas = profileAetasIds.has(aetas.id);
-          const isCurrent = currentAetasId === aetas.id;
+        .timeline-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: rgba(229, 231, 235, 0.9);
+          margin: 0 0 1.5rem 0;
+        }
+
+        .timeline-svg {
+          width: 100%;
+          height: auto;
+          overflow: visible;
+        }
+
+        .epoch-block {
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .epoch-block:hover {
+          opacity: 1;
+          filter: brightness(1.2);
+        }
+
+        .epoch-block.active {
+          stroke: rgba(59, 130, 246, 0.8);
+          stroke-width: 3;
+          filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+        }
+
+        .epoch-label {
+          font-size: 0.85rem;
+          font-weight: 500;
+          fill: rgba(229, 231, 235, 0.9);
+          pointer-events: none;
+        }
+
+        .epoch-date {
+          font-size: 0.75rem;
+          fill: rgba(156, 163, 175, 0.7);
+          pointer-events: none;
+        }
+
+        .milestone-marker {
+          fill: rgba(34, 197, 94, 0.6);
+          stroke: rgba(34, 197, 94, 0.8);
+        }
+
+        .inflection-marker {
+          fill: rgba(239, 68, 68, 0.6);
+          stroke: rgba(239, 68, 68, 0.8);
+        }
+
+        .mask-indicator {
+          fill: rgba(147, 197, 253, 0.5);
+          stroke: rgba(59, 130, 246, 0.7);
+          font-size: 0.7rem;
+        }
+
+        .timeline-legend {
+          display: flex;
+          gap: 1.5rem;
+          margin-top: 1.5rem;
+          padding-top: 1rem;
+          border-top: 1px solid rgba(107, 114, 128, 0.2);
+          flex-wrap: wrap;
+        }
+
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.85rem;
+          color: rgba(156, 163, 175, 0.8);
+        }
+
+        .legend-marker {
+          width: 12px;
+          height: 12px;
+          border-radius: 2px;
+        }
+
+        .detail-panel {
+          margin-top: 1.5rem;
+          padding: 1rem;
+          background: rgba(75, 85, 99, 0.4);
+          border-radius: 8px;
+          border-left: 3px solid rgba(59, 130, 246, 0.5);
+        }
+
+        .detail-title {
+          font-weight: 600;
+          color: rgba(229, 231, 235, 0.9);
+          margin: 0 0 0.75rem 0;
+        }
+
+        .detail-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .detail-list li {
+          padding: 0.5rem 0;
+          color: rgba(156, 163, 175, 0.8);
+          font-size: 0.9rem;
+          border-bottom: 1px solid rgba(107, 114, 128, 0.1);
+        }
+
+        .detail-list li:last-child {
+          border-bottom: none;
+        }
+      `}</style>
+
+      <h2 className="timeline-title">📅 Professional Epochs (Aetas)</h2>
+
+      {/* Placeholder SVG - TODO: Replace with D3 visualization */}
+      <svg className="timeline-svg" height={height} viewBox={`0 0 ${epochs.length * 150} ${height}`}>
+        {/* Background grid */}
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(107, 114, 128, 0.1)" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        {/* Epoch blocks - simplified placeholder rendering */}
+        {epochs.map((epoch, index) => {
+          const x = index * 150 + 20;
+          const y = height / 2 - 30;
+          const isSelected = selectedEpoch === epoch.id;
+          const color = epoch.color || `hsl(${index * 45}, 70%, 55%)`;
 
           return (
-            <div
-              key={aetas.id}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.5rem',
-                minWidth: '80px',
-              }}
+            <g
+              key={epoch.id}
+              className={`epoch-block ${isSelected ? 'active' : ''}`}
+              onClick={() => onEpochSelected?.(epoch.id)}
+              onMouseEnter={() => setHoveredEpoch(epoch.id)}
+              onMouseLeave={() => setHoveredEpoch(null)}
             >
-              {/* Circle badge */}
-              <div
-                onClick={() => {
-                  onSelectAetas?.(aetas.id);
-                  setExpandedId(isCurrent ? null : aetas.id);
-                }}
-                style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  background: isCurrent
-                    ? 'var(--accent)'
-                    : isProfileAetas
-                      ? 'rgba(76, 175, 80, 0.2)'
-                      : 'rgba(29, 26, 22, 0.05)',
-                  border: isCurrent
-                    ? '3px solid var(--accent)'
-                    : isProfileAetas
-                      ? '2px solid #4CAF50'
-                      : '1px solid rgba(29, 26, 22, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.8rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {emojiMap[aetas.order] || '◯'}
-              </div>
+              {/* Epoch rectangle */}
+              <rect
+                x={x}
+                y={y}
+                width="120"
+                height="60"
+                fill={color}
+                opacity="0.6"
+                rx="4"
+                stroke={isSelected ? 'rgba(59, 130, 246, 0.8)' : 'rgba(107, 114, 128, 0.4)'}
+                strokeWidth={isSelected ? 3 : 1}
+              />
 
-              {/* Order number */}
-              <div
-                style={{
-                  fontSize: '0.75rem',
-                  color: 'var(--stone)',
-                  fontWeight: '600',
-                }}
-              >
-                {aetas.order}
-              </div>
+              {/* Epoch label */}
+              <text x={x + 60} y={y + 25} textAnchor="middle" className="epoch-label">
+                {epoch.name}
+              </text>
 
-              {/* Abbreviated name */}
-              <div
-                style={{
-                  fontSize: '0.7rem',
-                  textAlign: 'center',
-                  maxWidth: '70px',
-                  color: isCurrent ? 'var(--accent)' : 'var(--dark)',
-                  fontWeight: isCurrent ? '600' : '400',
-                }}
-              >
-                {aetas.name.substring(0, 5)}
-              </div>
+              {/* Date range */}
+              <text x={x + 60} y={y + 45} textAnchor="middle" className="epoch-date">
+                {epoch.startDate.getFullYear()}
+                {epoch.endDate && ` - ${epoch.endDate.getFullYear()}`}
+              </text>
 
-              {/* Connection line to next (not for last) */}
-              {index < sortedAetas.length - 1 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '35px',
-                    width: '40px',
-                    height: '2px',
-                    background: isProfileAetas
-                      ? 'rgba(76, 175, 80, 0.3)'
-                      : 'rgba(29, 26, 22, 0.08)',
-                  }}
-                />
+              {/* Milestone count indicator */}
+              {epoch.milestones.length > 0 && (
+                <circle cx={x + 110} cy={y} r="5" className="milestone-marker" />
               )}
-            </div>
+            </g>
           );
         })}
+      </svg>
+
+      {/* Legend */}
+      <div className="timeline-legend">
+        <div className="legend-item">
+          <div className="legend-marker" style={{ background: 'rgba(34, 197, 94, 0.6)' }}></div>
+          <span>Milestones</span>
+        </div>
+        <div className="legend-item">
+          <div className="legend-marker" style={{ background: 'rgba(239, 68, 68, 0.6)' }}></div>
+          <span>Inflection Points</span>
+        </div>
+        <div className="legend-item">
+          <div className="legend-marker" style={{ background: 'rgba(147, 197, 253, 0.5)' }}></div>
+          <span>Mask Activity</span>
+        </div>
       </div>
 
-      {/* Detailed cards for each aetas */}
-      <div className="stack" style={{ gap: '0.75rem' }}>
-        {sortedAetas.map((aetas) => {
-          const isExpanded = expandedId === aetas.id;
-          const isProfileAetas = profileAetasIds.has(aetas.id);
-          const isCurrent = currentAetasId === aetas.id;
+      {/* Detail panel for selected epoch */}
+      {selectedEpoch && epochs.find((e) => e.id === selectedEpoch) && (
+        <div className="detail-panel">
+          <div>
+            {(() => {
+              const epoch = epochs.find((e) => e.id === selectedEpoch)!;
+              return (
+                <>
+                  <h3 className="detail-title">{epoch.name}</h3>
+                  <p style={{ margin: '0 0 1rem 0', color: 'rgba(156, 163, 175, 0.8)', fontSize: '0.9rem' }}>
+                    {epoch.description}
+                  </p>
 
-          return (
-            <div
-              key={aetas.id}
-              className="stat-card"
-              style={{
-                border: isCurrent
-                  ? '2px solid var(--accent)'
-                  : isProfileAetas
-                    ? '1px solid rgba(76, 175, 80, 0.3)'
-                    : '1px solid rgba(29, 26, 22, 0.08)',
-                background: isCurrent
-                  ? 'rgba(211, 107, 60, 0.05)'
-                  : isProfileAetas
-                    ? 'rgba(76, 175, 80, 0.02)'
-                    : '#fff',
-              }}
-            >
-              {/* Header */}
-              <div
-                onClick={() => setExpandedId(isExpanded ? null : aetas.id)}
-                style={{
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'start',
-                  gap: '1rem',
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      marginBottom: '0.3rem',
-                    }}
-                  >
-                    <span style={{ fontSize: '1.5rem' }}>
-                      {emojiMap[aetas.order] || '◯'}
-                    </span>
-                    <div>
-                      <div
-                        className="stat-label"
-                        style={{
-                          fontSize: '0.85rem',
-                          fontStyle: 'italic',
-                          margin: 0,
-                        }}
-                      >
-                        {aetas.latin_name}
-                      </div>
-                      <div
-                        className="stat-value"
-                        style={{
-                          fontSize: '1.2rem',
-                          margin: 0,
-                          color: isCurrent ? 'var(--accent)' : 'var(--dark)',
-                        }}
-                      >
-                        {aetas.order}. {aetas.name}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Status badge */}
-                  {isProfileAetas && (
-                    <div style={{ marginTop: '0.5rem' }}>
-                      <span
-                        className="chip"
-                        style={{
-                          background: '#4CAF50',
-                          color: '#fff',
-                          fontSize: '0.75rem',
-                        }}
-                      >
-                        {isCurrent ? '◈ Current' : '✓ Completed'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Expand icon */}
-                <div
-                  style={{
-                    fontSize: '1.2rem',
-                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease',
-                  }}
-                >
-                  ⌄
-                </div>
-              </div>
-
-              {/* Expanded Content */}
-              {isExpanded && (
-                <div
-                  style={{
-                    marginTop: '1rem',
-                    paddingTop: '1rem',
-                    borderTop: '1px solid rgba(29, 26, 22, 0.08)',
-                  }}
-                >
-                  {/* Description */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <div className="label" style={{ marginBottom: '0.3rem', fontSize: '0.9rem' }}>
-                      Overview
-                    </div>
-                    <p className="section-subtitle" style={{ margin: 0 }}>
-                      {aetas.description}
-                    </p>
-                  </div>
-
-                  {/* Capability Profile */}
-                  {aetas.capability_profile && Object.keys(aetas.capability_profile).length > 0 && (
+                  {epoch.milestones.length > 0 && (
                     <div style={{ marginBottom: '1rem' }}>
-                      <div className="label" style={{ marginBottom: '0.3rem', fontSize: '0.9rem' }}>
-                        Capability Profile
-                      </div>
-                      <div className="chip-row" style={{ gap: '0.5rem' }}>
-                        {Object.entries(aetas.capability_profile).map(([key, value]) => (
-                          <div key={key} style={{ fontSize: '0.85rem' }}>
-                            <strong>{key}:</strong> {value as string}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Age Range */}
-                  {aetas.typical_age_range && (
-                    <div style={{ marginBottom: '1rem' }}>
-                      <div className="label" style={{ marginBottom: '0.3rem', fontSize: '0.9rem' }}>
-                        Typical Age Range
-                      </div>
-                      <p className="section-subtitle" style={{ margin: 0 }}>
-                        {aetas.typical_age_range.min || '?'} –{' '}
-                        {aetas.typical_age_range.max || '?'} years old
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Duration */}
-                  {aetas.duration_months && (
-                    <div style={{ marginBottom: '1rem' }}>
-                      <div className="label" style={{ marginBottom: '0.3rem', fontSize: '0.9rem' }}>
-                        Typical Duration
-                      </div>
-                      <p className="section-subtitle" style={{ margin: 0 }}>
-                        {aetas.duration_months} months (~
-                        {Math.round(aetas.duration_months / 12)} years)
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Markers */}
-                  {aetas.markers && aetas.markers.length > 0 && (
-                    <div style={{ marginBottom: '1rem' }}>
-                      <div className="label" style={{ marginBottom: '0.3rem', fontSize: '0.9rem' }}>
-                        Milestones
-                      </div>
-                      <ul
-                        style={{
-                          margin: 0,
-                          paddingLeft: '1.5rem',
-                          fontSize: '0.9rem',
-                        }}
-                      >
-                        {aetas.markers.map((marker, idx) => (
-                          <li key={idx} style={{ marginBottom: '0.3rem' }}>
-                            {marker}
-                          </li>
+                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'rgba(209, 213, 219, 0.8)' }}>
+                        Key Milestones
+                      </h4>
+                      <ul className="detail-list">
+                        {epoch.milestones.map((milestone, idx) => (
+                          <li key={idx}>✓ {milestone}</li>
                         ))}
                       </ul>
                     </div>
                   )}
 
-                  {/* Transitions */}
-                  {aetas.transitions_to && aetas.transitions_to.length > 0 && (
+                  {epoch.inflectionPoints.length > 0 && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'rgba(209, 213, 219, 0.8)' }}>
+                        Inflection Points
+                      </h4>
+                      <ul className="detail-list">
+                        {epoch.inflectionPoints.map((point, idx) => (
+                          <li key={idx}>⚡ {point}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {epoch.activeMasks && epoch.activeMasks.length > 0 && (
                     <div>
-                      <div className="label" style={{ marginBottom: '0.3rem', fontSize: '0.9rem' }}>
-                        Typical Next Stages
-                      </div>
-                      <div className="chip-row" style={{ gap: '0.5rem' }}>
-                        {aetas.transitions_to.map((nextId) => {
-                          const nextAetas = sortedAetas.find((a) => a.id === nextId);
-                          return nextAetas ? (
-                            <span key={nextId} className="chip" style={{ fontSize: '0.85rem' }}>
-                              → {nextAetas.name}
-                            </span>
-                          ) : null;
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Edit controls */}
-                  {editMode && (
-                    <div style={{ marginTop: '1rem' }}>
-                      <div className="hero-actions">
-                        <button
-                          className="button secondary"
-                          onClick={() => onSelectAetas?.(aetas.id)}
-                        >
-                          {isProfileAetas ? 'Update' : 'Mark as Current'}
-                        </button>
+                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'rgba(209, 213, 219, 0.8)' }}>
+                        Active Masks
+                      </h4>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        {epoch.activeMasks.map((mask) => (
+                          <span
+                            key={mask}
+                            style={{
+                              padding: '0.4rem 0.75rem',
+                              background: 'rgba(59, 130, 246, 0.15)',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '4px',
+                              color: 'rgba(191, 219, 254, 0.8)',
+                              fontSize: '0.8rem',
+                            }}
+                          >
+                            {mask}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Summary */}
-      <div
-        style={{
-          background: 'rgba(63, 81, 181, 0.05)',
-          border: '1px solid rgba(63, 81, 181, 0.2)',
-          padding: '1.5rem',
-          marginTop: '2rem',
-          borderRadius: '4px',
-        }}
-      >
-        <h3 style={{ margin: '0 0 1rem 0' }}>Your Progression</h3>
-        {profileAetas.length === 0 ? (
-          <p className="section-subtitle">
-            You haven't yet mapped your progression through the aetas. Begin by marking which
-            life-stages you've completed or are currently in.
-          </p>
-        ) : (
-          <>
-            <p className="section-subtitle">
-              You've progressed through {profileAetas.length} stage
-              {profileAetas.length !== 1 ? 's' : ''}
-              {currentAetasId ? ', currently in: ' : '.'}
-              {currentAetasId &&
-                sortedAetas.find((a) => a.id === currentAetasId)?.name}
-            </p>
-            <div className="chip-row" style={{ gap: '0.5rem', marginTop: '0.75rem' }}>
-              {profileAetas
-                .sort((a, b) => a.order - b.order)
-                .map((aetas) => (
-                  <span
-                    key={aetas.id}
-                    className="chip"
-                    style={{
-                      background:
-                        aetas.id === currentAetasId
-                          ? 'var(--accent)'
-                          : 'rgba(76, 175, 80, 0.2)',
-                      color: aetas.id === currentAetasId ? '#fff' : '#4CAF50',
-                    }}
-                  >
-                    {aetas.name}
-                  </span>
-                ))}
-            </div>
-          </>
-        )}
-      </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+export default AetasTimeline;
