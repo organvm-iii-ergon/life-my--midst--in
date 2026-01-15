@@ -309,11 +309,11 @@ export async function registerAetasRoutes(
           sort: request.query.sort,
           offset:
             request.query.offset !== undefined
-              ? parseInt(request.query.offset as string, 10)
+              ? parseInt(request.query.offset as unknown as string, 10)
               : 0,
           limit:
             request.query.limit !== undefined
-              ? Math.min(parseInt(request.query.limit as string, 10), 100)
+              ? Math.min(parseInt(request.query.limit as unknown as string, 10), 100)
               : 50,
         });
       } catch (err) {

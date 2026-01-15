@@ -8,3 +8,5 @@ export * from './search';
 export * from './hunter';
 export * from './licensing/licensing-service';
 export * from './billing/billing-service';
+export * from './analytics/events';
+export * from './analytics/analytics-service';

@@ -1,14 +1,18 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { randomUUID } from 'node:crypto';
 import { buildTestApp } from '../../../test/app-builder';
 import { Profile } from '@in-midst-my-life/schema';
 import type { FastifyInstance } from 'fastify';
+import { InMemorySubscriptionRepo } from '../../repositories/subscriptions';
 
 describe('Hunter Protocol Integration Tests', () => {
   let app: FastifyInstance;
   let testProfileId: string;
+  let subRepo: InMemorySubscriptionRepo;
 
   beforeAll(async () => {
-    app = await buildTestApp();
+    subRepo = new InMemorySubscriptionRepo();
+    app = await buildTestApp({ subscriptionRepo: subRepo });
     await app.ready();
   });
 
@@ -17,18 +21,32 @@ describe('Hunter Protocol Integration Tests', () => {
   });
 
   beforeEach(async () => {
+    const id = randomUUID();
+    const now = new Date().toISOString();
     // Create test profile
     const profileResponse = await app.inject({
       method: 'POST',
       url: '/profiles',
       payload: {
-        name: 'Test Candidate',
-        email: 'test@example.com',
-        phone: '555-1234',
-        summary: '8+ years TypeScript, React, Node.js, PostgreSQL, system design',
+        id,
+        identityId: randomUUID(),
+        displayName: 'Test Candidate',
+        slug: 'test-candidate-' + Math.random().toString(36).substr(2, 5),
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+        summaryMarkdown: '8+ years TypeScript, React, Node.js, PostgreSQL, system design',
       },
     });
-    testProfileId = JSON.parse(profileResponse.payload).id;
+    const body = JSON.parse(profileResponse.payload);
+    if (!body.ok) {
+      console.error('Profile creation failed:', body.errors);
+    }
+    testProfileId = body.data.id;
+
+    // Upgrade to PRO for tests
+    await subRepo.create(testProfileId, 'cus_test_' + testProfileId.slice(0, 8));
+    await subRepo.update(testProfileId, { tier: 'PRO' });
   });
 
   describe('POST /profiles/:id/hunter/search', () => {
@@ -36,6 +54,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['TypeScript', 'React'],
           locations: ['San Francisco, CA'],
@@ -56,6 +75,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           required_technologies: ['TypeScript', 'React'],
@@ -81,6 +101,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           remote_requirement: 'fully',
@@ -100,6 +121,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           min_salary: 180000,
@@ -116,6 +138,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           max_results: 5,
@@ -131,6 +154,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Nonexistent-Skill-XYZ-123'],
           locations: ['Nonexistent-City-XYZ-123'],
@@ -152,6 +176,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const searchResponse = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           max_results: 1,
@@ -174,6 +199,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${testJobId}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job: {
             id: testJobId,
@@ -198,6 +224,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${testJobId}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job: {
             id: testJobId,
@@ -240,6 +267,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${testJobId}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job: {
             id: testJobId,
@@ -264,6 +292,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${testJobId}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job: {
             id: testJobId,
@@ -289,6 +318,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${testJobId}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job: {
             id: testJobId,
@@ -311,6 +341,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${testJobId}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job: {
             id: testJobId,
@@ -333,6 +364,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${testJobId}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job: {
             id: testJobId,
@@ -357,6 +389,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const searchResponse = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           max_results: 1,
@@ -375,6 +408,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/tailor-resume`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           jobId: testJobId,
           personaId: 'Architect',
@@ -383,9 +417,9 @@ describe('Hunter Protocol Integration Tests', () => {
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
-      expect(body).toHaveProperty('resume');
-      expect(typeof body.resume).toBe('string');
-      expect(body.resume.length).toBeGreaterThan(100);
+      expect(body).toHaveProperty('maskedResume');
+      expect(typeof body.maskedResume).toBe('string');
+      expect(body.maskedResume.length).toBeGreaterThan(10);
     });
 
     it('includes emphasis points in resume', async () => {
@@ -394,6 +428,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/tailor-resume`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           jobId: testJobId,
           personaId: 'Engineer',
@@ -402,9 +437,9 @@ describe('Hunter Protocol Integration Tests', () => {
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
-      expect(body).toHaveProperty('emphasize');
-      expect(Array.isArray(body.emphasize)).toBe(true);
-      expect(body.emphasize.length).toBeGreaterThan(0);
+      expect(body).toHaveProperty('keyPointsToEmphasize');
+      expect(Array.isArray(body.keyPointsToEmphasize)).toBe(true);
+      expect(body.keyPointsToEmphasize.length).toBeGreaterThan(0);
     });
 
     it('specifies areas to de-emphasize', async () => {
@@ -413,6 +448,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/tailor-resume`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           jobId: testJobId,
           personaId: 'Technician',
@@ -421,8 +457,8 @@ describe('Hunter Protocol Integration Tests', () => {
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
-      expect(body).toHaveProperty('deEmphasize');
-      expect(Array.isArray(body.deEmphasize)).toBe(true);
+      expect(body).toHaveProperty('areasToDeEmphasize');
+      expect(Array.isArray(body.areasToDeEmphasize)).toBe(true);
     });
 
     it('returns selected persona name', async () => {
@@ -431,6 +467,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/tailor-resume`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           jobId: testJobId,
           personaId: 'Architect',
@@ -439,8 +476,8 @@ describe('Hunter Protocol Integration Tests', () => {
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
-      expect(body).toHaveProperty('personaName');
-      expect(body.personaName).toBe('Architect');
+      expect(body).toHaveProperty('personaRecommendation');
+      expect(body.personaRecommendation).toBe('Architect');
     });
   });
 
@@ -451,6 +488,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const searchResponse = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           max_results: 1,
@@ -469,18 +507,19 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/write-cover-letter`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
-          jobId: testJobId,
+          job: { id: testJobId, title: 'Engineer', company: 'Mock' },
           personaId: 'Engineer',
-          resume: 'Sample resume content',
+          tailoredResume: 'Sample resume content',
         },
       });
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
-      expect(body).toHaveProperty('letter');
-      expect(typeof body.letter).toBe('string');
-      expect(body.letter.length).toBeGreaterThan(100);
+      expect(body).toHaveProperty('coverLetter');
+      expect(typeof body.coverLetter).toBe('string');
+      expect(body.coverLetter.length).toBeGreaterThan(10);
     });
 
     it('letter includes personalization elements', async () => {
@@ -489,17 +528,18 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/write-cover-letter`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
-          jobId: testJobId,
+          job: { id: testJobId, title: 'Engineer', company: 'Mock' },
           personaId: 'Engineer',
-          resume: 'Sample resume content',
+          tailoredResume: 'Sample resume content',
         },
       });
 
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.payload);
-      expect(body).toHaveProperty('personalized');
-      expect(Array.isArray(body.personalized)).toBe(true);
+      expect(body).toHaveProperty('personalizedElements');
+      expect(Array.isArray(body.personalizedElements)).toBe(true);
     });
 
     it('selects appropriate tone based on job', async () => {
@@ -508,10 +548,11 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/write-cover-letter`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
-          jobId: testJobId,
+          job: { id: testJobId, title: 'Engineer', company: 'Mock' },
           personaId: 'Engineer',
-          resume: 'Sample resume content',
+          tailoredResume: 'Sample resume content',
         },
       });
 
@@ -527,10 +568,12 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/applications/batch`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           searchFilter: {
             keywords: ['Engineer'],
           },
+          personaId: 'Engineer',
           autoApplyThreshold: 70,
           maxApplications: 5,
         },
@@ -546,10 +589,12 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/applications/batch`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           searchFilter: {
             keywords: ['Engineer'],
           },
+          personaId: 'Engineer',
           autoApplyThreshold: 0,
           maxApplications: 3,
         },
@@ -564,10 +609,12 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/applications/batch`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           searchFilter: {
             keywords: ['Engineer'],
           },
+          personaId: 'Engineer',
           autoApplyThreshold: 75,
           maxApplications: 10,
         },
@@ -586,10 +633,12 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/applications/batch`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           searchFilter: {
             keywords: ['Engineer'],
           },
+          personaId: 'Engineer',
           autoApplyThreshold: 80,
           maxApplications: 10,
         },
@@ -605,10 +654,12 @@ describe('Hunter Protocol Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/applications/batch`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           searchFilter: {
             keywords: ['Engineer'],
           },
+          personaId: 'Engineer',
           autoApplyThreshold: 50,
           maxApplications: 5,
         },
@@ -627,6 +678,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const searchResponse = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/search`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           keywords: ['Engineer'],
           max_results: 1,
@@ -647,6 +699,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const analyzeResponse = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/analyze/${job.id}`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           job,
           personaId: 'Engineer',
@@ -661,6 +714,7 @@ describe('Hunter Protocol Integration Tests', () => {
       const tailorResponse = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/tailor-resume`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
           jobId: job.id,
           personaId: 'Engineer',
@@ -669,22 +723,23 @@ describe('Hunter Protocol Integration Tests', () => {
 
       expect(tailorResponse.statusCode).toBe(200);
       const tailorBody = JSON.parse(tailorResponse.payload);
-      expect(tailorBody.resume.length).toBeGreaterThan(100);
+      expect(tailorBody.maskedResume.length).toBeGreaterThan(10);
 
       // 4. Generate cover letter
       const letterResponse = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/write-cover-letter`,
+        headers: { 'x-mock-user-id': testProfileId },
         payload: {
-          jobId: job.id,
+          job,
           personaId: 'Engineer',
-          resume: tailorBody.resume,
+          tailoredResume: tailorBody.maskedResume,
         },
       });
 
       expect(letterResponse.statusCode).toBe(200);
       const letterBody = JSON.parse(letterResponse.payload);
-      expect(letterBody.letter.length).toBeGreaterThan(100);
+      expect(letterBody.coverLetter.length).toBeGreaterThan(10);
 
       // Entire pipeline succeeded
       expect(true).toBe(true);

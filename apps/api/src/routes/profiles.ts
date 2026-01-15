@@ -121,16 +121,16 @@ export async function registerProfileRoutes(
       const availableMasks = (await masks.list(0, 50)).data;
       const epochList = await epochs.list();
       const stageList = (await stages.list(undefined, 0, 200)).data;
-      const redactedTimeline = applyMaskRedaction(body.data.timeline ?? [], mask, {
+      const redactedTimeline = applyMaskRedaction(body.data.timeline ?? [] as any, mask, {
         dateKeys: ["start", "end"]
-      });
+      } as any);
       const narrative = await buildNarrativeOutput({
         profile,
         availableMasks,
         contexts,
         tags,
         mask,
-        timeline: redactedTimeline,
+        timeline: redactedTimeline as any,
         epochs: epochList,
         stages: stageList,
         orchestratorUrl: process.env["ORCHESTRATOR_URL"] ?? "http://localhost:3002"

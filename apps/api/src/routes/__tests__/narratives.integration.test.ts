@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { build } from "../../app";
+import { buildServer } from "../../index";
 import { getPool, migrate } from "../../db";
 
 describe("Narratives Endpoints - Integration Tests", () => {
@@ -11,7 +11,7 @@ describe("Narratives Endpoints - Integration Tests", () => {
   beforeAll(async () => {
     pool = getPool();
     await migrate(pool);
-    app = await build();
+    app = await buildServer();
 
     // Create test persona first
     await app.inject({

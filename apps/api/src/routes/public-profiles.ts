@@ -30,8 +30,6 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     '/public-profiles',
     {
       schema: {
-        description: 'Get all public profiles for discovery',
-        tags: ['Public Profiles'],
         querystring: {
           type: 'object',
           properties: {
@@ -43,7 +41,6 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'List of public profiles',
             type: 'object',
             properties: {
               profiles: { type: 'array' },
@@ -105,8 +102,6 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     '/public-profiles/:slug',
     {
       schema: {
-        description: 'Get a public profile by slug',
-        tags: ['Public Profiles'],
         params: {
           type: 'object',
           required: ['slug'],
@@ -116,11 +111,9 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'Public profile',
             type: 'object',
           },
           404: {
-            description: 'Profile not found',
           },
         },
       },
@@ -174,8 +167,6 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     '/profiles/:profileId/public-settings',
     {
       schema: {
-        description: 'Update public profile settings',
-        tags: ['Public Profiles'],
         params: {
           type: 'object',
           required: ['profileId'],
@@ -248,8 +239,6 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     '/public-profiles/:profileId/like',
     {
       schema: {
-        description: 'Like a public profile',
-        tags: ['Public Profiles'],
         params: {
           type: 'object',
           required: ['profileId'],
@@ -292,11 +281,8 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     '/public-profiles/saved',
     {
       schema: {
-        description: 'Get user saved profiles',
-        tags: ['Public Profiles'],
         response: {
           200: {
-            description: 'List of saved profiles',
             type: 'object',
             properties: {
               profiles: { type: 'array' },
@@ -329,8 +315,6 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     '/public-profiles/search',
     {
       schema: {
-        description: 'Search public profiles',
-        tags: ['Public Profiles'],
         querystring: {
           type: 'object',
           properties: {
@@ -340,7 +324,6 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'Search results',
             type: 'object',
             properties: {
               results: { type: 'array' },

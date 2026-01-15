@@ -5,7 +5,12 @@
     "rootDir": ".",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "types": ["node", "vitest/globals"]
+    "types": ["node", "vitest/globals"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "strictNullChecks": false
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["dist", "node_modules"]

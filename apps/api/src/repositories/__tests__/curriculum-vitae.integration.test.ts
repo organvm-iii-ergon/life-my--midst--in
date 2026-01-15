@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import {
-  createInMemoryCVMultiplexRepo,
-  createPostgresCVMultiplexRepo,
+  createCVMultiplexRepo,
 } from "../curriculum-vitae";
 import type {
   CurriculumVitaeMultiplex,
@@ -15,16 +14,16 @@ describe("Curriculum Vitae Multiplex Repository - Integration Tests", () => {
 
   // Test with both implementations
   const repos = {
-    inMemory: createInMemoryCVMultiplexRepo(),
+    inMemory: createCVMultiplexRepo(),
     postgres: null as any,
   };
 
   beforeAll(async () => {
     // Setup PostgreSQL for tests
-    if (process.env.INTEGRATION_POSTGRES_URL) {
+    if (process.env['INTEGRATION_POSTGRES_URL']) {
       const pool = getPool();
       await migrate(pool);
-      repos.postgres = createPostgresCVMultiplexRepo(pool);
+      repos.postgres = createCVMultiplexRepo({ kind: "postgres", pool });
     }
   });
 

@@ -167,7 +167,7 @@ export class JWTAuth {
   async refreshAccessToken(refreshToken: string, claims: UserClaims): Promise<AuthToken | null> {
     const verified = await this.verifyToken(refreshToken);
 
-    if (!verified || verified.type !== "refresh") {
+    if (!verified || verified['type'] !== "refresh") {
       return null;
     }
 

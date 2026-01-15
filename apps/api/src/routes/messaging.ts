@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { MessageSchema, MessageThreadSchema, NotificationSchema } from '@in-midst-my-life/schema/messaging';
+import { MessageSchema, MessageThreadSchema, NotificationSchema } from '@in-midst-my-life/schema';
 
 // Request schemas
 const SendMessageSchema = z.object({
@@ -37,8 +37,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     '/messages',
     {
       schema: {
-        description: 'Send a message to another user',
-        tags: ['Messaging'],
         body: {
           type: 'object',
           required: ['receiverId', 'content'],
@@ -51,7 +49,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         },
         response: {
           201: {
-            description: 'Message sent',
             type: 'object',
             properties: {
               id: { type: 'string' },
@@ -143,8 +140,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     '/messages/threads',
     {
       schema: {
-        description: 'Get all message threads for current user',
-        tags: ['Messaging'],
         querystring: {
           type: 'object',
           properties: {
@@ -154,7 +149,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'List of threads',
             type: 'object',
             properties: {
               threads: { type: 'array' },
@@ -192,8 +186,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     '/messages/threads/:threadId',
     {
       schema: {
-        description: 'Get messages in a thread',
-        tags: ['Messaging'],
         params: {
           type: 'object',
           required: ['threadId'],
@@ -210,7 +202,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'List of messages in thread',
             type: 'object',
             properties: {
               messages: { type: 'array' },
@@ -269,8 +260,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     '/messages/threads',
     {
       schema: {
-        description: 'Create a new message thread',
-        tags: ['Messaging'],
         body: {
           type: 'object',
           required: ['participantIds'],
@@ -281,7 +270,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         },
         response: {
           201: {
-            description: 'Thread created',
             type: 'object',
           },
         },
@@ -332,8 +320,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     '/notifications',
     {
       schema: {
-        description: 'Get user notifications',
-        tags: ['Messaging'],
         querystring: {
           type: 'object',
           properties: {
@@ -343,7 +329,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'List of notifications',
             type: 'object',
             properties: {
               notifications: { type: 'array' },
@@ -399,8 +384,6 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     '/notifications/:id',
     {
       schema: {
-        description: 'Mark notification as read',
-        tags: ['Messaging'],
         params: {
           type: 'object',
           required: ['id'],

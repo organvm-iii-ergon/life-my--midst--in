@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { FeedbackEventSchema } from '@in-midst-my-life/core/analytics/events';
-import { getAnalyticsService } from '@in-midst-my-life/core/analytics/analytics-service';
+import { FeedbackEventSchema } from '@in-midst-my-life/core';
+import { getAnalyticsService } from '@in-midst-my-life/core';
 
 // Request schema extends feedback event
 const CreateFeedbackSchema = z.object({
@@ -50,8 +50,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
     '/feedback',
     {
       schema: {
-        description: 'Submit user feedback',
-        tags: ['Feedback'],
         body: {
           type: 'object',
           required: ['profileId', 'userId', 'category', 'subject', 'description', 'timestamp'],
@@ -70,7 +68,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
         },
         response: {
           201: {
-            description: 'Feedback submitted successfully',
             type: 'object',
             properties: {
               id: { type: 'string' },
@@ -78,7 +75,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
             },
           },
           400: {
-            description: 'Invalid feedback submission',
             type: 'object',
             properties: {
               error: { type: 'string' },
@@ -165,8 +161,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
     '/feedback/:id',
     {
       schema: {
-        description: 'Get feedback by ID',
-        tags: ['Feedback'],
         params: {
           type: 'object',
           required: ['id'],
@@ -176,7 +170,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'Feedback record',
             type: 'object',
             properties: {
               id: { type: 'string' },
@@ -193,7 +186,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
             },
           },
           404: {
-            description: 'Feedback not found',
           },
         },
       },
@@ -220,8 +212,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
     '/feedback',
     {
       schema: {
-        description: 'List all feedback (admin only)',
-        tags: ['Feedback'],
         querystring: {
           type: 'object',
           properties: {
@@ -233,7 +223,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'List of feedback records',
             type: 'object',
             properties: {
               items: { type: 'array' },
@@ -289,8 +278,6 @@ export async function feedbackRoutes(fastify: FastifyInstance) {
     '/feedback/:id/status',
     {
       schema: {
-        description: 'Update feedback status (admin only)',
-        tags: ['Feedback'],
         params: {
           type: 'object',
           required: ['id'],

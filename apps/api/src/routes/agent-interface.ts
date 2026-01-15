@@ -85,13 +85,15 @@ export async function registerAgentRoutes(fastify: FastifyInstance) {
       cvRepos.skills.list(profileId, 0, 200)
     ]);
 
-    const redactedExperiences = applyMaskRedaction(experiences.data, mask, {
-      dateKeys: ["startDate", "endDate"]
-    });
-    const redactedProjects = applyMaskRedaction(projects.data, mask, {
-      dateKeys: ["startDate", "endDate"]
-    });
-    const redactedSkills = applyMaskRedaction(skills.data, mask);
+    const redactedExperiences = applyMaskRedaction(experiences.data as any, mask, {
+      dateKeys: ["startDate", "endDate"] as any
+    }) as any[];
+
+    const redactedProjects = applyMaskRedaction(projects.data as any, mask, {
+      dateKeys: ["startDate", "endDate"] as any
+    }) as any[];
+
+    const redactedSkills = applyMaskRedaction(skills.data as any, mask) as any[];
 
     const normalizedQuery = query.toLowerCase();
     const skillMatches = redactedSkills.filter((skill) => normalizedQuery.includes(skill.name.toLowerCase()));

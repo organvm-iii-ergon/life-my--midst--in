@@ -92,7 +92,7 @@ export async function registerExportRoutes(fastify: FastifyInstance, _deps?: Exp
 
     if (minimal) {
       // Minimal export for web sharing
-      jsonLd = generateMinimalJsonLd(profile as Profile);
+      jsonLd = generateMinimalJsonLd(profile as Profile) as any;
     } else if (mask) {
       // Mask-filtered export
       jsonLd = generateMaskedJsonLd(
@@ -101,7 +101,7 @@ export async function registerExportRoutes(fastify: FastifyInstance, _deps?: Exp
         experiences as Experience[],
         educations as Education[],
         skills as Skill[]
-      );
+      ) as any;
     } else {
       // Full export
       jsonLd = generateProfileJsonLd({
@@ -109,7 +109,7 @@ export async function registerExportRoutes(fastify: FastifyInstance, _deps?: Exp
         experiences: experiences as Experience[],
         educations: educations as Education[],
         skills: skills as Skill[]
-      });
+      }) as any;
     }
 
     // Add breadcrumb context if provided
@@ -117,7 +117,7 @@ export async function registerExportRoutes(fastify: FastifyInstance, _deps?: Exp
       jsonLd = addBreadcrumbContext(
         jsonLd as any,
         breadcrumbs as Array<{ name: string; url: string }>
-      );
+      ) as any;
     }
 
     const response: Record<string, unknown> = {
@@ -128,7 +128,7 @@ export async function registerExportRoutes(fastify: FastifyInstance, _deps?: Exp
     };
 
     if (includeScript) {
-      response.scriptTag = jsonLdToScriptTag(jsonLd);
+      response['scriptTag'] = jsonLdToScriptTag(jsonLd);
     }
 
     return response;

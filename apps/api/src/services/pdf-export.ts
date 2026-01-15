@@ -68,7 +68,6 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
   const doc = new PDFDocument({
     margin: 40,
     size: "Letter",
-    buffered: false,
     autoFirstPage: true
   });
 
@@ -87,16 +86,16 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
       .text(profile.displayName, { align: "center" });
 
     // Subtitle: Title and Location
-    const subtitle = [profile.title, profile.location].filter(Boolean).join(" • ");
+    const subtitle = [profile.title, profile.locationText].filter(Boolean).join(" • ");
     doc.fontSize(12).fillColor(colors.lightText).text(subtitle, { align: "center" }).moveDown(0.5);
 
     // Contact Info
-    const contactInfo = [profile.email, profile.website, profile.phone].filter(Boolean);
-    if (contactInfo.length > 0) {
-      doc.fontSize(9).fillColor(colors.text).text(contactInfo.join(" • "), { align: "center" }).moveDown(1);
-    } else {
+    // const contactInfo = [profile.email, profile.website, profile.phone].filter(Boolean);
+    // if (contactInfo.length > 0) {
+    //   doc.fontSize(9).fillColor(colors.text).text(contactInfo.join(" • "), { align: "center" }).moveDown(1);
+    // } else {
       doc.moveDown(0.5);
-    }
+    // }
 
     // Horizontal line
     doc.strokeColor(colors.accent).lineWidth(2).moveTo(40, doc.y).lineTo(555, doc.y).stroke().moveDown(1);
@@ -114,7 +113,7 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
         .fontSize(10)
         .font("Helvetica")
         .fillColor(colors.text)
-        .text(profile.summaryMarkdown.split("\n")[0], { align: "left" })
+        .text((profile.summaryMarkdown || "").split("\n")[0] || "", { align: "left" })
         .moveDown(1);
     }
 
@@ -164,7 +163,7 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
         const dates = [exp.startDate?.split("T")[0], exp.isCurrent ? "Present" : exp.endDate?.split("T")[0]]
           .filter(Boolean)
           .join(" - ");
-        const location = exp.location ? ` | ${exp.location}` : "";
+        const location = exp.locationText ? ` | ${exp.locationText}` : "";
         doc
           .fontSize(9)
           .font("Helvetica")
@@ -178,7 +177,7 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
             .fontSize(9)
             .font("Helvetica")
             .fillColor(colors.text)
-            .text(exp.descriptionMarkdown.split("\n")[0], { width: 475 })
+            .text((exp.descriptionMarkdown || "").split("\n")[0] || "", { width: 475 })
             .moveDown(0.3);
         }
 
@@ -218,13 +217,13 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
           .fontSize(9)
           .font("Helvetica")
           .fillColor(colors.lightText)
-          .text(`${edu.institution}${edu.graduationDate ? ` • ${edu.graduationDate.split("T")[0]}` : ""}`);
+          .text(`${edu.institution}${edu.endDate ? ` • ${edu.endDate.split("T")[0]}` : ""}`);
 
         if (edu.descriptionMarkdown) {
           doc
             .fontSize(8)
             .fillColor(colors.text)
-            .text(edu.descriptionMarkdown.split("\n")[0], { width: 475 })
+            .text((edu.descriptionMarkdown || "").split("\n")[0] || "", { width: 475 })
             .moveDown(0.3);
         }
         doc.moveDown(0.5);
@@ -271,7 +270,7 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
 
     // Footer with mask context (if applicable)
     if (mask) {
-      doc.fontSize(8).fillColor(colors.lightText).text(`Generated via ${mask.name} mask`, { align: "center", pageBreak: false });
+      doc.fontSize(8).fillColor(colors.lightText).text(`Generated via ${mask.name} mask`, { align: "center" });
     }
 
     doc.end();
@@ -290,13 +289,12 @@ export async function generatePdfResume(request: PdfExportRequest): Promise<PdfG
  * Generates a minimal one-page PDF résumé focused on key highlights.
  */
 export async function generateMinimalPdfResume(request: PdfExportRequest): Promise<PdfGenerationResult> {
-  const { profile, mask, experiences = [], skills = [] } = request;
+  const { profile, mask: _mask, experiences = [], skills = [] } = request;
 
   const colors = COLOR_SCHEMES.minimal;
   const doc = new PDFDocument({
     margin: 30,
     size: "Letter",
-    buffered: false
   });
 
   const chunks: Buffer[] = [];
@@ -312,7 +310,7 @@ export async function generateMinimalPdfResume(request: PdfExportRequest): Promi
 
     // Summary
     if (profile.summaryMarkdown) {
-      doc.fontSize(9).font("Helvetica").text(profile.summaryMarkdown.split("\n")[0], { width: 515 }).moveDown(0.5);
+      doc.fontSize(9).font("Helvetica").text((profile.summaryMarkdown || "").split("\n")[0] || "", { width: 515 }).moveDown(0.5);
     }
 
     // Experience (compact)

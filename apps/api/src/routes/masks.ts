@@ -212,7 +212,6 @@ export async function registerMaskRoutes(fastify: FastifyInstance, deps?: MaskRo
             .slice(0, 2)
             .map((e) => `• **${e.title}**: ${e.summary || "Professional contribution"}`)
             .join("\n"),
-          tags: [tag],
           templateId: `narrative-tag-${tag}`,
           weight: 2
         });
@@ -225,7 +224,6 @@ export async function registerMaskRoutes(fastify: FastifyInstance, deps?: MaskRo
       narrativeBlocks.push({
         title: `${mask.name} Perspective`,
         body: `Filtered through the **${mask.name}** mask (${mask.ontology}): ${mask.functional_scope}`,
-        tags: [mask.id],
         templateId: "narrative-mask-context",
         weight: 1
       });

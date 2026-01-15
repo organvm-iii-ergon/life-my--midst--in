@@ -231,8 +231,8 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
       organizationName: session.organizationName,
       hiringManagerName: session.interviewerName,
       jobTitle: session.jobTitle,
-      jobRequirements: session.jobRequirements,
-      salaryRange: session.salaryRange,
+      jobRequirements: session.jobRequirements as any,
+      salaryRange: session.salaryRange as any,
       answers: Object.fromEntries(session.answers.map((a) => [a.questionId, a.answer])),
       culture: session.answers
         .filter((a) => a.questionId.includes("culture"))

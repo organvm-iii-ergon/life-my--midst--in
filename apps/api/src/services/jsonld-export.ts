@@ -123,8 +123,6 @@ export function generateProfileJsonLd(request: JsonLdExportRequest): JsonLdPerso
 
   // Add social/contact links
   const socialUrls: string[] = [];
-  if (profile.email) socialUrls.push(`mailto:${profile.email}`);
-  if (profile.website) socialUrls.push(profile.website);
   if (socialUrls.length > 0) {
     jsonLd.sameAs = socialUrls;
   }
@@ -170,7 +168,7 @@ export function generateProfileJsonLd(request: JsonLdExportRequest): JsonLdPerso
       "@type": "Thing",
       name: s.name,
       category: s.category,
-      proficiency: s.proficiencyLevel as "Beginner" | "Intermediate" | "Advanced" | "Expert"
+      proficiency: s.level as "Beginner" | "Intermediate" | "Advanced" | "Expert"
     }));
   }
 
@@ -279,7 +277,6 @@ export function generateMinimalJsonLd(profile: Profile, currentRole?: string): J
     image: profile.avatarUrl,
     jobTitle: currentRole || profile.title,
     url: profile.slug ? `https://in-midst-my-life.app/profile/${profile.slug}` : undefined,
-    sameAs: profile.email ? [`mailto:${profile.email}`] : []
   };
 }
 

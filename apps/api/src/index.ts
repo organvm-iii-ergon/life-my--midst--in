@@ -1,5 +1,7 @@
+import './types';
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import { Pool } from "pg";
 import { registerProfileRoutes } from "./routes/profiles";
 import { registerMaskRoutes } from "./routes/masks";
 import { registerCvRoutes } from "./routes/cv";
@@ -19,6 +21,11 @@ import { profileRepo } from "./repositories/profiles";
 import type { CvRepos } from "./repositories/cv";
 import { cvRepos } from "./repositories/cv";
 import type { BackupRepo } from "./repositories/backups";
+import { registerBillingRoutes } from "./routes/billing";
+import { registerAdminLicensingRoutes } from "./routes/admin-licensing";
+import { subscriptionRepo as defaultSubscriptionRepo, type SubscriptionRepo } from "./repositories/subscriptions";
+import { PostgresRateLimitStore, InMemoryRateLimitStore as LocalInMemoryRateLimitStore } from "./repositories/rate-limits";
+import { BillingService, LicensingService, type RateLimitStore } from "@in-midst-my-life/core";
 
 export interface ApiServerOptions {
   profileRepo?: ProfileRepo;
@@ -27,11 +34,15 @@ export interface ApiServerOptions {
   stageRepo?: StageRepo;
   cvRepos?: CvRepos;
   backupRepo?: BackupRepo;
+  subscriptionRepo?: SubscriptionRepo;
+  rateLimitStore?: RateLimitStore;
+  billingService?: BillingService;
+  licensingService?: LicensingService;
 }
 
 export function buildServer(options: ApiServerOptions = {}) {
   const fastify = Fastify({
-    logger: true
+    logger: process.env["NODE_ENV"] === "test" ? false : true
   });
   const metrics = { requests: 0, errors: 0 };
 
@@ -39,6 +50,39 @@ export function buildServer(options: ApiServerOptions = {}) {
   const maskRepo = options.maskRepo ?? maskRepoDefaults.masks;
   const epochRepo = options.epochRepo ?? maskRepoDefaults.epochs;
   const stageRepo = options.stageRepo ?? maskRepoDefaults.stages;
+  
+  const subRepo = options.subscriptionRepo ?? defaultSubscriptionRepo;
+  
+  const defaultRateLimitStore = process.env["NODE_ENV"] === "test"
+    ? new LocalInMemoryRateLimitStore()
+    : new PostgresRateLimitStore(new Pool({ 
+        connectionString: process.env["DATABASE_URL"] ?? process.env["POSTGRES_URL"] 
+      }));
+
+  // Initialize services if not provided
+  const licensingService = options.licensingService ?? new LicensingService(
+    async (profileId) => {
+      const sub = await subRepo.getByProfileId(profileId);
+      return sub?.tier ?? "FREE";
+    },
+    options.rateLimitStore ?? defaultRateLimitStore
+  );
+
+  const billingService = options.billingService ?? new BillingService({
+    stripeSecretKey: process.env["STRIPE_SECRET_KEY"] || "sk_test_mock",
+    stripePriceIds: {
+      FREE: { monthly: "free", yearly: "free" },
+      PRO: {
+        monthly: process.env["STRIPE_PRO_MONTHLY"] || "price_pro_monthly",
+        yearly: process.env["STRIPE_PRO_YEARLY"] || "price_pro_yearly",
+      },
+      ENTERPRISE: {
+        monthly: process.env["STRIPE_ENTERPRISE_MONTHLY"] || "price_enterprise_custom",
+        yearly: process.env["STRIPE_ENTERPRISE_YEARLY"] || "price_enterprise_custom",
+      },
+    },
+    webhookSecret: process.env["STRIPE_WEBHOOK_SECRET"] || "whsec_test_mock",
+  });
 
   fastify.register(cors);
 
@@ -94,13 +138,12 @@ export function buildServer(options: ApiServerOptions = {}) {
   fastify.register(registerAetasRoutes, { prefix: "/profiles" });
   fastify.register(registerExportRoutes, {
     prefix: "/profiles",
-    profileRepo: options.profileRepo ?? profileRepo,
     cvRepos: options.cvRepos ?? cvRepos,
     backupRepo: options.backupRepo,
     maskRepo,
     epochRepo,
     stageRepo
-  });
+  } as any);
   fastify.register(registerAgentRoutes, { prefix: "/agent" });
   fastify.register(registerMaskRoutes, {
     prefix: "/taxonomy",
@@ -109,9 +152,21 @@ export function buildServer(options: ApiServerOptions = {}) {
     stages: stageRepo
   });
   fastify.register(registerAttestationBlockRoutes);
-  fastify.register(jobRoutes);
-  fastify.register(interviewRoutes);
-  fastify.register(registerHunterProtocolRoutes, { prefix: "/profiles" });
+    fastify.register(jobRoutes);
+    fastify.register(interviewRoutes);
+    fastify.register(registerHunterProtocolRoutes, { 
+      prefix: "/profiles",
+      repo: options.profileRepo ?? profileRepo,
+      licensingService
+    });
+    fastify.register(registerBillingRoutes, {
+    prefix: "/billing",
+    billingService,
+    subscriptionRepo: subRepo,
+    licensingService
+  });
+  
+  fastify.register(registerAdminLicensingRoutes, licensingService);
 
   return fastify;
 }

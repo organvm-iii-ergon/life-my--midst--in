@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from "react";
 import type { HunterSearchFilter, JobListing } from "@in-midst-my-life/schema";
 import { NeoCard } from "@in-midst-my-life/design-system";
+import { UpgradeWall } from "@/components/marketing/UpgradeWall";
+import { useRouter } from "next/navigation";
+import { getSubscription, Subscription } from "@/lib/api-client";
 
 type Job = JobListing;
 
@@ -40,6 +43,7 @@ export default function HunterDashboard({
   personaId,
   onApplyJob,
 }: HunterDashboardProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"search" | "schedule">("search");
   
   // Search State
@@ -62,11 +66,28 @@ export default function HunterDashboard({
   const [scheduledHunts, setScheduledHunts] = useState<JobHuntConfig[]>([]);
   const [scheduleLoading, setScheduleLoading] = useState(false);
 
+  // Subscription & Quota State
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [showUpgradeWall, setShowUpgradeWall] = useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<any>(null);
+
   useEffect(() => {
+    fetchSubscription();
     if (activeTab === "schedule") {
       fetchScheduledHunts();
     }
   }, [activeTab]);
+
+  const fetchSubscription = async () => {
+    try {
+      const response = await getSubscription(profileId);
+      if (response.ok && response.data) {
+        setSubscription(response.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch subscription:', err);
+    }
+  };
 
   const fetchScheduledHunts = async () => {
     try {
@@ -85,7 +106,7 @@ export default function HunterDashboard({
 
   const handleCreateSchedule = async () => {
     try {
-      await fetch("/api/scheduler/job-hunts", {
+      const res = await fetch("/api/scheduler/job-hunts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -96,6 +117,20 @@ export default function HunterDashboard({
           autoApply: false
         })
       });
+      
+      const data = await res.json();
+      
+      if (res.status === 403 && data.error === 'quota_exceeded') {
+        setQuotaInfo({
+          feature: data.feature,
+          used: data.used,
+          limit: data.limit,
+          resetDate: data.resetPeriod,
+        });
+        setShowUpgradeWall(true);
+        return;
+      }
+
       fetchScheduledHunts();
       alert("Job hunt scheduled!");
     } catch (err) {
@@ -131,9 +166,23 @@ export default function HunterDashboard({
       });
 
       const data = await response.json();
+
+      if (response.status === 403 && data.error === 'quota_exceeded') {
+        setQuotaInfo({
+          feature: data.feature,
+          used: data.used,
+          limit: data.limit,
+          resetDate: data.resetPeriod,
+        });
+        setShowUpgradeWall(true);
+        return;
+      }
+
       setJobs(data.jobs || []);
       setCompatibilities({});
       setSelectedJob(null);
+      // Refresh subscription to update usage metrics
+      fetchSubscription();
     } catch (error) {
       console.error("Search failed:", error);
     } finally {
@@ -156,11 +205,24 @@ export default function HunterDashboard({
       });
 
       const data = await response.json();
+
+      if (response.status === 403 && data.error === 'quota_exceeded') {
+        setQuotaInfo({
+          feature: data.feature,
+          used: data.used,
+          limit: data.limit,
+          resetDate: data.resetPeriod,
+        });
+        setShowUpgradeWall(true);
+        return;
+      }
+
       setCompatibilities((prev) => ({
         ...prev,
         [job.id]: data.compatibility,
       }));
       setSelectedJob(job);
+      fetchSubscription();
     } catch (error) {
       console.error("Analysis failed:", error);
     } finally {
@@ -179,8 +241,18 @@ export default function HunterDashboard({
 
   const selectedCompat = selectedJob ? compatibilities[selectedJob.id] : null;
 
+  // Usage info from subscription
+  const searchUsage = subscription?.plan?.features?.hunter_job_searches || { used: 0, value: 5 };
+
   return (
-    <div className="max-w-7xl mx-auto p-6 text-white min-h-screen">
+    <div className="max-w-7xl mx-auto p-6 text-white min-h-screen relative">
+      <UpgradeWall 
+        isOpen={showUpgradeWall}
+        onClose={() => setShowUpgradeWall(false)}
+        onUpgrade={() => router.push("/pricing")}
+        quotaInfo={quotaInfo}
+      />
+
       <header className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
@@ -188,19 +260,40 @@ export default function HunterDashboard({
           </h1>
           <p className="text-gray-400">Autonomous Job Search Engine</p>
         </div>
-        <div className="flex gap-4">
-          <button
-            onClick={() => setActiveTab("search")}
-            className={`px-4 py-2 rounded-lg transition-colors ${activeTab === "search" ? "bg-cyan-600 text-white" : "bg-gray-800 text-gray-400"}`}
-          >
-            Manual Search
-          </button>
-          <button
-            onClick={() => setActiveTab("schedule")}
-            className={`px-4 py-2 rounded-lg transition-colors ${activeTab === "schedule" ? "bg-cyan-600 text-white" : "bg-gray-800 text-gray-400"}`}
-          >
-            Auto-Pilot
-          </button>
+        <div className="flex items-center gap-6">
+          <div className="text-right hidden sm:block">
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                subscription?.tier === 'PRO' ? 'bg-cyan-900 text-cyan-400' : 'bg-gray-800 text-gray-500'
+              }`}>
+                {subscription?.tier || 'FREE'}
+              </span>
+              <span className="text-xs text-gray-500">
+                Searches: <span className={searchUsage.used >= searchUsage.value && searchUsage.value !== -1 ? 'text-red-500' : 'text-gray-300'}>
+                  {searchUsage.used} / {searchUsage.value === -1 ? '∞' : searchUsage.value}
+                </span>
+              </span>
+            </div>
+            {subscription?.tier === 'FREE' && (
+              <button onClick={() => router.push('/pricing')} className="text-[10px] text-cyan-500 hover:text-cyan-400 underline">
+                Upgrade for more
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab("search")}
+              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === "search" ? "bg-cyan-600 text-white" : "bg-gray-800 text-gray-400"}`}
+            >
+              Manual Search
+            </button>
+            <button
+              onClick={() => setActiveTab("schedule")}
+              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === "schedule" ? "bg-cyan-600 text-white" : "bg-gray-800 text-gray-400"}`}
+            >
+              Auto-Pilot
+            </button>
+          </div>
         </div>
       </header>
 
@@ -239,7 +332,6 @@ export default function HunterDashboard({
             <p className="text-gray-400 text-sm mb-4">
               Use the filters below to define your hunt criteria, then click "Schedule Hunt" to have the agent run daily.
             </p>
-            {/* Reusing search form inputs for scheduling would be ideal, simpler UI for now */}
             <div className="bg-gray-800 p-4 rounded text-sm text-gray-300">
               <p>Current configuration in Search tab:</p>
               <ul className="list-disc ml-5 mt-2">

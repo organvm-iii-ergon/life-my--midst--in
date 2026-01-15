@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { build } from "../../app";
+import { buildServer } from "../../index";
 import { getPool, migrate } from "../../db";
 
 describe("Aetas Endpoints - Integration Tests", () => {
@@ -10,7 +10,7 @@ describe("Aetas Endpoints - Integration Tests", () => {
   beforeAll(async () => {
     pool = getPool();
     await migrate(pool);
-    app = await build();
+    app = await buildServer();
   });
 
   afterAll(async () => {

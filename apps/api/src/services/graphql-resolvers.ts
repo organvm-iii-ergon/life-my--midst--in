@@ -291,7 +291,7 @@ export const mutationResolvers = {
       throw new Error("Profile repository not available");
     }
 
-    const profile: Profile = {
+    const profile: any = {
       id: `profile-${Date.now()}`,
       displayName: args.displayName,
       title: args.title,

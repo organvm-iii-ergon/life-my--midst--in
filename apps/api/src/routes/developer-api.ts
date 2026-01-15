@@ -51,8 +51,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/developers/apps',
     {
       schema: {
-        description: 'Create a new OAuth application',
-        tags: ['Developer API'],
         body: {
           type: 'object',
           required: ['name', 'redirectUris', 'permissions'],
@@ -68,7 +66,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         },
         response: {
           201: {
-            description: 'OAuth app created',
             type: 'object',
           },
         },
@@ -139,11 +136,8 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/developers/apps',
     {
       schema: {
-        description: 'List user OAuth applications',
-        tags: ['Developer API'],
         response: {
           200: {
-            description: 'List of OAuth apps',
             type: 'object',
             properties: {
               apps: { type: 'array' },
@@ -183,8 +177,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/oauth/authorize',
     {
       schema: {
-        description: 'OAuth 2.0 authorization endpoint',
-        tags: ['OAuth'],
         querystring: {
           type: 'object',
           required: ['client_id', 'redirect_uri', 'response_type', 'scope'],
@@ -216,7 +208,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       if (!app || !redirect_uri) {
         return reply.code(400).send({
           error: 'invalid_request',
-          error_description: 'Invalid client or redirect_uri',
         });
       }
 
@@ -224,7 +215,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       if (!app.redirectUris.includes(redirect_uri)) {
         return reply.code(400).send({
           error: 'invalid_grant',
-          error_description: 'Redirect URI not registered',
         });
       }
 
@@ -256,8 +246,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/oauth/token',
     {
       schema: {
-        description: 'OAuth 2.0 token endpoint',
-        tags: ['OAuth'],
         body: {
           type: 'object',
           required: ['grant_type', 'client_id', 'client_secret'],
@@ -271,7 +259,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'Access token response',
             type: 'object',
           },
           400: { description: 'Invalid grant' },
@@ -295,7 +282,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       if (!app) {
         return reply.code(400).send({
           error: 'invalid_client',
-          error_description: 'Client authentication failed',
         });
       }
 
@@ -308,7 +294,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         if (!authData || new Date() > authData.expiresAt) {
           return reply.code(400).send({
             error: 'invalid_grant',
-            error_description: 'Authorization code expired or invalid',
           });
         }
 
@@ -325,7 +310,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       if (!userId) {
         return reply.code(400).send({
           error: 'invalid_grant',
-          error_description: 'Unable to obtain access token',
         });
       }
 
@@ -364,8 +348,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/oauth/token/introspect',
     {
       schema: {
-        description: 'Introspect access token',
-        tags: ['OAuth'],
         body: {
           type: 'object',
           required: ['token'],
@@ -375,7 +357,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         },
         response: {
           200: {
-            description: 'Token introspection result',
             type: 'object',
           },
         },
@@ -411,11 +392,8 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/user/profile',
     {
       schema: {
-        description: 'Get authenticated user profile (OAuth protected)',
-        tags: ['User API'],
         response: {
           200: {
-            description: 'User profile',
             type: 'object',
           },
           401: { description: 'Unauthorized' },
@@ -428,7 +406,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return reply.code(401).send({
           error: 'unauthorized',
-          error_description: 'Missing or invalid token',
         });
       }
 
@@ -438,7 +415,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       if (!tokenData || !tokenData.permissions.includes('read:profile')) {
         return reply.code(401).send({
           error: 'insufficient_scope',
-          error_description: 'Token does not have read:profile scope',
         });
       }
 
@@ -462,11 +438,8 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/user/personas',
     {
       schema: {
-        description: 'Get user personas (OAuth protected)',
-        tags: ['User API'],
         response: {
           200: {
-            description: 'List of personas',
             type: 'object',
           },
           401: { description: 'Unauthorized' },
@@ -497,12 +470,10 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
           {
             id: '1',
             name: 'Engineer',
-            description: 'Software engineer persona',
           },
           {
             id: '2',
             name: 'Architect',
-            description: 'System architect persona',
           },
         ],
       });
@@ -517,8 +488,6 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     '/developers/apps/:appId',
     {
       schema: {
-        description: 'Revoke OAuth application',
-        tags: ['Developer API'],
         params: {
           type: 'object',
           required: ['appId'],

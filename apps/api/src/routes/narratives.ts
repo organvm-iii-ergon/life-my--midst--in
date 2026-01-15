@@ -140,13 +140,13 @@ export async function registerNarrativeRoutes(
             : undefined,
           minWeight:
             request.query.minWeight !== undefined
-              ? parseInt(request.query.minWeight as string, 10)
+              ? parseInt(request.query.minWeight as unknown as string, 10)
               : undefined,
           sortBy: request.query.sortBy || "weight",
           limit:
             request.query.limit !== undefined
               ? Math.min(
-                  parseInt(request.query.limit as string, 10),
+                  parseInt(request.query.limit as unknown as string, 10),
                   100
                 )
               : 50,
@@ -176,7 +176,6 @@ export async function registerNarrativeRoutes(
         description: "The research-focused persona",
         active: true,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       };
 
       // Generate theatrical preamble dynamically
@@ -194,42 +193,34 @@ export async function registerNarrativeRoutes(
       // Mock narrative blocks (filtered)
       const narrativeBlocks: NarrativeBlock[] = [
         {
-          id: "nb-001",
-          type: "research",
           title: "Doctoral Research in Distributed Systems",
-          content:
+          body:
             "Conducted original research on Byzantine fault tolerance in distributed consensus protocols...",
           theatrical_metadata: {
             mask_name: persona.everyday_name,
             scaena: "Academica",
-            aetas: ["Consolidation", "Expansion"],
+            aetas: "Consolidation",
             performance_note: "This research exemplifies technical depth and theoretical rigor",
             authentic_caveat:
               "Emphasizes academic contribution; de-emphasizes parallel teaching responsibilities",
           },
           weight: 95,
           priority: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         },
         {
-          id: "nb-002",
-          type: "publication",
           title: "Published 12 peer-reviewed papers",
-          content:
+          body:
             "First-author publications in ACM Transactions on Computing Systems, IEEE Software, and PLDI...",
           theatrical_metadata: {
             mask_name: persona.everyday_name,
             scaena: "Academica",
-            aetas: ["Expansion", "Mastery"],
+            aetas: "Expansion",
             performance_note: "Demonstrates sustained scholarly contribution",
             authentic_caveat:
               "Shows breadth of publication; doesn't detail rejection/iteration process",
           },
           weight: 90,
           priority: 2,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         },
       ];
 
@@ -238,7 +229,7 @@ export async function registerNarrativeRoutes(
       if (filter.includeAetas && filter.includeAetas.length > 0) {
         filteredBlocks = filteredBlocks.filter((block) => {
           const blockAetas =
-            block.theatrical_metadata?.aetas || [];
+            block.theatrical_metadata?.aetas ? [block.theatrical_metadata.aetas] : [];
           return blockAetas.some((a) =>
             filter.includeAetas!.includes(a)
           );
@@ -247,7 +238,7 @@ export async function registerNarrativeRoutes(
       if (filter.excludeAetas && filter.excludeAetas.length > 0) {
         filteredBlocks = filteredBlocks.filter((block) => {
           const blockAetas =
-            block.theatrical_metadata?.aetas || [];
+            block.theatrical_metadata?.aetas ? [block.theatrical_metadata.aetas] : [];
           return !blockAetas.some((a) =>
             filter.excludeAetas!.includes(a)
           );
@@ -268,13 +259,6 @@ export async function registerNarrativeRoutes(
           break;
         case "priority":
           filteredBlocks.sort((a, b) => (a.priority || 0) - (b.priority || 0));
-          break;
-        case "date":
-          filteredBlocks.sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
-          );
           break;
         case "relevance":
           // Relevance = weight * (1 + match_score)

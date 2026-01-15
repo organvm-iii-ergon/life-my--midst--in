@@ -208,7 +208,7 @@ export function createJobPostingRepository(
     db?: any;
   }
 ): JobPostingRepository {
-  const type = options?.type || process.env.JOB_REPO_TYPE || "memory";
+  const type = options?.type || process.env['JOB_REPO_TYPE'] || "memory";
 
   if (type === "postgres") {
     if (!options?.db) {

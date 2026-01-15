@@ -284,6 +284,10 @@ export const FeedbackEventSchema = z.object({
     context: z.string().optional(), // What page/feature
     contactAllowed: z.boolean().optional(),
     email: z.string().optional(),
+    feedbackCategory: z.string().optional(),
+    hasEmail: z.boolean().optional(),
+    severity: z.string().optional(),
+    featureCount: z.number().optional(),
   }).optional(),
   timestamp: z.date(),
 });

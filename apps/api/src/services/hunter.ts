@@ -104,7 +104,7 @@ export class DefaultHunterService implements HunterService {
       // For now, return mock search results from repository
       
       const result = await this.jobPostingRepo.list({
-        limit: filter.limit || 20,
+        limit: 20,
         offset: 0,
       });
 
