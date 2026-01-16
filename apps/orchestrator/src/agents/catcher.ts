@@ -2,19 +2,25 @@ import { mkdir, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { Agent, AgentTask, AgentResult } from "../agents";
-import type { Artifact, CloudStorageIntegration, ArtifactSyncState } from "@in-midst-my-life/schema";
+import type { Artifact, CloudStorageIntegration, ArtifactSyncState, IntegrityProof, VerificationLog } from "@in-midst-my-life/schema";
 import {
   type CloudStorageProvider,
-  type CloudFile
+  type CloudFile,
+  hashPayload
 } from "@in-midst-my-life/core";
 import { processFile } from "../processors";
 import { classifyByHeuristics } from "../classification/heuristics";
 import type { ArtifactRepo } from "../repositories/artifacts";
 import type { CloudIntegrationRepo } from "../repositories/cloud-integrations";
 import type { SyncStateRepo } from "../repositories/sync-state";
+import type { ProfileKeyRepo } from "../repositories/profile-keys";
+import type { VerificationLogRepo } from "../repositories/verification-logs";
 import { createArtifactRepo } from "../repositories/artifacts";
 import { createCloudIntegrationRepo } from "../repositories/cloud-integrations";
 import { createSyncStateRepo } from "../repositories/sync-state";
+import { createProfileKeyRepo } from "../repositories/profile-keys";
+import { createVerificationLogRepo } from "../repositories/verification-logs";
+import * as jose from "jose";
 
 /**
  * CatcherAgent: Cloud Storage Artifact Ingestion
