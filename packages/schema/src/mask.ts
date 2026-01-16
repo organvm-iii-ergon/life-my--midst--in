@@ -70,7 +70,7 @@ export const MaskSchema = z.object({
   motto: z.string().optional().describe("Latin epigraph or guiding principle for this persona"),
   
   // Existing functional parameters
-  ontology: z.string(),
+  ontology: z.enum(["cognitive", "expressive", "operational"]),
   functional_scope: z.string(),
   stylistic_parameters: z.object({
     tone: z.string(),
@@ -84,7 +84,7 @@ export const MaskSchema = z.object({
   filters: z.object({
     include_tags: z.array(z.string()),
     exclude_tags: z.array(z.string()),
-    priority_weights: z.record(z.number())
+    priority_weights: z.record(z.number().positive())
   }),
   redaction: z.object({
     private_tags: z.array(z.string()).optional(),

@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getSubscription } from '@/lib/api-client';
-import { NeoCard } from "@in-midst-my-life/design-system";
+import { NeoCard } from '@in-midst-my-life/design-system';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -56,7 +56,7 @@ function SuccessContent() {
           <div className="text-4xl mb-4">⚠️</div>
           <h1 className="text-2xl font-bold mb-2 text-red-400">Something went wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
-          <button 
+          <button
             onClick={() => router.push('/pricing')}
             className="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
@@ -77,7 +77,9 @@ function SuccessContent() {
         <p className="text-gray-400 mb-8">Your subscription is now active.</p>
 
         <div className="bg-black/50 p-6 rounded-lg border border-gray-800 text-left mb-8">
-          <h2 className="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-4">Subscription Details</h2>
+          <h2 className="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-4">
+            Subscription Details
+          </h2>
           <div className="space-y-2 text-sm">
             <p className="flex justify-between">
               <span className="text-gray-500">Plan:</span>
@@ -90,20 +92,22 @@ function SuccessContent() {
             {subscription?.currentPeriodEnd && (
               <p className="flex justify-between">
                 <span className="text-gray-500">Renews:</span>
-                <span className="text-white">{new Date(subscription.currentPeriodEnd).toLocaleDateString()}</span>
+                <span className="text-white">
+                  {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                </span>
               </p>
             )}
           </div>
         </div>
 
         <div className="flex flex-col gap-3">
-          <button 
+          <button
             onClick={() => router.push('/dashboard')}
             className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all"
           >
             Go to Dashboard
           </button>
-          <button 
+          <button
             onClick={() => router.push('/billing/manage')}
             className="w-full bg-transparent hover:bg-gray-900 text-gray-400 font-bold py-3 px-6 rounded-lg border border-gray-800 transition-all"
           >
@@ -117,11 +121,13 @@ function SuccessContent() {
 
 export default function CheckoutSuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-6">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mb-6"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-6">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mb-6"></div>
+        </div>
+      }
+    >
       <SuccessContent />
     </Suspense>
   );

@@ -1,7 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle2, Clock, Zap, Bug, Lightbulb, TrendingUp, MessageCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Zap,
+  Bug,
+  Lightbulb,
+  TrendingUp,
+  MessageCircle,
+} from 'lucide-react';
 import FeedbackForm from '@/components/FeedbackForm';
 
 interface Feedback {
@@ -76,7 +85,9 @@ export default function FeedbackPage({ params }: { params: { profileId: string }
     }
   };
 
-  const filteredFeedback = feedbackList.filter((f) => filterStatus === 'all' || f.status === filterStatus);
+  const filteredFeedback = feedbackList.filter(
+    (f) => filterStatus === 'all' || f.status === filterStatus,
+  );
 
   const stats = {
     total: feedbackList.length,
@@ -92,8 +103,8 @@ export default function FeedbackPage({ params }: { params: { profileId: string }
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Feedback & Support</h1>
           <p className="text-gray-600">
-            Help us improve by sharing your experiences. Every piece of feedback helps shape the future of
-            in–midst–my–life.
+            Help us improve by sharing your experiences. Every piece of feedback helps shape the
+            future of in–midst–my–life.
           </p>
         </div>
 
@@ -233,8 +244,8 @@ export default function FeedbackPage({ params }: { params: { profileId: string }
                   <div>
                     <h4 className="font-semibold text-blue-900">What happens to your feedback?</h4>
                     <p className="text-sm text-blue-800 mt-1">
-                      All feedback is reviewed by our team. We prioritize based on impact and frequency. You'll
-                      see status updates as we work on your suggestions.
+                      All feedback is reviewed by our team. We prioritize based on impact and
+                      frequency. You'll see status updates as we work on your suggestions.
                     </p>
                   </div>
                 </div>
@@ -244,10 +255,12 @@ export default function FeedbackPage({ params }: { params: { profileId: string }
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-green-900">Thank you for being a beta tester</h4>
+                    <h4 className="font-semibold text-green-900">
+                      Thank you for being a beta tester
+                    </h4>
                     <p className="text-sm text-green-800 mt-1">
-                      Your insights help us build a better product. This is a collaborative journey, and your voice
-                      matters.
+                      Your insights help us build a better product. This is a collaborative journey,
+                      and your voice matters.
                     </p>
                   </div>
                 </div>

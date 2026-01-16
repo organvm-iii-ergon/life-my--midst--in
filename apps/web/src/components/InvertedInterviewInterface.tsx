@@ -24,14 +24,14 @@ interface InvertedInterviewInterfaceProps {
   onSubmitResponse?: (response: InterviewResponse) => void;
   onCalculateCompatibility?: (
     persona: TabulaPersonarumEntry,
-    responses: InterviewResponse[]
+    responses: InterviewResponse[],
   ) => PersonaResonance;
   loading?: boolean;
 }
 
 /**
  * Inverted Interview Interface
- * 
+ *
  * Inverts traditional hiring power dynamics:
  * - Candidate asks employer about their organization
  * - Questions cover 5 dimensions: culture, growth, sustainability, impact, values
@@ -331,13 +331,11 @@ export function InvertedInterviewInterface({
 
   return (
     <div className="section">
-      <h2 className="section-title">
-        Inverted Interview: {profilePersona.everyday_name}
-      </h2>
+      <h2 className="section-title">Inverted Interview: {profilePersona.everyday_name}</h2>
 
       <p className="section-subtitle">
-        In the inverted interview, <strong>you</strong> evaluate the organization. Answer thoughtfully
-        to help both parties understand fit.
+        In the inverted interview, <strong>you</strong> evaluate the organization. Answer
+        thoughtfully to help both parties understand fit.
       </p>
 
       {/* Progress Bar */}
@@ -446,11 +444,7 @@ export function InvertedInterviewInterface({
 
       {/* Navigation */}
       <div className="hero-actions">
-        <button
-          className="button"
-          onClick={handleNextQuestion}
-          disabled={!currentAnswer.trim()}
-        >
+        <button className="button" onClick={handleNextQuestion} disabled={!currentAnswer.trim()}>
           {currentQuestionIdx < questions.length - 1 ? 'Next Question' : 'Calculate Fit'}
         </button>
         {currentQuestionIdx > 0 && (
@@ -459,7 +453,7 @@ export function InvertedInterviewInterface({
             onClick={() => {
               setCurrentQuestionIdx(currentQuestionIdx - 1);
               const prevResponse = responses.find(
-                (r) => r.questionId === questions[currentQuestionIdx - 1]?.id
+                (r) => r.questionId === questions[currentQuestionIdx - 1]?.id,
               );
               setCurrentAnswer(prevResponse?.answer || '');
               setCurrentRating(prevResponse?.rating || 3);
@@ -482,9 +476,9 @@ export function InvertedInterviewInterface({
         }}
       >
         <p className="section-subtitle" style={{ margin: 0 }}>
-          💡 <strong>Tip:</strong> The Inverted Interview is designed to give you power in the hiring
-          process. Be honest about what matters to you. Your answers will help determine if this
-          organization is right for you.
+          💡 <strong>Tip:</strong> The Inverted Interview is designed to give you power in the
+          hiring process. Be honest about what matters to you. Your answers will help determine if
+          this organization is right for you.
         </p>
       </div>
     </div>

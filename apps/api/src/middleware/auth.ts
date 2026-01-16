@@ -122,7 +122,7 @@ export function createOwnershipMiddleware() {
       });
     }
 
-    const resourceOwnerId = (request.params as any).profileId || (request.body as any).profileId;
+    const resourceOwnerId = (request.params as any).profileId || (request.params as any).id || (request.body as any).profileId;
 
     // Admin can access any resource
     if (request.user.roles?.includes("admin")) {

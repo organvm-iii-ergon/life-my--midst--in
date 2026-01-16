@@ -2,10 +2,10 @@
 
 /**
  * Scaenae Filter Component
- * 
+ *
  * Stage-based Visibility Control - Show/hide masks and content based on theatrical stages
  * Part of the theatrical metaphor: "Stages" on which different masks perform
- * 
+ *
  * Scaenae (Stages):
  * - Academica: Educational, research-driven contexts
  * - Technica: Technical, engineering-focused environments
@@ -13,7 +13,7 @@
  * - Civica: Public, civic engagement
  * - Domestica: Personal, intimate contexts
  * - Occulta: Private, fully redacted
- * 
+ *
  * Features:
  * - Toggle stages on/off
  * - See which masks are visible on each stage
@@ -306,7 +306,8 @@ export function ScaenaeFilter({
               : `${selectedStages.length} of ${allStages.length} stages selected - viewing filtered perspective`}
           </p>
           <p className="summary-content" style={{ marginTop: '0.5rem' }}>
-            Active stages: {selectedStages.map((s) => allStages.find((st) => st.id === s)?.name).join(', ')}
+            Active stages:{' '}
+            {selectedStages.map((s) => allStages.find((st) => st.id === s)?.name).join(', ')}
           </p>
         </div>
       )}
@@ -317,7 +318,8 @@ export function ScaenaeFilter({
             ⚠️ No Stages Selected
           </p>
           <p className="summary-content">
-            Select at least one stage to preview your identity. Different stages reveal different perspectives of your professional self.
+            Select at least one stage to preview your identity. Different stages reveal different
+            perspectives of your professional self.
           </p>
         </div>
       )}

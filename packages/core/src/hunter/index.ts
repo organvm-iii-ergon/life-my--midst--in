@@ -191,9 +191,9 @@ export class HunterService {
     // This is checked here rather than in a separate method since it's the bulk operation feature
     // Note: Individual job searches consume hunter_job_searches quota
     try {
-      await this.checkFeatureQuota(profileId, "hunter_auto_apply");
+      await this.checkFeatureQuota(profileId, "auto_apply");
     } catch (error) {
-      if (error instanceof HunterQuotaExceededError && error.feature === "hunter_auto_apply") {
+      if (error instanceof HunterQuotaExceededError && error.feature === "auto_apply") {
         // If auto-apply is blocked (e.g., Free tier), we can still do the search but not auto-apply
         // This is a design choice - could also fail entirely
         console.warn(`Auto-apply not available for profile ${profileId}`);
@@ -209,7 +209,7 @@ export class HunterService {
 
     for (const job of jobs) {
       try {
-        const analysis = await this.analyzeGap({ profileId, job, profile, personaId });
+        const analysis = await this.analyzeGap({ profileId, job: job as any, profile, personaId });
 
         let status = "skipped";
         let recommendation = analysis.recommendation;

@@ -442,3 +442,189 @@ I'm excited about the opportunity to join your team as a ${job.title}.`;
 
 
 }
+
+interface ResumeGenerationOptions {
+  highlightGaps?: boolean;
+  includeMetadata?: boolean;
+  personaId?: string;
+}
+
+interface CoverLetterGenerationOptions {
+  template?: "professional" | "creative" | "direct" | "academic";
+  tone?: "formal" | "conversational" | "enthusiastic";
+  includeSalutation?: boolean;
+  includeSignature?: boolean;
+  personaId?: string;
+}
+
+export interface DocumentGeneratorResult {
+  content: string;
+  confidence: number;
+  keywordMatches: string[];
+  suggestedImprovements: string[];
+  tone?: "formal" | "conversational" | "enthusiastic";
+}
+
+export class DocumentGenerator {
+  private resumeTailor = new DefaultResumeTailor();
+  private coverLetterGenerator = new DefaultCoverLetterGenerator();
+
+  async generateResume(
+    profile: Profile,
+    job: JobListing,
+    options: ResumeGenerationOptions = {}
+  ): Promise<DocumentGeneratorResult> {
+    const personaId = options.personaId || this.detectPersona(profile);
+    const tailored = await this.resumeTailor.generateForJob(profile, personaId, job.id);
+
+    const keywords = this.extractKeywords(job);
+    const matches = this.findKeywordMatches(profile, keywords);
+    const missing = keywords.filter((keyword) => !matches.includes(keyword));
+    const confidence = this.calculateConfidence(matches.length, keywords.length);
+
+    const suggestions: string[] = [];
+    if (options.highlightGaps !== false && missing.length > 0) {
+      suggestions.push(
+        ...missing.slice(0, 3).map((keyword) => `Mention "${keyword}" within a relevant experience bullet.`)
+      );
+    }
+    if (options.includeMetadata === false) {
+      suggestions.push("Enable metadata flags to surface persona-specific strengths.");
+    }
+    if (suggestions.length === 0) {
+      suggestions.push("Quantify achievements to strengthen resonance with the role.");
+    }
+
+    return {
+      content: tailored.resume,
+      confidence,
+      keywordMatches: matches,
+      suggestedImprovements: suggestions,
+    };
+  }
+
+  async generateCoverLetter(
+    profile: Profile,
+    job: JobListing,
+    options: CoverLetterGenerationOptions = {}
+  ): Promise<DocumentGeneratorResult> {
+    const personaId = options.personaId || this.detectPersona(profile);
+    const tailoredResume = await this.resumeTailor.generateForJob(profile, personaId, job.id);
+    const coverLetter = await this.coverLetterGenerator.generate({
+      job,
+      profile,
+      personaId,
+      tailoredResume: tailoredResume.resume,
+    });
+    const tone = coverLetter.tone;
+
+    const keywords = this.extractKeywords(job);
+    const matches = this.findKeywordMatches(profile, keywords);
+    const missing = keywords.filter((keyword) => !matches.includes(keyword));
+    const confidence = this.calculateConfidence(matches.length, keywords.length);
+
+    let content = this.applyCoverLetterTemplate(coverLetter.letter, options);
+    if (options.includeSalutation === false) {
+      content = this.stripSalutation(content);
+    }
+    if (options.includeSignature === false) {
+      content = this.stripSignature(content);
+    }
+
+    const suggestions: string[] = [];
+    if (missing.length > 0) {
+      suggestions.push(
+        ...missing.slice(0, 2).map((keyword) => `Tie the "${keyword}" experience to measurable outcomes.`)
+      );
+    }
+    if (options.tone && options.tone !== coverLetter.tone) {
+      suggestions.push(`Adjust the tone to be more ${options.tone}.`);
+    }
+    if (suggestions.length === 0) {
+      suggestions.push("Highlight how your background maps directly to the company's mission.");
+    }
+
+    return {
+      content,
+      confidence,
+      keywordMatches: matches,
+      suggestedImprovements: suggestions,
+      tone,
+    };
+  }
+
+  private detectPersona(profile: Profile): string {
+    if (profile.title?.toLowerCase().includes("architect")) {
+      return "Architect";
+    }
+    if (profile.title?.toLowerCase().includes("lead")) {
+      return "Engineer";
+    }
+    return "Generalist";
+  }
+
+  private extractKeywords(job: JobListing): string[] {
+    const text = [
+      job.title,
+      job.company,
+      job.description,
+      job.requirements,
+      job.technologies?.join(" "),
+      job.location,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    const tokens = Array.from(new Set(text.match(/[a-z0-9]{4,}/g) || []));
+    if (tokens.length === 0) {
+      return ["impact", "scale", "leadership"];
+    }
+
+    return tokens.slice(0, 12);
+  }
+
+  private findKeywordMatches(profile: Profile, keywords: string[]): string[] {
+    const experiences = profile.experiences?.map((exp) => exp.roleTitle).join(" ") ?? "";
+    const skills = profile.skills?.map((skill) => skill.name).join(" ") ?? "";
+    const profileText = [
+      profile.summaryMarkdown,
+      experiences,
+      skills,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return keywords.filter((keyword) => profileText.includes(keyword));
+  }
+
+  private calculateConfidence(matchCount: number, totalKeywords: number): number {
+    if (totalKeywords === 0) return 0.5;
+    const ratio = matchCount / totalKeywords;
+    return Math.min(1, 0.4 + ratio * 0.6);
+  }
+
+  private applyCoverLetterTemplate(content: string, options: CoverLetterGenerationOptions): string {
+    const templatePrefix = {
+      professional: "",
+      creative: "🌟 Creative & Bold Introduction 🌟\n",
+      direct: "Direct Note:\n",
+      academic: "Dear Committee,\n",
+    }[options.template ?? "professional"] ?? "";
+
+    const templateSuffix = options.template === "academic" ? "\nSincerely,\n[Insert Academic Title]" : "";
+    return `${templatePrefix}${content}${templateSuffix}`;
+  }
+
+  private stripSalutation(content: string): string {
+    const parts = content.split("\n\n");
+    return parts.length > 1 ? parts.slice(1).join("\n\n") : content;
+  }
+
+  private stripSignature(content: string): string {
+    const lines = content.split("\n");
+    if (lines.length <= 3) return content;
+    return lines.slice(0, lines.length - 2).join("\n");
+  }
+}

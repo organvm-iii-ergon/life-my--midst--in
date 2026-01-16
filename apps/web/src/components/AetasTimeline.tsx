@@ -2,14 +2,14 @@
 
 /**
  * Aetas Timeline Component
- * 
+ *
  * Interactive D3.js Timeline Visualization of Professional Epochs
  * Part of the theatrical metaphor: "Aetas" = ages/seasons of life
- * 
+ *
  * Shows temporal progression through career stages:
  * - Initiation → Emergence → Consolidation → Divergence
  * - Mastery → Reinvention → Transmission → Legacy
- * 
+ *
  * Features:
  * - Drag-to-explore timeline
  * - Click to focus on specific epoch
@@ -76,11 +76,12 @@ export function AetasTimeline({
 
   // Calculate timeline dimensions based on dates
   const timelineMetrics = useMemo(() => {
-    if (epochs.length === 0) return { minDate: new Date(), maxDate: new Date(), svgWidth: containerWidth };
+    if (epochs.length === 0)
+      return { minDate: new Date(), maxDate: new Date(), svgWidth: containerWidth };
 
-    const dates = epochs.flatMap(e => [e.startDate, e.endDate || new Date()]);
-    const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-    const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+    const dates = epochs.flatMap((e) => [e.startDate, e.endDate || new Date()]);
+    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
 
     // Add padding (10% on each side)
     const timespan = maxDate.getTime() - minDate.getTime();
@@ -88,7 +89,11 @@ export function AetasTimeline({
     const paddedMinDate = new Date(minDate.getTime() - padding);
     const paddedMaxDate = new Date(maxDate.getTime() + padding);
 
-    const pixelsPerDay = Math.max(1, (containerWidth - 100) / ((paddedMaxDate.getTime() - paddedMinDate.getTime()) / (1000 * 60 * 60 * 24)));
+    const pixelsPerDay = Math.max(
+      1,
+      (containerWidth - 100) /
+        ((paddedMaxDate.getTime() - paddedMinDate.getTime()) / (1000 * 60 * 60 * 24)),
+    );
 
     return {
       minDate: paddedMinDate,
@@ -113,7 +118,11 @@ export function AetasTimeline({
             padding: 3rem 1rem;
             text-align: center;
             color: rgba(156, 163, 175, 0.7);
-            background: linear-gradient(135deg, rgba(17, 24, 39, 0.5) 0%, rgba(31, 41, 55, 0.3) 100%);
+            background: linear-gradient(
+              135deg,
+              rgba(17, 24, 39, 0.5) 0%,
+              rgba(31, 41, 55, 0.3) 100%
+            );
             border-radius: 12px;
             border: 1px dashed rgba(107, 114, 128, 0.3);
           }
@@ -266,7 +275,12 @@ export function AetasTimeline({
         {/* Background grid */}
         <defs>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(107, 114, 128, 0.1)" strokeWidth="0.5" />
+            <path
+              d="M 40 0 L 0 0 0 40"
+              fill="none"
+              stroke="rgba(107, 114, 128, 0.1)"
+              strokeWidth="0.5"
+            />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
@@ -391,13 +405,25 @@ export function AetasTimeline({
               return (
                 <>
                   <h3 className="detail-title">{epoch.name}</h3>
-                  <p style={{ margin: '0 0 1rem 0', color: 'rgba(156, 163, 175, 0.8)', fontSize: '0.9rem' }}>
+                  <p
+                    style={{
+                      margin: '0 0 1rem 0',
+                      color: 'rgba(156, 163, 175, 0.8)',
+                      fontSize: '0.9rem',
+                    }}
+                  >
                     {epoch.description}
                   </p>
 
                   {epoch.milestones.length > 0 && (
                     <div style={{ marginBottom: '1rem' }}>
-                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'rgba(209, 213, 219, 0.8)' }}>
+                      <h4
+                        style={{
+                          margin: '0 0 0.5rem 0',
+                          fontSize: '0.9rem',
+                          color: 'rgba(209, 213, 219, 0.8)',
+                        }}
+                      >
                         Key Milestones
                       </h4>
                       <ul className="detail-list">
@@ -410,7 +436,13 @@ export function AetasTimeline({
 
                   {epoch.inflectionPoints.length > 0 && (
                     <div style={{ marginBottom: '1rem' }}>
-                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'rgba(209, 213, 219, 0.8)' }}>
+                      <h4
+                        style={{
+                          margin: '0 0 0.5rem 0',
+                          fontSize: '0.9rem',
+                          color: 'rgba(209, 213, 219, 0.8)',
+                        }}
+                      >
                         Inflection Points
                       </h4>
                       <ul className="detail-list">
@@ -423,7 +455,13 @@ export function AetasTimeline({
 
                   {epoch.activeMasks && epoch.activeMasks.length > 0 && (
                     <div>
-                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'rgba(209, 213, 219, 0.8)' }}>
+                      <h4
+                        style={{
+                          margin: '0 0 0.5rem 0',
+                          fontSize: '0.9rem',
+                          color: 'rgba(209, 213, 219, 0.8)',
+                        }}
+                      >
                         Active Masks
                       </h4>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>

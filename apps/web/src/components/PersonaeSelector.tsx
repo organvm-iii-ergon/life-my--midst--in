@@ -13,10 +13,10 @@ interface PersonaeSelectorProps {
 
 /**
  * Enhanced persona selector showcasing theatrical identity masks.
- * 
+ *
  * Displays:
  * - Nomen (Latin theatrical name)
- * - Everyday name  
+ * - Everyday name
  * - Role vector (what this mask does)
  * - Tone register (how it speaks)
  * - Visibility scope (which scaenae it operates in)
@@ -65,7 +65,8 @@ export function PersonaeSelector({
         Dramatis Personae
       </div>
       <p className="section-subtitle" style={{ marginBottom: '1rem' }}>
-        Select a theatrical mask to filter your curriculum vitae. Each persona emphasizes different dimensions of your complete self.
+        Select a theatrical mask to filter your curriculum vitae. Each persona emphasizes different
+        dimensions of your complete self.
       </p>
 
       <div className="stack" style={{ gap: '0.75rem' }}>
@@ -80,9 +81,7 @@ export function PersonaeSelector({
               className={`stat-card ${isSelected ? 'active' : ''}`}
               style={{
                 cursor: 'pointer',
-                border: isSelected
-                  ? '2px solid var(--accent)'
-                  : '1px solid rgba(29, 26, 22, 0.08)',
+                border: isSelected ? '2px solid var(--accent)' : '1px solid rgba(29, 26, 22, 0.08)',
                 background: isSelected ? 'rgba(211, 107, 60, 0.05)' : '#fff',
                 transition: 'all 0.2s ease',
                 padding: '1rem',
@@ -255,7 +254,10 @@ export function PersonaeSelector({
                         Context Fit Analysis
                       </div>
                       {resonance.context && (
-                        <p className="section-subtitle" style={{ margin: 0, marginBottom: '0.3rem' }}>
+                        <p
+                          className="section-subtitle"
+                          style={{ margin: 0, marginBottom: '0.3rem' }}
+                        >
                           <strong>Context:</strong> {resonance.context}
                         </p>
                       )}
@@ -287,7 +289,10 @@ export function PersonaeSelector({
                             <span className="section-subtitle" style={{ fontSize: '0.8rem' }}>
                               <strong>Misalignment Keywords:</strong>{' '}
                             </span>
-                            <div className="chip-row" style={{ gap: '0.3rem', marginTop: '0.2rem' }}>
+                            <div
+                              className="chip-row"
+                              style={{ gap: '0.3rem', marginTop: '0.2rem' }}
+                            >
                               {resonance.misalignment_keywords.map((keyword) => (
                                 <span
                                   key={keyword}

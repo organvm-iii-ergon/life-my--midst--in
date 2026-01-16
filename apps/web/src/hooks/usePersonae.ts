@@ -1,6 +1,6 @@
 /**
  * usePersonae Hook
- * 
+ *
  * Fetches and manages theatrical personas (masks) including:
  * - List of personas for a profile
  * - Resonance data (fit scores)
@@ -20,13 +20,18 @@ interface UsePersonaeReturn {
   loading: boolean;
   error: string | null;
   selectPersona: (personaId: string) => void;
-  addPersona: (persona: Omit<TabulaPersonarumEntry, 'id' | 'created_at' | 'updated_at'>) => Promise<TabulaPersonarumEntry | null>;
-  updatePersona: (id: string, patch: Partial<TabulaPersonarumEntry>) => Promise<TabulaPersonarumEntry | null>;
+  addPersona: (
+    persona: Omit<TabulaPersonarumEntry, 'id' | 'created_at' | 'updated_at'>,
+  ) => Promise<TabulaPersonarumEntry | null>;
+  updatePersona: (
+    id: string,
+    patch: Partial<TabulaPersonarumEntry>,
+  ) => Promise<TabulaPersonarumEntry | null>;
   deletePersona: (id: string) => Promise<boolean>;
   refetch: () => Promise<void>;
 }
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
 export function usePersonae(profileId: string | null): UsePersonaeReturn {
   const [personas, setPersonas] = useState<PersonaWithResonance[]>([]);
@@ -80,7 +85,7 @@ export function usePersonae(profileId: string | null): UsePersonaeReturn {
         return null;
       }
     },
-    [profileId, fetchPersonae]
+    [profileId, fetchPersonae],
   );
 
   const updatePersona = useCallback(
@@ -102,7 +107,7 @@ export function usePersonae(profileId: string | null): UsePersonaeReturn {
         return null;
       }
     },
-    [profileId, fetchPersonae]
+    [profileId, fetchPersonae],
   );
 
   const deletePersona = useCallback(
@@ -120,7 +125,7 @@ export function usePersonae(profileId: string | null): UsePersonaeReturn {
         return false;
       }
     },
-    [profileId, fetchPersonae]
+    [profileId, fetchPersonae],
   );
 
   return {

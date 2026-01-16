@@ -1,6 +1,6 @@
 import type { Agent, AgentExecutor, AgentResult, AgentTask } from "../agents";
 import {
-  MockJobSearchProvider,
+  createJobSearchProvider,
   type JobSearchQuery,
   type JobSearchProvider
 } from "@in-midst-my-life/core";
@@ -15,6 +15,7 @@ interface HunterPayload {
   jobPostingId?: string;
   apiBaseUrl?: string;
 }
+// ... (rest of imports and interfaces)
 
 interface SkillGap {
   required: string[];
@@ -35,7 +36,7 @@ export class HunterAgent implements Agent {
 
   constructor(options?: { executor?: AgentExecutor; searchProvider?: JobSearchProvider; apiBaseUrl?: string }) {
     this.executor = options?.executor;
-    this.searchProvider = options?.searchProvider ?? new MockJobSearchProvider();
+    this.searchProvider = options?.searchProvider ?? createJobSearchProvider();
     this.apiBaseUrl = options?.apiBaseUrl ?? "http://localhost:3001";
   }
 
@@ -104,7 +105,7 @@ export class HunterAgent implements Agent {
             body: JSON.stringify(postingWithProfile)
           });
           if (response.ok) {
-            saved.push(postingWithProfile);
+            saved.push(postingWithProfile as any);
           }
         } catch {
           // Continue with next posting
@@ -117,6 +118,7 @@ export class HunterAgent implements Agent {
         notes: `Found and saved ${saved.length} job postings for keywords: ${keywords.join(", ")}`,
         output: {
           count: saved.length,
+          jobIds: saved.map(p => p.id),
           postings: saved.map((p) => ({
             id: p.id,
             title: p.title,

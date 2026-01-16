@@ -171,7 +171,7 @@ export default function BatchApplications({
 
   const handleAutoApplyAll = async () => {
     const jobsToApply = jobs.filter(
-      (j) => j.compatibility.overall_score >= autoApplyThreshold && j.status === 'pending'
+      (j) => j.compatibility.overall_score >= autoApplyThreshold && j.status === 'pending',
     );
 
     setSubmitting(true);
@@ -190,10 +190,8 @@ export default function BatchApplications({
         // Update job status
         setJobs((prev) =>
           prev.map((j) =>
-            j.id === job.id
-              ? { ...j, status: 'submitted' as const, submittedAt: new Date() }
-              : j
-          )
+            j.id === job.id ? { ...j, status: 'submitted' as const, submittedAt: new Date() } : j,
+          ),
         );
 
         setSubmitted((s) => s + 1);
@@ -206,8 +204,8 @@ export default function BatchApplications({
                   status: 'failed' as const,
                   error: error instanceof Error ? error.message : 'Unknown error',
                 }
-              : j
-          )
+              : j,
+          ),
         );
 
         setFailed((f) => f + 1);
@@ -235,10 +233,8 @@ export default function BatchApplications({
 
         setJobs((prev) =>
           prev.map((j) =>
-            j.id === job.id
-              ? { ...j, status: 'submitted' as const, submittedAt: new Date() }
-              : j
-          )
+            j.id === job.id ? { ...j, status: 'submitted' as const, submittedAt: new Date() } : j,
+          ),
         );
 
         setSubmitted((s) => s + 1);
@@ -251,8 +247,8 @@ export default function BatchApplications({
                   status: 'failed' as const,
                   error: error instanceof Error ? error.message : 'Unknown error',
                 }
-              : j
-          )
+              : j,
+          ),
         );
 
         setFailed((f) => f + 1);
@@ -280,7 +276,7 @@ export default function BatchApplications({
         status: 'pending' as const,
         submittedAt: undefined,
         error: undefined,
-      }))
+      })),
     );
     setSubmitted(0);
     setFailed(0);
@@ -350,7 +346,9 @@ export default function BatchApplications({
                 disabled={submitting}
                 className="flex-1"
               />
-              <span className="font-bold text-slate-900 w-12 text-right">{autoApplyThreshold}%</span>
+              <span className="font-bold text-slate-900 w-12 text-right">
+                {autoApplyThreshold}%
+              </span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
               {statsData.eligible} of {statsData.total} jobs are eligible at this score
@@ -479,7 +477,8 @@ export default function BatchApplications({
                         <>
                           <span>•</span>
                           <span>
-                            ${(job.salary_min / 1000).toFixed(0)}K-${(job.salary_max / 1000).toFixed(0)}K
+                            ${(job.salary_min / 1000).toFixed(0)}K-$
+                            {(job.salary_max / 1000).toFixed(0)}K
                           </span>
                         </>
                       )}
@@ -541,11 +540,15 @@ export default function BatchApplications({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-slate-600">Skill Match</p>
-                      <p className="font-semibold text-slate-900">{job.compatibility.skill_match}%</p>
+                      <p className="font-semibold text-slate-900">
+                        {job.compatibility.skill_match}%
+                      </p>
                     </div>
                     <div>
                       <p className="text-slate-600">Cultural Fit</p>
-                      <p className="font-semibold text-slate-900">{job.compatibility.cultural_match}%</p>
+                      <p className="font-semibold text-slate-900">
+                        {job.compatibility.cultural_match}%
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -592,7 +595,9 @@ export default function BatchApplications({
           <li>Auto-Apply submits applications for jobs meeting your compatibility threshold</li>
           <li>Each application includes your persona-tailored resume and generated cover letter</li>
           <li>You can customize individual applications before submission (click "Customize")</li>
-          <li>Applications are submitted sequentially with rate limiting to avoid spam detection</li>
+          <li>
+            Applications are submitted sequentially with rate limiting to avoid spam detection
+          </li>
           <li>Failed submissions can be retried after troubleshooting</li>
         </ul>
       </div>

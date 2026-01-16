@@ -45,13 +45,13 @@ interface TimelineWithEpochsProps {
  * - Presence of summary (content richness)
  * - Number of tags (contextual depth)
  * - Position in epoch (recency within epoch)
- * 
+ *
  * This is a lightweight version; full scoring via @in-midst-my-life/content-model/weighting
  */
 const calculateEntryWeight = (
   entry: EnhancedTimelineEntry,
   epochIndex: number,
-  totalEpochs: number
+  totalEpochs: number,
 ): number => {
   let score = 0.5; // Base score
 
@@ -79,7 +79,7 @@ const formatRange = (start?: string, end?: string) => {
 
 /**
  * Enhanced Timeline component with epoch grouping, stage nesting, and narrative weighting.
- * 
+ *
  * Features:
  * - Groups timeline entries by epoch with collapsible sections
  * - Shows stage hierarchy within epochs
@@ -206,7 +206,10 @@ export function TimelineWithEpochs({
       </div>
 
       {/* Multi-Select Filters - Grid */}
-      <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}
+      >
         <label>
           <div className="label">Tag Filter</div>
           <select
@@ -353,10 +356,14 @@ export function TimelineWithEpochs({
                             )}
                             <div className="section-subtitle">
                               {formatRange(entry.start, entry.end)} | {entry.type}
-                              {entry.settingId ? ` | ${settingLabels[entry.settingId] ?? entry.settingId}` : ''}
+                              {entry.settingId
+                                ? ` | ${settingLabels[entry.settingId] ?? entry.settingId}`
+                                : ''}
                               {stage && ` | Stage: ${stage.title}`}
                             </div>
-                            {entry.summary ? <p style={{ margin: '0.5rem 0' }}>{entry.summary}</p> : null}
+                            {entry.summary ? (
+                              <p style={{ margin: '0.5rem 0' }}>{entry.summary}</p>
+                            ) : null}
                             {entry.tags && entry.tags.length > 0 ? (
                               <div className="chip-row">
                                 {entry.tags.map((tag) => (

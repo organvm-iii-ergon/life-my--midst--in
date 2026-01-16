@@ -11,7 +11,7 @@ import { useNarratives } from '@/hooks/useNarratives';
 
 /**
  * Narrative Page
- * 
+ *
  * Provides:
  * - Narrative generation for selected persona
  * - Editing with theatrical metadata
@@ -23,8 +23,12 @@ export default function NarrativePage() {
   const profileId = params.profileId as string | null;
 
   const { profile, loading: profileLoading } = useProfileData(profileId);
-  const { personas, selectedPersonaId, selectPersona, loading: personaeLoading } =
-    usePersonae(profileId);
+  const {
+    personas,
+    selectedPersonaId,
+    selectPersona,
+    loading: personaeLoading,
+  } = usePersonae(profileId);
   const {
     blocks,
     mask,
@@ -57,7 +61,7 @@ export default function NarrativePage() {
   const handleSaveNarrative = async (
     updatedBlocks: any[],
     preamble?: string,
-    disclaimer?: string
+    disclaimer?: string,
   ) => {
     await saveNarratives(updatedBlocks, preamble, disclaimer);
   };
@@ -75,12 +79,10 @@ export default function NarrativePage() {
 
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <section style={{ marginBottom: '2rem' }}>
-          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>
-            Narrative Generation & Editing
-          </h1>
+          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Narrative Generation & Editing</h1>
           <p style={{ color: 'var(--stone)' }}>
-            Generate AI-powered narrative blocks for your selected persona,
-            then enrich them with theatrical metadata.
+            Generate AI-powered narrative blocks for your selected persona, then enrich them with
+            theatrical metadata.
           </p>
         </section>
 
@@ -276,15 +278,15 @@ export default function NarrativePage() {
             <div style={{ marginBottom: '1rem' }}>
               <h3 style={{ margin: '0 0 0.5rem 0' }}>Authentic Disclaimer</h3>
               <p className="section-subtitle" style={{ margin: 0 }}>
-                Transparency about what's emphasized and de-emphasized in this particular
-                narrative view. Acknowledges the curation inherent in any presentation.
+                Transparency about what's emphasized and de-emphasized in this particular narrative
+                view. Acknowledges the curation inherent in any presentation.
               </p>
             </div>
             <div>
               <h3 style={{ margin: '0 0 0.5rem 0' }}>Narrative Blocks</h3>
               <p className="section-subtitle" style={{ margin: 0 }}>
-                Individual narrative units enriched with theatrical metadata including
-                performance notes and authentic caveats about their presentation.
+                Individual narrative units enriched with theatrical metadata including performance
+                notes and authentic caveats about their presentation.
               </p>
             </div>
           </div>

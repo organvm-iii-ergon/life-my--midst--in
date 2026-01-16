@@ -2,10 +2,10 @@
 
 /**
  * Tabula Personarum Component
- * 
+ *
  * Mask Registry Editor - Create, edit, and manage professional identity masks
  * Part of the theatrical metaphor: "Table of Personas"
- * 
+ *
  * Features:
  * - View all 16 masks with descriptions
  * - Create custom mask variants
@@ -63,11 +63,12 @@ export function TabulaPersonarum({
         const fetchedMasks = await maskApi.list(profileId);
         setMasks(fetchedMasks);
       } catch (err) {
-        const message = err instanceof ApiError
-          ? `API error: ${err.status} ${err.statusText}`
-          : err instanceof Error
-          ? err.message
-          : 'Failed to load masks';
+        const message =
+          err instanceof ApiError
+            ? `API error: ${err.status} ${err.statusText}`
+            : err instanceof Error
+              ? err.message
+              : 'Failed to load masks';
         setError(message);
         // Keep initial masks as fallback
         setMasks(initialMasks);
@@ -231,23 +232,36 @@ export function TabulaPersonarum({
       `}</style>
 
       <div className="masks-list">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '0.75rem',
+          }}
+        >
           <h3 style={{ color: 'rgba(229, 231, 235, 0.9)', margin: 0 }}>Masks ({masks.length})</h3>
-          <button className="button" onClick={() => setIsCreateMode(!isCreateMode)} disabled={isLoading}>
+          <button
+            className="button"
+            onClick={() => setIsCreateMode(!isCreateMode)}
+            disabled={isLoading}
+          >
             {isCreateMode ? '✕ Cancel' : '+ New Mask'}
           </button>
         </div>
 
         {error && (
-          <div style={{
-            padding: '0.75rem',
-            background: 'rgba(220, 38, 38, 0.15)',
-            border: '1px solid rgba(220, 38, 38, 0.3)',
-            borderRadius: '6px',
-            color: 'rgba(254, 202, 202, 0.9)',
-            fontSize: '0.875rem',
-            marginBottom: '0.75rem',
-          }}>
+          <div
+            style={{
+              padding: '0.75rem',
+              background: 'rgba(220, 38, 38, 0.15)',
+              border: '1px solid rgba(220, 38, 38, 0.3)',
+              borderRadius: '6px',
+              color: 'rgba(254, 202, 202, 0.9)',
+              fontSize: '0.875rem',
+              marginBottom: '0.75rem',
+            }}
+          >
             ⚠️ {error}
           </div>
         )}
@@ -286,7 +300,10 @@ export function TabulaPersonarum({
         ))}
 
         {isCreateMode && (
-          <div className="mask-item" style={{ background: 'rgba(34, 197, 94, 0.15)', borderColor: 'rgba(34, 197, 94, 0.3)' }}>
+          <div
+            className="mask-item"
+            style={{ background: 'rgba(34, 197, 94, 0.15)', borderColor: 'rgba(34, 197, 94, 0.3)' }}
+          >
             <MaskForm
               isLoading={isLoading}
               onSubmit={async (data) => {
@@ -298,11 +315,12 @@ export function TabulaPersonarum({
                   onMaskCreated?.(newMask);
                   setIsCreateMode(false);
                 } catch (err) {
-                  const message = err instanceof ApiError
-                    ? `Failed to create mask: ${err.status}`
-                    : err instanceof Error
-                    ? err.message
-                    : 'Failed to create mask';
+                  const message =
+                    err instanceof ApiError
+                      ? `Failed to create mask: ${err.status}`
+                      : err instanceof Error
+                        ? err.message
+                        : 'Failed to create mask';
                   setError(message);
                 } finally {
                   setIsLoading(false);
@@ -329,15 +347,16 @@ export function TabulaPersonarum({
                   setError(null);
                   try {
                     await maskApi.delete(profileId, selectedMask.id);
-                    setMasks(masks.filter(m => m.id !== selectedMask.id));
+                    setMasks(masks.filter((m) => m.id !== selectedMask.id));
                     onMaskDeleted?.(selectedMask.id);
                     setSelectedMask(null);
                   } catch (err) {
-                    const message = err instanceof ApiError
-                      ? `Failed to delete mask: ${err.status}`
-                      : err instanceof Error
-                      ? err.message
-                      : 'Failed to delete mask';
+                    const message =
+                      err instanceof ApiError
+                        ? `Failed to delete mask: ${err.status}`
+                        : err instanceof Error
+                          ? err.message
+                          : 'Failed to delete mask';
                     setError(message);
                   } finally {
                     setIsLoading(false);
@@ -359,16 +378,17 @@ export function TabulaPersonarum({
                 setError(null);
                 try {
                   const updatedMask = await maskApi.update(profileId, selectedMask.id, data);
-                  setMasks(masks.map(m => m.id === selectedMask.id ? updatedMask : m));
+                  setMasks(masks.map((m) => (m.id === selectedMask.id ? updatedMask : m)));
                   setSelectedMask(updatedMask);
                   onMaskUpdated?.(updatedMask);
                   setIsEditing(false);
                 } catch (err) {
-                  const message = err instanceof ApiError
-                    ? `Failed to update mask: ${err.status}`
-                    : err instanceof Error
-                    ? err.message
-                    : 'Failed to update mask';
+                  const message =
+                    err instanceof ApiError
+                      ? `Failed to update mask: ${err.status}`
+                      : err instanceof Error
+                        ? err.message
+                        : 'Failed to update mask';
                   setError(message);
                 } finally {
                   setIsLoading(false);
@@ -395,9 +415,7 @@ function MaskDetail({ mask }: { mask: Mask }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div>
-        <h2 style={{ margin: '0 0 0.5rem 0', color: 'rgba(229, 231, 235, 0.9)' }}>
-          {mask.name}
-        </h2>
+        <h2 style={{ margin: '0 0 0.5rem 0', color: 'rgba(229, 231, 235, 0.9)' }}>{mask.name}</h2>
         {mask.description && (
           <p style={{ margin: 0, color: 'rgba(156, 163, 175, 0.8)', fontSize: '0.9rem' }}>
             {mask.description}
@@ -407,7 +425,13 @@ function MaskDetail({ mask }: { mask: Mask }) {
 
       {mask.traits && mask.traits.length > 0 && (
         <div>
-          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: 'rgba(209, 213, 219, 0.8)' }}>
+          <h3
+            style={{
+              margin: '0 0 0.75rem 0',
+              fontSize: '0.9rem',
+              color: 'rgba(209, 213, 219, 0.8)',
+            }}
+          >
             Traits
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>

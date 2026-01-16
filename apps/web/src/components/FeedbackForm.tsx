@@ -20,7 +20,7 @@ interface FeedbackFormData {
 }
 
 const FEEDBACK_CATEGORIES = [
-  { value: 'bug', label: '🐛 Bug Report', description: 'Something isn\'t working right' },
+  { value: 'bug', label: '🐛 Bug Report', description: "Something isn't working right" },
   { value: 'feature-request', label: '✨ Feature Request', description: 'I want something new' },
   { value: 'improvement', label: '📈 Improvement', description: 'Something could be better' },
   { value: 'other', label: '💭 Other', description: 'General feedback' },
@@ -70,15 +70,12 @@ export default function FeedbackForm({ profileId, userId, onSubmitSuccess }: Fee
     }));
   }, []);
 
-  const handleInputChange = useCallback(
-    (field: keyof FeedbackFormData, value: any) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    },
-    []
-  );
+  const handleInputChange = useCallback((field: keyof FeedbackFormData, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -129,13 +126,13 @@ export default function FeedbackForm({ profileId, userId, onSubmitSuccess }: Fee
       } catch (error) {
         setSubmitStatus('error');
         setSubmitError(
-          error instanceof Error ? error.message : 'Failed to submit feedback. Please try again.'
+          error instanceof Error ? error.message : 'Failed to submit feedback. Please try again.',
         );
       } finally {
         setIsSubmitting(false);
       }
     },
-    [formData, profileId, userId, onSubmitSuccess]
+    [formData, profileId, userId, onSubmitSuccess],
   );
 
   return (
@@ -148,7 +145,10 @@ export default function FeedbackForm({ profileId, userId, onSubmitSuccess }: Fee
             <p className="text-sm text-green-800 mt-1">
               We appreciate your input and will review it shortly.
               {formData.followUp && formData.email && (
-                <> We'll follow up with you at <strong>{formData.email}</strong>.</>
+                <>
+                  {' '}
+                  We'll follow up with you at <strong>{formData.email}</strong>.
+                </>
               )}
             </p>
           </div>
@@ -245,7 +245,9 @@ export default function FeedbackForm({ profileId, userId, onSubmitSuccess }: Fee
 
         {/* Affected Features */}
         <fieldset className="space-y-3">
-          <legend className="text-sm font-semibold text-gray-900">Affected Features (optional)</legend>
+          <legend className="text-sm font-semibold text-gray-900">
+            Affected Features (optional)
+          </legend>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {FEATURES.map((feature) => (
               <label key={feature} className="flex items-center gap-2 cursor-pointer">

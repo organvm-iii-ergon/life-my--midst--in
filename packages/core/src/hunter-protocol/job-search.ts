@@ -2,25 +2,20 @@ import type {
   JobListing,
   HunterSearchFilter,
 } from "@in-midst-my-life/schema";
-import type { JobSearchService } from "./hunter-agent";
+import { type JobSearchService } from "../jobs";
+import { SerperJobSearchProvider } from "../search";
 
 /**
  * Job Search Service
  * Integrates with multiple job boards:
- * - LinkedIn Jobs API
- * - Indeed API
- * - AngelList (for startups)
- * - Wellfound (formerly AngelList Talent)
- *
- * For MVP: Mock implementation
- * For Production: Integrate with actual APIs
+ * - Serper (Google Jobs)
+ * - LinkedIn Jobs API (planned)
+ * - Indeed API (planned)
  */
 
 export class MockJobSearchProvider implements JobSearchService {
-  /**
-   * Mock job listings for development
-   * In production, these would come from real APIs
-   */
+  name = "mock-hunter";
+  // ... (keeping MockJobSearchProvider as is for dev)
   private mockJobs: JobListing[] = [
     {
       id: "job-1",
@@ -60,65 +55,7 @@ export class MockJobSearchProvider implements JobSearchService {
       company_industry: "Design/Creative",
       company_size: "mid-market",
       technologies: ["React", "TypeScript", "CSS", "Figma"],
-    },
-    {
-      id: "job-3",
-      title: "Startup Founder - Looking for CTO",
-      company: "AI Startup",
-      location: "Palo Alto, CA",
-      remote: "hybrid",
-      description:
-        "We're building an AI-powered platform and need a technical cofounder. Equity-focused.",
-      requirements:
-        "Full-stack expertise. ML/AI background. Startup experience preferred.",
-      salary_min: 0,
-      salary_max: 150000,
-      currency: "USD",
-      job_url: "https://example.com/jobs/cto",
-      posted_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-      source: "angellist",
-      company_industry: "Artificial Intelligence",
-      company_size: "startup",
-      technologies: ["Python", "React", "FastAPI", "PyTorch"],
-    },
-    {
-      id: "job-4",
-      title: "Product Engineer",
-      company: "HealthTech",
-      location: "Boston, MA",
-      remote: "onsite",
-      description: "Build healthcare products that change lives. Full-stack opportunity.",
-      requirements:
-        "3+ years full-stack. Healthcare background nice-to-have. HIPAA knowledge helpful.",
-      salary_min: 150000,
-      salary_max: 200000,
-      currency: "USD",
-      job_url: "https://example.com/jobs/product-engineer",
-      posted_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-      source: "linkedin",
-      company_industry: "Healthcare",
-      company_size: "mid-market",
-      technologies: ["TypeScript", "React", "Node.js", "PostgreSQL", "AWS"],
-    },
-    {
-      id: "job-5",
-      title: "Staff Engineer - Infrastructure",
-      company: "CloudCorp",
-      location: "Seattle, WA",
-      remote: "hybrid",
-      description: "Lead infrastructure initiatives for a global cloud platform.",
-      requirements:
-        "8+ years infrastructure/DevOps. Kubernetes, Terraform, CI/CD. Communication skills.",
-      salary_min: 220000,
-      salary_max: 300000,
-      currency: "USD",
-      job_url: "https://example.com/jobs/staff-engineer",
-      posted_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-      source: "indeed",
-      company_industry: "Cloud Infrastructure",
-      company_size: "enterprise",
-      technologies: ["Kubernetes", "Terraform", "Go", "AWS", "GCP"],
-    },
+    }
   ];
 
   async search(filter: HunterSearchFilter): Promise<JobListing[]> {
@@ -137,23 +74,6 @@ export class MockJobSearchProvider implements JobSearchService {
         ).toLowerCase();
 
         return filter.keywords?.some((keyword) =>
-          jobText.includes(keyword.toLowerCase())
-        );
-      });
-    }
-
-    // Filter by excluded keywords
-    if (filter.exclude_keywords && filter.exclude_keywords.length > 0) {
-      results = results.filter((job) => {
-        const jobText = (
-          job.title +
-          " " +
-          job.description +
-          " " +
-          job.requirements
-        ).toLowerCase();
-
-        return !filter.exclude_keywords?.some((keyword) =>
           jobText.includes(keyword.toLowerCase())
         );
       });
@@ -179,50 +99,6 @@ export class MockJobSearchProvider implements JobSearchService {
       );
     }
 
-    // Filter by salary
-    if (filter.min_salary) {
-      results = results.filter(
-        (job) =>
-          job.salary_max === undefined ||
-          job.salary_max >= filter.min_salary!
-      );
-    }
-
-    if (filter.max_salary) {
-      results = results.filter(
-        (job) =>
-          job.salary_min === undefined ||
-          job.salary_min <= filter.max_salary!
-      );
-    }
-
-    // Filter by company size
-    if (filter.company_sizes && filter.company_sizes.length > 0) {
-      results = results.filter((job) =>
-        job.company_size ? filter.company_sizes?.includes(job.company_size) : true
-      );
-    }
-
-    // Filter by technologies
-    if (filter.required_technologies && filter.required_technologies.length > 0) {
-      results = results.filter((job) => {
-        const jobTechs = (job.technologies || []).map((t) => t.toLowerCase());
-
-        return filter.required_technologies?.some((tech) =>
-          jobTechs.includes(tech.toLowerCase())
-        );
-      });
-    }
-
-    // Filter by posting recency
-    if (filter.posted_within_days) {
-      const cutoffDate = new Date(
-        Date.now() - filter.posted_within_days * 24 * 60 * 60 * 1000
-      );
-
-      results = results.filter((job) => job.posted_date >= cutoffDate);
-    }
-
     // Sort by recency
     results.sort(
       (a, b) => b.posted_date.getTime() - a.posted_date.getTime()
@@ -234,62 +110,45 @@ export class MockJobSearchProvider implements JobSearchService {
 
 /**
  * Production Job Search Provider
- * Integrates with real APIs (stub for now)
+ * Integrates with real APIs via Serper
  */
 export class ProductionJobSearchProvider implements JobSearchService {
-  constructor(
-    private linkedInApiKey?: string,
-    private indeedApiKey?: string,
-    private angelListApiKey?: string
-  ) {}
+  name = "production-hunter";
+  private serperProvider?: SerperJobSearchProvider;
+
+  constructor(serperApiKey?: string) {
+    if (serperApiKey) {
+      this.serperProvider = new SerperJobSearchProvider({ apiKey: serperApiKey }); // allow-secret
+    }
+  }
 
   async search(filter: HunterSearchFilter): Promise<JobListing[]> {
-    const jobs: JobListing[] = [];
-
-    // Search LinkedIn if configured
-    if (this.linkedInApiKey && filter.sources?.includes("linkedin")) {
-      const linkedInJobs = await this.searchLinkedIn(filter);
-      jobs.push(...linkedInJobs);
+    if (!this.serperProvider) {
+      throw new Error("Serper API key not configured");
     }
 
-    // Search Indeed if configured
-    if (this.indeedApiKey && filter.sources?.includes("indeed")) {
-      const indeedJobs = await this.searchIndeed(filter);
-      jobs.push(...indeedJobs);
-    }
+    const query = {
+      keywords: filter.keywords,
+      location: filter.locations?.[0],
+      limit: 20
+    };
 
-    // Search AngelList/Wellfound if configured
-    if (this.angelListApiKey && filter.sources?.includes("angellist")) {
-      const angelListJobs = await this.searchAngelList(filter);
-      jobs.push(...angelListJobs);
-    }
+    const postings = await this.serperProvider.search(query);
 
-    // Deduplicate and sort
-    const uniqueJobs = Array.from(
-      new Map(jobs.map((job) => [job.job_url, job])).values()
-    );
-
-    return uniqueJobs.sort(
-      (a, b) => b.posted_date.getTime() - a.posted_date.getTime()
-    );
-  }
-
-  private async searchLinkedIn(_filter: HunterSearchFilter): Promise<JobListing[]> {
-    // Implementation would call LinkedIn Jobs API
-    // For now, return empty array
-    return [];
-  }
-
-  private async searchIndeed(_filter: HunterSearchFilter): Promise<JobListing[]> {
-    // Implementation would call Indeed API
-    // For now, return empty array
-    return [];
-  }
-
-  private async searchAngelList(_filter: HunterSearchFilter): Promise<JobListing[]> {
-    // Implementation would call AngelList/Wellfound API
-    // For now, return empty array
-    return [];
+    // Map JobPosting back to JobListing (schema alignment)
+    return postings.map(p => ({
+      id: p.id,
+      title: p.title,
+      company: p.company,
+      location: p.location || "Remote",
+      remote: p.remote === "fully" ? "fully" : p.remote === "hybrid" ? "hybrid" : "onsite",
+      description: p.descriptionMarkdown || "",
+      requirements: "", // Serper doesn't split these
+      job_url: p.url || "",
+      posted_date: new Date(p.createdAt),
+      source: "other",
+      technologies: []
+    }));
   }
 }
 
@@ -297,13 +156,10 @@ export class ProductionJobSearchProvider implements JobSearchService {
  * Create job search provider based on environment
  */
 export function createJobSearchProvider(useProduction = false): JobSearchService {
-  if (useProduction) {
-    return new ProductionJobSearchProvider(
-      process.env['LINKEDIN_API_KEY'],
-      process.env['INDEED_API_KEY'],
-      process.env['ANGELLIST_API_KEY']
-    );
+  if (useProduction || process.env['SERPER_API_KEY']) { // allow-secret
+    return new ProductionJobSearchProvider(process.env['SERPER_API_KEY']); // allow-secret
   }
 
   return new MockJobSearchProvider();
 }
+

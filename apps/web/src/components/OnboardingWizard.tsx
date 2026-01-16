@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, CheckCircle2, Lightbulb, Users, Zap, MessageSquare } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Lightbulb,
+  Users,
+  Zap,
+  MessageSquare,
+} from 'lucide-react';
 import Link from 'next/link';
 
 interface OnboardingWizardProps {
@@ -36,24 +44,34 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
       content: (
         <div className="space-y-6">
           <p className="text-lg text-gray-700">
-            You're about to transform how the world sees you. Instead of reducing yourself to a single resume, you'll present yourself authentically across multiple contexts—theatrical masks that are all genuinely <em>you</em>.
+            You're about to transform how the world sees you. Instead of reducing yourself to a
+            single resume, you'll present yourself authentically across multiple contexts—theatrical
+            masks that are all genuinely <em>you</em>.
           </p>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h4 className="font-semibold text-blue-900 mb-2">🎭 Theatrical Identity</h4>
-              <p className="text-sm text-blue-800">Present different authentic facets of yourself to different audiences.</p>
+              <p className="text-sm text-blue-800">
+                Present different authentic facets of yourself to different audiences.
+              </p>
             </div>
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <h4 className="font-semibold text-green-900 mb-2">🔍 Smart Matching</h4>
-              <p className="text-sm text-green-800">Let organizations prove themselves worthy of your expertise.</p>
+              <p className="text-sm text-green-800">
+                Let organizations prove themselves worthy of your expertise.
+              </p>
             </div>
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
               <h4 className="font-semibold text-purple-900 mb-2">📊 Complete Profile</h4>
-              <p className="text-sm text-purple-800">One master CV captures all your skills—mother, artist, coder, teacher.</p>
+              <p className="text-sm text-purple-800">
+                One master CV captures all your skills—mother, artist, coder, teacher.
+              </p>
             </div>
             <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
               <h4 className="font-semibold text-orange-900 mb-2">⚡ Batch Operations</h4>
-              <p className="text-sm text-orange-800">Let autonomous agents handle job searching and compatibility analysis.</p>
+              <p className="text-sm text-orange-800">
+                Let autonomous agents handle job searching and compatibility analysis.
+              </p>
             </div>
           </div>
         </div>
@@ -67,7 +85,10 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
       content: (
         <div className="space-y-6">
           <p className="text-gray-700">
-            Your master profile (Curriculum Vitae Multiplex) includes <strong>everything you've accomplished</strong>—every role, skill, achievement, learning, and growth. Think of it as your complete life story, not just your job history.
+            Your master profile (Curriculum Vitae Multiplex) includes{' '}
+            <strong>everything you've accomplished</strong>—every role, skill, achievement,
+            learning, and growth. Think of it as your complete life story, not just your job
+            history.
           </p>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <h4 className="font-semibold text-amber-900 mb-3">What to include:</h4>
@@ -84,7 +105,9 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
             </ul>
           </div>
           <p className="text-sm text-gray-600">
-            <em>The system will help you tag each entry with which personas benefit from seeing it.</em>
+            <em>
+              The system will help you tag each entry with which personas benefit from seeing it.
+            </em>
           </p>
         </div>
       ),
@@ -101,25 +124,31 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
       content: (
         <div className="space-y-6">
           <p className="text-gray-700">
-            Personas aren't deceptions—they're <strong>authentic filtered views of yourself</strong>. Each persona emphasizes different capabilities for different contexts. Here are common examples:
+            Personas aren't deceptions—they're <strong>authentic filtered views of yourself</strong>
+            . Each persona emphasizes different capabilities for different contexts. Here are common
+            examples:
           </p>
           <div className="space-y-3">
             {[
               {
                 name: 'The Architect',
-                description: 'Systems designer, strategist, long-term planner. Emphasizes large-scale thinking, organizational leadership, and strategic vision.',
+                description:
+                  'Systems designer, strategist, long-term planner. Emphasizes large-scale thinking, organizational leadership, and strategic vision.',
               },
               {
                 name: 'The Engineer',
-                description: 'Problem-solver, builder, hands-on implementer. Emphasizes technical depth, execution, debugging, and shipping.',
+                description:
+                  'Problem-solver, builder, hands-on implementer. Emphasizes technical depth, execution, debugging, and shipping.',
               },
               {
                 name: 'The Technician',
-                description: 'Craftsperson, detail-oriented executor, quality advocate. Emphasizes precision, testing, documentation, and polish.',
+                description:
+                  'Craftsperson, detail-oriented executor, quality advocate. Emphasizes precision, testing, documentation, and polish.',
               },
               {
                 name: 'The Creator',
-                description: 'Artist, writer, innovator, original thinker. Emphasizes creative output, aesthetic sensibility, and novel approaches.',
+                description:
+                  'Artist, writer, innovator, original thinker. Emphasizes creative output, aesthetic sensibility, and novel approaches.',
               },
             ].map((persona) => (
               <div key={persona.name} className="p-3 bg-gray-50 border border-gray-200 rounded">
@@ -129,7 +158,10 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
             ))}
           </div>
           <p className="text-sm text-gray-600">
-            <em>You don't need to fit into predefined categories. Create personas that authentically represent how you show up.</em>
+            <em>
+              You don't need to fit into predefined categories. Create personas that authentically
+              represent how you show up.
+            </em>
           </p>
         </div>
       ),
@@ -146,21 +178,25 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
       content: (
         <div className="space-y-6">
           <p className="text-gray-700">
-            The <strong>Hunter Protocol</strong> replaces spray-and-pray application strategies with intelligent autonomous agents:
+            The <strong>Hunter Protocol</strong> replaces spray-and-pray application strategies with
+            intelligent autonomous agents:
           </p>
           <div className="space-y-3">
             {[
               {
                 step: '1. Search',
-                description: 'Autonomous agent finds relevant jobs matching your criteria and values',
+                description:
+                  'Autonomous agent finds relevant jobs matching your criteria and values',
               },
               {
                 step: '2. Analyze',
-                description: 'Honest gap analysis: where you match, where you need growth, realistic compatibility',
+                description:
+                  'Honest gap analysis: where you match, where you need growth, realistic compatibility',
               },
               {
                 step: '3. Tailor',
-                description: 'Your resume is auto-tailored to show the relevant persona for this specific role',
+                description:
+                  'Your resume is auto-tailored to show the relevant persona for this specific role',
               },
               {
                 step: '4. Apply',
@@ -174,7 +210,10 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
             ))}
           </div>
           <p className="text-sm text-gray-600">
-            <em>Instead of 2000 applications, you'll focus on 10-20 intelligent matches. Quality over quantity.</em>
+            <em>
+              Instead of 2000 applications, you'll focus on 10-20 intelligent matches. Quality over
+              quantity.
+            </em>
           </p>
         </div>
       ),
@@ -191,20 +230,37 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
       content: (
         <div className="space-y-6">
           <p className="text-gray-700">
-            Rather than letting organizations secretly judge you, <strong>you evaluate them</strong>. When an employer visits your profile, they're interviewed about their culture, values, and match with you.
+            Rather than letting organizations secretly judge you, <strong>you evaluate them</strong>
+            . When an employer visits your profile, they're interviewed about their culture, values,
+            and match with you.
           </p>
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <h4 className="font-semibold text-green-900 mb-3">Five Evaluation Categories:</h4>
             <ul className="space-y-2 text-sm text-green-800">
-              <li><strong>Cultural Fit:</strong> Values, work style, team dynamics</li>
-              <li><strong>Growth Potential:</strong> Learning opportunities, mentorship, career trajectory</li>
-              <li><strong>Compensation & Benefits:</strong> Fair pay, benefits, flexibility, work-life balance</li>
-              <li><strong>Sustainability:</strong> Business health, job security, long-term viability</li>
-              <li><strong>Impact & Purpose:</strong> Meaningful work, contribution to your values</li>
+              <li>
+                <strong>Cultural Fit:</strong> Values, work style, team dynamics
+              </li>
+              <li>
+                <strong>Growth Potential:</strong> Learning opportunities, mentorship, career
+                trajectory
+              </li>
+              <li>
+                <strong>Compensation & Benefits:</strong> Fair pay, benefits, flexibility, work-life
+                balance
+              </li>
+              <li>
+                <strong>Sustainability:</strong> Business health, job security, long-term viability
+              </li>
+              <li>
+                <strong>Impact & Purpose:</strong> Meaningful work, contribution to your values
+              </li>
             </ul>
           </div>
           <p className="text-sm text-gray-600">
-            <em>Both parties get transparency. No more surprise misalignments after months of onboarding.</em>
+            <em>
+              Both parties get transparency. No more surprise misalignments after months of
+              onboarding.
+            </em>
           </p>
         </div>
       ),
@@ -221,7 +277,8 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
       content: (
         <div className="space-y-6">
           <p className="text-gray-700">
-            You're part of our beta launch. Your feedback directly shapes the product. What's working? What's confusing? What features would transform your job search?
+            You're part of our beta launch. Your feedback directly shapes the product. What's
+            working? What's confusing? What features would transform your job search?
           </p>
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
             <h4 className="font-semibold text-purple-900 mb-3">We're listening for:</h4>
@@ -249,7 +306,8 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
       content: (
         <div className="space-y-6 text-center">
           <p className="text-lg text-gray-700">
-            You now have the foundation to present yourself authentically while letting intelligent systems and mutual evaluation handle the rest.
+            You now have the foundation to present yourself authentically while letting intelligent
+            systems and mutual evaluation handle the rest.
           </p>
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-purple-200 rounded-lg p-6">
             <h4 className="font-semibold text-gray-900 mb-3">Next Steps:</h4>

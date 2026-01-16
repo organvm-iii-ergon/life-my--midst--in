@@ -44,7 +44,7 @@ export default function CommunityLeaderboard() {
     try {
       setIsLoading(true);
       const response = await fetch(
-        `/api/community/leaderboard?timeframe=${timeframe}&filterBy=${filterBy}`
+        `/api/community/leaderboard?timeframe=${timeframe}&filterBy=${filterBy}`,
       );
       if (response.ok) {
         const data = await response.json();
@@ -67,7 +67,13 @@ export default function CommunityLeaderboard() {
       userId: '1',
       name: 'Alice Chen',
       score: 2850,
-      contributions: { feedbackGiven: 45, mentoringSessions: 12, profilesCreated: 5, connectionsFormed: 32, contentCreated: 8 },
+      contributions: {
+        feedbackGiven: 45,
+        mentoringSessions: 12,
+        profilesCreated: 5,
+        connectionsFormed: 32,
+        contentCreated: 8,
+      },
       badges: 8,
       profileViews: 245,
     },
@@ -76,7 +82,13 @@ export default function CommunityLeaderboard() {
       userId: '2',
       name: 'Marcus Johnson',
       score: 2650,
-      contributions: { feedbackGiven: 38, mentoringSessions: 15, profilesCreated: 4, connectionsFormed: 28, contentCreated: 6 },
+      contributions: {
+        feedbackGiven: 38,
+        mentoringSessions: 15,
+        profilesCreated: 4,
+        connectionsFormed: 28,
+        contentCreated: 6,
+      },
       badges: 7,
       profileViews: 189,
     },
@@ -85,7 +97,13 @@ export default function CommunityLeaderboard() {
       userId: '3',
       name: 'Aisha Patel',
       score: 2420,
-      contributions: { feedbackGiven: 32, mentoringSessions: 10, profilesCreated: 5, connectionsFormed: 25, contentCreated: 7 },
+      contributions: {
+        feedbackGiven: 32,
+        mentoringSessions: 10,
+        profilesCreated: 5,
+        connectionsFormed: 25,
+        contentCreated: 7,
+      },
       badges: 7,
       profileViews: 156,
     },
@@ -119,7 +137,9 @@ export default function CommunityLeaderboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.totalUsers.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {metrics.totalUsers.toLocaleString()}
+                </p>
               </div>
               <Users className="w-8 h-8 text-blue-500 opacity-20" />
             </div>
@@ -139,7 +159,9 @@ export default function CommunityLeaderboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm">Mentorship Sessions</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.totalMentorshipSessions}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {metrics.totalMentorshipSessions}
+                </p>
               </div>
               <MessageSquare className="w-8 h-8 text-purple-500 opacity-20" />
             </div>
@@ -177,7 +199,11 @@ export default function CommunityLeaderboard() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {filter === 'overall' ? 'Overall' : filter === 'feedback' ? 'Feedback' : 'Mentoring'}
+                {filter === 'overall'
+                  ? 'Overall'
+                  : filter === 'feedback'
+                    ? 'Feedback'
+                    : 'Mentoring'}
               </button>
             ))}
           </div>
@@ -200,7 +226,9 @@ export default function CommunityLeaderboard() {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Rank</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">User</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Score</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Contributions</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                  Contributions
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Badges</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Views</th>
               </tr>
@@ -218,13 +246,18 @@ export default function CommunityLeaderboard() {
                   </td>
 
                   <td className="px-6 py-4">
-                    <Link href={`/profile/${user.userId}`} className="text-blue-600 hover:text-blue-700 font-semibold">
+                    <Link
+                      href={`/profile/${user.userId}`}
+                      className="text-blue-600 hover:text-blue-700 font-semibold"
+                    >
                       {user.name}
                     </Link>
                   </td>
 
                   <td className="px-6 py-4">
-                    <span className="text-lg font-bold text-gray-900">{user.score.toLocaleString()}</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {user.score.toLocaleString()}
+                    </span>
                   </td>
 
                   <td className="px-6 py-4">
@@ -236,10 +269,14 @@ export default function CommunityLeaderboard() {
 
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1">
-                      {Array(Math.min(user.badges, 5)).fill(0).map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                      {user.badges > 5 && <span className="text-xs text-gray-600">+{user.badges - 5}</span>}
+                      {Array(Math.min(user.badges, 5))
+                        .fill(0)
+                        .map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      {user.badges > 5 && (
+                        <span className="text-xs text-gray-600">+{user.badges - 5}</span>
+                      )}
                     </div>
                   </td>
 
@@ -281,8 +318,8 @@ export default function CommunityLeaderboard() {
       {/* Info */}
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-sm text-blue-900">
-          💡 <strong>How to climb the leaderboard:</strong> Request feedback on personas, mentor others, build
-          connections, and contribute to the community!
+          💡 <strong>How to climb the leaderboard:</strong> Request feedback on personas, mentor
+          others, build connections, and contribute to the community!
         </p>
       </div>
     </div>

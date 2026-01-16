@@ -104,7 +104,7 @@ describe('Licensing Integration Tests', () => {
     });
 
     it('blocks hunter auto-apply for FREE tier', async () => {
-      // FREE tier has hunter_auto_apply limit of 0
+      // FREE tier has auto_apply limit of 0
       const response = await app.inject({
         method: 'POST',
         url: `/profiles/${testProfileId}/hunter/auto-apply`,

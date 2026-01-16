@@ -110,7 +110,7 @@ export default function MentorProfiles({ userId, onRequestMentorship }: MentorPr
     // Filter by expertise
     if (selectedExpertise.length > 0) {
       filtered = filtered.filter((m) =>
-        m.areasOfExpertise.some((e) => selectedExpertise.includes(e))
+        m.areasOfExpertise.some((e) => selectedExpertise.includes(e)),
       );
     }
 
@@ -127,7 +127,7 @@ export default function MentorProfiles({ userId, onRequestMentorship }: MentorPr
 
   const handleExpertiseToggle = (expertise: string) => {
     setSelectedExpertise((prev) =>
-      prev.includes(expertise) ? prev.filter((e) => e !== expertise) : [...prev, expertise]
+      prev.includes(expertise) ? prev.filter((e) => e !== expertise) : [...prev, expertise],
     );
   };
 
@@ -265,7 +265,10 @@ export default function MentorProfiles({ userId, onRequestMentorship }: MentorPr
                 const isSaved = savedMentors.has(mentor.id);
 
                 return (
-                  <div key={mentor.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                  <div
+                    key={mentor.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                  >
                     <div className="p-6">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
@@ -295,7 +298,10 @@ export default function MentorProfiles({ userId, onRequestMentorship }: MentorPr
 
                             <div className="flex flex-wrap gap-2">
                               {mentor.areasOfExpertise.slice(0, 3).map((expertise) => (
-                                <span key={expertise} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                                <span
+                                  key={expertise}
+                                  className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
+                                >
                                   {expertise}
                                 </span>
                               ))}
@@ -311,9 +317,7 @@ export default function MentorProfiles({ userId, onRequestMentorship }: MentorPr
                         <button
                           onClick={() => handleSaveMentor(mentor.id)}
                           className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
-                            isSaved
-                              ? 'bg-red-100 text-red-600'
-                              : 'hover:bg-gray-100 text-gray-400'
+                            isSaved ? 'bg-red-100 text-red-600' : 'hover:bg-gray-100 text-gray-400'
                           }`}
                         >
                           <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
@@ -325,7 +329,9 @@ export default function MentorProfiles({ userId, onRequestMentorship }: MentorPr
 
                       {/* Status & Actions */}
                       <div className="flex items-center justify-between">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${availabilityBadge.bg} ${availabilityBadge.text}`}>
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${availabilityBadge.bg} ${availabilityBadge.text}`}
+                        >
                           {availabilityBadge.label}
                         </span>
 
@@ -354,8 +360,9 @@ export default function MentorProfiles({ userId, onRequestMentorship }: MentorPr
           {filteredMentors.length > 0 && (
             <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-900">
-                💡 <strong>Tip:</strong> When requesting mentorship, personalize your message and explain what specific
-                areas you'd like to learn about. Mentors appreciate thoughtful, specific requests.
+                💡 <strong>Tip:</strong> When requesting mentorship, personalize your message and
+                explain what specific areas you'd like to learn about. Mentors appreciate
+                thoughtful, specific requests.
               </p>
             </div>
           )}

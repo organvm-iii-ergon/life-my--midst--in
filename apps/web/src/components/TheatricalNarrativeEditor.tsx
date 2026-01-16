@@ -15,7 +15,7 @@ interface TheatricalNarrativeEditorProps {
 
 /**
  * Narrative editor with theatrical metadata integration.
- * 
+ *
  * Allows editing narrative blocks with:
  * - Theatrical metadata (mask_name, scaena, aetas, performance_note)
  * - Authentic caveats about what's emphasized/de-emphasized
@@ -67,8 +67,8 @@ export function TheatricalNarrativeEditor({
                 ...updates.theatrical_metadata,
               },
             }
-          : block
-      )
+          : block,
+      ),
     );
   };
 
@@ -141,7 +141,8 @@ export function TheatricalNarrativeEditor({
         {editBlocks.length === 0 ? (
           <div className="stat-card">
             <p className="section-subtitle">
-              No narrative blocks yet. Generate narrative blocks using the AI and then edit them here.
+              No narrative blocks yet. Generate narrative blocks using the AI and then edit them
+              here.
             </p>
           </div>
         ) : (
@@ -160,9 +161,7 @@ export function TheatricalNarrativeEditor({
                           type="text"
                           className="input"
                           value={block.title}
-                          onChange={(e) =>
-                            handleUpdateBlock(block.id, { title: e.target.value })
-                          }
+                          onChange={(e) => handleUpdateBlock(block.id, { title: e.target.value })}
                         />
                       </div>
 
@@ -172,9 +171,7 @@ export function TheatricalNarrativeEditor({
                           className="input"
                           rows={5}
                           value={block.content}
-                          onChange={(e) =>
-                            handleUpdateBlock(block.id, { content: e.target.value })
-                          }
+                          onChange={(e) => handleUpdateBlock(block.id, { content: e.target.value })}
                         />
                       </div>
 
@@ -217,9 +214,7 @@ export function TheatricalNarrativeEditor({
                             <input
                               type="text"
                               className="input"
-                              value={
-                                block.theatrical_metadata?.scaena || ''
-                              }
+                              value={block.theatrical_metadata?.scaena || ''}
                               onChange={(e) =>
                                 handleUpdateBlock(block.id, {
                                   theatrical_metadata: {
@@ -239,10 +234,7 @@ export function TheatricalNarrativeEditor({
                             <input
                               type="text"
                               className="input"
-                              value={
-                                block.theatrical_metadata
-                                  ?.performance_note || ''
-                              }
+                              value={block.theatrical_metadata?.performance_note || ''}
                               onChange={(e) =>
                                 handleUpdateBlock(block.id, {
                                   theatrical_metadata: {
@@ -262,10 +254,7 @@ export function TheatricalNarrativeEditor({
                             <input
                               type="text"
                               className="input"
-                              value={
-                                block.theatrical_metadata
-                                  ?.authentic_caveat || ''
-                              }
+                              value={block.theatrical_metadata?.authentic_caveat || ''}
                               onChange={(e) =>
                                 handleUpdateBlock(block.id, {
                                   theatrical_metadata: {
@@ -282,10 +271,7 @@ export function TheatricalNarrativeEditor({
 
                       {/* Actions */}
                       <div className="hero-actions">
-                        <button
-                          className="button"
-                          onClick={() => setEditingBlockId(null)}
-                        >
+                        <button className="button" onClick={() => setEditingBlockId(null)}>
                           Done Editing
                         </button>
                         <button

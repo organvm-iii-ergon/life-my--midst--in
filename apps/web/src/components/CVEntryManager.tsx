@@ -29,7 +29,7 @@ type CVEntryType =
 
 /**
  * CV Entry Manager with multi-dimensional tagging.
- * 
+ *
  * Allows users to:
  * - Create, edit, delete CV entries
  * - Tag entries across 3 dimensions:
@@ -96,19 +96,13 @@ export function CVEntryManager({
   // Filter entries
   let filteredEntries = entries;
   if (filterPersonae.size > 0) {
-    filteredEntries = filteredEntries.filter((e) =>
-      e.personae?.some((p) => filterPersonae.has(p))
-    );
+    filteredEntries = filteredEntries.filter((e) => e.personae?.some((p) => filterPersonae.has(p)));
   }
   if (filterAetas.size > 0) {
-    filteredEntries = filteredEntries.filter((e) =>
-      e.aetas?.some((a) => filterAetas.has(a))
-    );
+    filteredEntries = filteredEntries.filter((e) => e.aetas?.some((a) => filterAetas.has(a)));
   }
   if (filterScaenae.size > 0) {
-    filteredEntries = filteredEntries.filter((e) =>
-      e.scaenae?.some((s) => filterScaenae.has(s))
-    );
+    filteredEntries = filteredEntries.filter((e) => e.scaenae?.some((s) => filterScaenae.has(s)));
   }
 
   const handleSubmit = () => {
@@ -209,9 +203,7 @@ export function CVEntryManager({
             borderRadius: '4px',
           }}
         >
-          <h3 style={{ marginTop: 0 }}>
-            {editingId ? 'Edit Entry' : 'Add New Entry'}
-          </h3>
+          <h3 style={{ marginTop: 0 }}>{editingId ? 'Edit Entry' : 'Add New Entry'}</h3>
 
           <div style={{ display: 'grid', gap: '1rem' }}>
             {/* Entry Type */}
@@ -220,9 +212,7 @@ export function CVEntryManager({
               <select
                 className="input"
                 value={formData.type}
-                onChange={(e) =>
-                  setFormData({ ...formData, type: e.target.value as CVEntryType })
-                }
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as CVEntryType })}
               >
                 {entryTypes.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -239,18 +229,14 @@ export function CVEntryManager({
                 className="input"
                 rows={4}
                 value={formData.content}
-                onChange={(e) =>
-                  setFormData({ ...formData, content: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 placeholder="Describe this entry..."
               />
             </div>
 
             {/* Priority */}
             <div>
-              <label className="label">
-                Priority: {formData.priority}%
-              </label>
+              <label className="label">Priority: {formData.priority}%</label>
               <input
                 type="range"
                 min="0"
@@ -495,9 +481,7 @@ export function CVEntryManager({
                   onClick={() => toggleFilterAetas(aeta.id)}
                   style={{
                     cursor: 'pointer',
-                    background: filterAetas.has(aeta.id)
-                      ? '#3F51B5'
-                      : 'rgba(29, 26, 22, 0.08)',
+                    background: filterAetas.has(aeta.id) ? '#3F51B5' : 'rgba(29, 26, 22, 0.08)',
                     color: filterAetas.has(aeta.id) ? '#fff' : 'var(--dark)',
                     fontSize: '0.8rem',
                   }}
@@ -520,9 +504,7 @@ export function CVEntryManager({
                   onClick={() => toggleFilterScaena(scaena.id)}
                   style={{
                     cursor: 'pointer',
-                    background: filterScaenae.has(scaena.id)
-                      ? '#4CAF50'
-                      : 'rgba(29, 26, 22, 0.08)',
+                    background: filterScaenae.has(scaena.id) ? '#4CAF50' : 'rgba(29, 26, 22, 0.08)',
                     color: filterScaenae.has(scaena.id) ? '#fff' : 'var(--dark)',
                     fontSize: '0.8rem',
                   }}
@@ -582,7 +564,8 @@ export function CVEntryManager({
                           {entryType?.label}
                         </div>
                         <div style={{ fontSize: '0.9rem', color: 'var(--stone)' }}>
-                          Priority: {entry.priority}% {entry.startDate && `• ${new Date(entry.startDate).toLocaleDateString()}`}
+                          Priority: {entry.priority}%{' '}
+                          {entry.startDate && `• ${new Date(entry.startDate).toLocaleDateString()}`}
                         </div>
                       </div>
                     </div>

@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { AppHeader } from '@/components/AppHeader';
 import { PersonaeSelector } from '@/components/PersonaeSelector';
 import { CVEntryManager } from '@/components/CVEntryManager';
@@ -10,10 +11,11 @@ import { usePersonae } from '@/hooks/usePersonae';
 import { useAetas } from '@/hooks/useAetas';
 import { useScaenae } from '@/hooks/useScaenae';
 import type { Profile } from '@in-midst-my-life/schema';
+import { Calendar } from 'lucide-react';
 
 /**
  * Profile CV Editor Page
- * 
+ *
  * Main page for managing:
  * - Theatrical persona selection
  * - CV entry management with multi-dimensional tagging
@@ -34,13 +36,8 @@ export default function ProfilePage() {
     updatePersona,
     deletePersona,
   } = usePersonae(profileId);
-  const {
-    canonicalAetas,
-    profileAetas,
-    currentAetasId,
-    addProfileAetas,
-    setCurrentAetas,
-  } = useAetas(profileId);
+  const { canonicalAetas, profileAetas, currentAetasId, addProfileAetas, setCurrentAetas } =
+    useAetas(profileId);
   const { scaenae, canonicalScaenae } = useScaenae();
 
   const selectedPersona = personas.find((p) => p.id === selectedPersonaId) || null;
@@ -90,17 +87,15 @@ export default function ProfilePage() {
         }}
       >
         <section style={{ marginBottom: '3rem' }}>
-          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>
-            Curriculum Vitae Editor
-          </h1>
+          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Curriculum Vitae Editor</h1>
           <p
             style={{
               color: 'var(--stone)',
               marginBottom: '2rem',
             }}
           >
-            Manage your master CV with theatrical masks and multi-dimensional tagging.
-            Select a persona to view and edit context-specific resumes.
+            Manage your master CV with theatrical masks and multi-dimensional tagging. Select a
+            persona to view and edit context-specific resumes.
           </p>
         </section>
 
@@ -125,8 +120,17 @@ export default function ProfilePage() {
             {canonicalAetas.length > 0 && (
               <div style={{ marginTop: '2rem' }}>
                 <div className="section" style={{ padding: '1.2rem' }}>
-                  <div className="label" style={{ marginBottom: '1rem' }}>
-                    Life-Stage Progression
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <div className="label">
+                      Life-Stage Progression
+                    </div>
+                    <Link
+                      href={`/profile/${profileId}/aetas`}
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-cyan-600 hover:bg-cyan-500 text-white rounded transition-colors font-semibold"
+                    >
+                      <Calendar size={14} />
+                      Manage
+                    </Link>
                   </div>
                   <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                     {canonicalAetas.slice(0, 4).map((aetas) => {
@@ -140,9 +144,7 @@ export default function ProfilePage() {
                         7: '📖',
                         8: '🛡️',
                       };
-                      const isProfileAetas = profileAetas.some(
-                        (pa) => pa.order === aetas.order
-                      );
+                      const isProfileAetas = profileAetas.some((pa) => pa.order === aetas.order);
                       const isCurrent = currentAetasId === aetas.id;
 
                       return (
@@ -215,8 +217,7 @@ export default function ProfilePage() {
                 <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🎭</div>
                 <h3 style={{ margin: '0 0 0.5rem 0' }}>Select a Persona</h3>
                 <p style={{ color: 'var(--stone)', margin: 0 }}>
-                  Choose a theatrical mask from the left to view and edit its
-                  associated CV entries.
+                  Choose a theatrical mask from the left to view and edit its associated CV entries.
                 </p>
               </div>
             )}

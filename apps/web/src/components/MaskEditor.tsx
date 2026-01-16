@@ -42,7 +42,12 @@ interface EditorState {
  * - Tag management with suggestions
  * - Privacy/redaction controls
  */
-export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, initialMask }: MaskEditorProps) {
+export function MaskEditor({
+  apiBaseUrl = '/api/taxonomy',
+  onSave,
+  onError,
+  initialMask,
+}: MaskEditorProps) {
   const [state, setState] = useState<EditorState>(() => {
     if (initialMask) {
       return {
@@ -52,11 +57,14 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         tone: initialMask.stylistic_parameters.tone,
         rhetoricalMode: initialMask.stylistic_parameters.rhetorical_mode,
         compressionRatio: initialMask.stylistic_parameters.compression_ratio,
-        contextsTriggers: [...initialMask.activation_rules.contexts, ...initialMask.activation_rules.triggers].join(', '),
+        contextsTriggers: [
+          ...initialMask.activation_rules.contexts,
+          ...initialMask.activation_rules.triggers,
+        ].join(', '),
         includeTags: initialMask.filters.include_tags.join(', '),
         excludeTags: initialMask.filters.exclude_tags.join(', '),
         privateTagsToRedact: (initialMask.redaction?.private_tags ?? []).join(', '),
-        obfuscateDates: initialMask.redaction?.obfuscate_dates ?? false
+        obfuscateDates: initialMask.redaction?.obfuscate_dates ?? false,
       };
     }
     return {
@@ -70,7 +78,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
       includeTags: '',
       excludeTags: '',
       privateTagsToRedact: '',
-      obfuscateDates: false
+      obfuscateDates: false,
     };
   });
 
@@ -97,14 +105,17 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
     }
   }, [history, historyIndex]);
 
-  const handleStateChange = useCallback((newState: EditorState) => {
-    setState(newState);
-    // Update history for undo/redo
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(newState);
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  }, [history, historyIndex]);
+  const handleStateChange = useCallback(
+    (newState: EditorState) => {
+      setState(newState);
+      // Update history for undo/redo
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(newState);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    },
+    [history, historyIndex],
+  );
 
   const handleSave = useCallback(async () => {
     setIsLoading(true);
@@ -127,30 +138,32 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         stylistic_parameters: {
           tone: state.tone,
           rhetorical_mode: state.rhetoricalMode,
-          compression_ratio: state.compressionRatio
+          compression_ratio: state.compressionRatio,
         },
         activation_rules: {
           contexts: parseTagString(state.contextsTriggers),
-          triggers: parseTagString(state.contextsTriggers)
+          triggers: parseTagString(state.contextsTriggers),
         },
         filters: {
           include_tags: parseTagString(state.includeTags),
           exclude_tags: parseTagString(state.excludeTags),
-          priority_weights: {}
+          priority_weights: {},
         },
         redaction: {
           private_tags: parseTagString(state.privateTagsToRedact),
-          obfuscate_dates: state.obfuscateDates
-        }
+          obfuscate_dates: state.obfuscateDates,
+        },
       };
 
       const method = initialMask ? 'PATCH' : 'POST';
-      const endpoint = initialMask ? `${apiBaseUrl}/masks/${initialMask.id}` : `${apiBaseUrl}/masks`;
+      const endpoint = initialMask
+        ? `${apiBaseUrl}/masks/${initialMask.id}`
+        : `${apiBaseUrl}/masks`;
 
       const response = await fetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(maskData)
+        body: JSON.stringify(maskData),
       });
 
       if (!response.ok) {
@@ -172,16 +185,30 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
     }
   }, [state, initialMask, apiBaseUrl, onSave, onError]);
 
-  const ontologyColor = {
-    cognitive: '#6366f1',
-    expressive: '#d946ef',
-    operational: '#f59e0b'
-  }[state.ontology] || '#6b7280';
+  const ontologyColor =
+    {
+      cognitive: '#6366f1',
+      expressive: '#d946ef',
+      operational: '#f59e0b',
+    }[state.ontology] || '#6b7280';
 
   return (
-    <div style={{ padding: '1.5rem', border: '1px solid rgba(29, 26, 22, 0.1)', borderRadius: '0.5rem' }}>
+    <div
+      style={{
+        padding: '1.5rem',
+        border: '1px solid rgba(29, 26, 22, 0.1)',
+        borderRadius: '0.5rem',
+      }}
+    >
       <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1rem',
+          }}
+        >
           <h3 style={{ margin: 0 }}>{initialMask ? 'Edit Mask' : 'Create Mask'}</h3>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
@@ -211,7 +238,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
               color: '#dc2626',
               borderRadius: '0.25rem',
               marginBottom: '1rem',
-              fontSize: '0.9rem'
+              fontSize: '0.9rem',
             }}
           >
             Error: {error}
@@ -226,7 +253,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
               color: '#15803d',
               borderRadius: '0.25rem',
               marginBottom: '1rem',
-              fontSize: '0.9rem'
+              fontSize: '0.9rem',
             }}
           >
             ✓ Mask saved successfully!
@@ -234,17 +261,31 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1rem',
+          marginBottom: '1rem',
+        }}
+      >
         {/* Basic Info */}
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Mask Name *</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Mask Name *
+            </div>
             <input
               type="text"
               value={state.name}
               onChange={(e) => handleStateChange({ ...state, name: e.target.value })}
               placeholder="e.g., Analyst, Architect"
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '0.25rem' }}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                border: '1px solid #ccc',
+                borderRadius: '0.25rem',
+              }}
               disabled={isLoading}
             />
           </label>
@@ -253,7 +294,9 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         {/* Ontology */}
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Ontology</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Ontology
+            </div>
             <select
               value={state.ontology}
               onChange={(e) => handleStateChange({ ...state, ontology: e.target.value })}
@@ -262,7 +305,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
                 padding: '0.5rem',
                 border: `2px solid ${ontologyColor}`,
                 borderRadius: '0.25rem',
-                backgroundColor: `${ontologyColor}08`
+                backgroundColor: `${ontologyColor}08`,
               }}
               disabled={isLoading}
             >
@@ -276,7 +319,9 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         {/* Functional Scope */}
         <div style={{ gridColumn: '1 / -1' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Functional Scope</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Functional Scope
+            </div>
             <textarea
               value={state.functionalScope}
               onChange={(e) => handleStateChange({ ...state, functionalScope: e.target.value })}
@@ -287,7 +332,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
                 border: '1px solid #ccc',
                 borderRadius: '0.25rem',
                 minHeight: '60px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
               }}
               disabled={isLoading}
             />
@@ -297,13 +342,20 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         {/* Stylistic Parameters */}
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Tone</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Tone
+            </div>
             <input
               type="text"
               value={state.tone}
               onChange={(e) => handleStateChange({ ...state, tone: e.target.value })}
               placeholder="e.g., neutral, warm, assertive"
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '0.25rem' }}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                border: '1px solid #ccc',
+                borderRadius: '0.25rem',
+              }}
               disabled={isLoading}
             />
           </label>
@@ -311,13 +363,20 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Rhetorical Mode</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Rhetorical Mode
+            </div>
             <input
               type="text"
               value={state.rhetoricalMode}
               onChange={(e) => handleStateChange({ ...state, rhetoricalMode: e.target.value })}
               placeholder="e.g., deductive, narrative, comparative"
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '0.25rem' }}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                border: '1px solid #ccc',
+                borderRadius: '0.25rem',
+              }}
               disabled={isLoading}
             />
           </label>
@@ -335,7 +394,9 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
               max="1"
               step="0.05"
               value={state.compressionRatio}
-              onChange={(e) => handleStateChange({ ...state, compressionRatio: parseFloat(e.target.value) })}
+              onChange={(e) =>
+                handleStateChange({ ...state, compressionRatio: parseFloat(e.target.value) })
+              }
               style={{ width: '100%' }}
               disabled={isLoading}
             />
@@ -358,7 +419,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
                 border: '1px solid #ccc',
                 borderRadius: '0.25rem',
                 minHeight: '60px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
               }}
               disabled={isLoading}
             />
@@ -368,7 +429,9 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         {/* Filter Tags */}
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Include Tags</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Include Tags
+            </div>
             <textarea
               value={state.includeTags}
               onChange={(e) => handleStateChange({ ...state, includeTags: e.target.value })}
@@ -379,7 +442,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
                 border: '1px solid #ccc',
                 borderRadius: '0.25rem',
                 minHeight: '80px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
               }}
               disabled={isLoading}
             />
@@ -388,7 +451,9 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Exclude Tags</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Exclude Tags
+            </div>
             <textarea
               value={state.excludeTags}
               onChange={(e) => handleStateChange({ ...state, excludeTags: e.target.value })}
@@ -399,7 +464,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
                 border: '1px solid #ccc',
                 borderRadius: '0.25rem',
                 minHeight: '80px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
               }}
               disabled={isLoading}
             />
@@ -409,7 +474,9 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
         {/* Redaction/Privacy */}
         <div style={{ gridColumn: '1 / -1' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Tags to Redact</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              Tags to Redact
+            </div>
             <textarea
               value={state.privateTagsToRedact}
               onChange={(e) => handleStateChange({ ...state, privateTagsToRedact: e.target.value })}
@@ -420,7 +487,7 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
                 border: '1px solid #ccc',
                 borderRadius: '0.25rem',
                 minHeight: '60px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
               }}
               disabled={isLoading}
             />
@@ -435,7 +502,9 @@ export function MaskEditor({ apiBaseUrl = '/api/taxonomy', onSave, onError, init
               onChange={(e) => handleStateChange({ ...state, obfuscateDates: e.target.checked })}
               disabled={isLoading}
             />
-            <span style={{ fontSize: '0.9rem' }}>Obfuscate dates (show only years, not specific dates)</span>
+            <span style={{ fontSize: '0.9rem' }}>
+              Obfuscate dates (show only years, not specific dates)
+            </span>
           </label>
         </div>
       </div>

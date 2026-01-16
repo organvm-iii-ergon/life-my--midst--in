@@ -1,7 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, TrendingUp, MessageSquare, AlertCircle, CheckCircle2, Activity, Filter, Download } from 'lucide-react';
+import {
+  Users,
+  TrendingUp,
+  MessageSquare,
+  AlertCircle,
+  CheckCircle2,
+  Activity,
+  Filter,
+  Download,
+} from 'lucide-react';
 
 interface BetaUser {
   id: string;
@@ -113,7 +122,17 @@ export default function BetaDashboard() {
 
   const exportData = () => {
     const csv = [
-      ['Email', 'Name', 'Joined', 'Profile %', 'Personas', 'Jobs Applied', 'Feedback', 'Status', 'Tier'],
+      [
+        'Email',
+        'Name',
+        'Joined',
+        'Profile %',
+        'Personas',
+        'Jobs Applied',
+        'Feedback',
+        'Status',
+        'Tier',
+      ],
       ...betaUsers.map((u) => [
         u.email,
         u.name,
@@ -192,7 +211,9 @@ export default function BetaDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm">Profile Completion</p>
-                  <p className="text-3xl font-bold text-gray-900">{metrics.profileCompletionRate}%</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {metrics.profileCompletionRate}%
+                  </p>
                   <p className="text-xs text-gray-600 mt-1">Average completion rate</p>
                 </div>
                 <CheckCircle2 className="w-8 h-8 text-purple-500 opacity-20" />
@@ -246,7 +267,11 @@ export default function BetaDashboard() {
                 {[
                   { label: 'Churn Rate', value: `${metrics.churnRate}%`, status: 'good' },
                   { label: 'Retention (30-day)', value: '94.8%', status: 'good' },
-                  { label: 'Avg Profile Completeness', value: `${metrics.profileCompletionRate}%`, status: 'good' },
+                  {
+                    label: 'Avg Profile Completeness',
+                    value: `${metrics.profileCompletionRate}%`,
+                    status: 'good',
+                  },
                   { label: 'Feedback Response Rate', value: '46%', status: 'ok' },
                 ].map((indicator) => (
                   <div key={indicator.label} className="flex justify-between items-center">
@@ -315,13 +340,27 @@ export default function BetaDashboard() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Joined</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Profile %</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Personas</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Jobs Applied</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Feedback</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Last Active</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Joined
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Profile %
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Personas
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Jobs Applied
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Feedback
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Last Active
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -344,12 +383,20 @@ export default function BetaDashboard() {
                             style={{ width: `${user.profileCompletion}%` }}
                           />
                         </div>
-                        <span className="text-xs font-semibold text-gray-700">{user.profileCompletion}%</span>
+                        <span className="text-xs font-semibold text-gray-700">
+                          {user.profileCompletion}%
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">{user.personasCreated}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">{user.jobsApplied}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">{user.feedbackSubmitted}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                      {user.personasCreated}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                      {user.jobsApplied}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                      {user.feedbackSubmitted}
+                    </td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${

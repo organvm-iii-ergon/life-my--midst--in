@@ -17,12 +17,12 @@ export * from "./document-generator";
 import { HunterAgent } from "./hunter-agent";
 import { MockJobSearchProvider, createJobSearchProvider } from "./job-search";
 import { DefaultCompatibilityAnalyzer } from "./compatibility-analyzer";
-import { DefaultResumeTailor, DefaultCoverLetterGenerator } from "./document-generator";
+import { DefaultResumeTailor, DefaultCoverLetterGenerator, DocumentGenerator } from "./document-generator";
 
 /**
  * Factory function to create fully configured Hunter Agent
  */
-export function createHunterAgent(useMockData = true): HunterAgent {
+export function createHunterProtocolAgent(useMockData = true): HunterAgent {
   const jobSearchService = createJobSearchProvider(!useMockData);
   const compatibilityAnalyzer = new DefaultCompatibilityAnalyzer();
   const resumeTailor = new DefaultResumeTailor();
@@ -42,3 +42,4 @@ export function createHunterAgent(useMockData = true): HunterAgent {
 export { MockJobSearchProvider };
 export { DefaultCompatibilityAnalyzer };
 export { DefaultResumeTailor, DefaultCoverLetterGenerator };
+export { DocumentGenerator };

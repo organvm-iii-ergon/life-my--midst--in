@@ -46,7 +46,7 @@ export type SubscriptionResponse = {
  */
 export async function createCheckoutSession(
   profileId: string,
-  request: CheckoutRequest
+  request: CheckoutRequest,
 ): Promise<CheckoutResponse> {
   const response = await fetch(`/api/billing/checkout/${profileId}`, {
     method: 'POST',
@@ -60,9 +60,7 @@ export async function createCheckoutSession(
 /**
  * Get current subscription for profile
  */
-export async function getSubscription(
-  profileId: string
-): Promise<SubscriptionResponse> {
+export async function getSubscription(profileId: string): Promise<SubscriptionResponse> {
   const response = await fetch(`/api/billing/subscription/${profileId}`);
   return response.json();
 }
@@ -72,7 +70,7 @@ export async function getSubscription(
  */
 export async function cancelSubscription(
   profileId: string,
-  atPeriodEnd: boolean = true
+  atPeriodEnd: boolean = true,
 ): Promise<{ ok: boolean; message: string }> {
   const response = await fetch(`/api/billing/subscription/${profileId}/cancel`, {
     method: 'POST',

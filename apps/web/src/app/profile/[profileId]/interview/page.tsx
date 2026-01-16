@@ -18,7 +18,7 @@ interface InterviewResponse {
 
 /**
  * Inverted Interview Page
- * 
+ *
  * Provides:
  * - Interview orchestration for selected persona
  * - Multi-dimensional compatibility scoring
@@ -30,8 +30,12 @@ export default function InterviewPage() {
   const profileId = params.profileId as string | null;
 
   const { profile, loading: profileLoading } = useProfileData(profileId);
-  const { personas, selectedPersonaId, selectPersona, loading: personaeLoading } =
-    usePersonae(profileId);
+  const {
+    personas,
+    selectedPersonaId,
+    selectPersona,
+    loading: personaeLoading,
+  } = usePersonae(profileId);
 
   const [showSelector, setShowSelector] = useState(!selectedPersonaId);
   const [interviewResponses, setInterviewResponses] = useState<InterviewResponse[]>([]);
@@ -49,12 +53,13 @@ export default function InterviewPage() {
 
   const handleCalculateCompatibility = (
     persona: TabulaPersonarumEntry,
-    responses: InterviewResponse[]
+    responses: InterviewResponse[],
   ): PersonaResonance => {
     // Simple compatibility scoring based on response ratings
-    const avgRating = responses.length > 0
-      ? responses.reduce((sum, r) => sum + (r.rating || 3), 0) / responses.length
-      : 3;
+    const avgRating =
+      responses.length > 0
+        ? responses.reduce((sum, r) => sum + (r.rating || 3), 0) / responses.length
+        : 3;
 
     const fitScore = Math.round(avgRating * 20); // Convert 1-5 scale to 0-100
 
@@ -98,12 +103,10 @@ export default function InterviewPage() {
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
         <section style={{ marginBottom: '2rem' }}>
-          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>
-            Inverted Interview
-          </h1>
+          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Inverted Interview</h1>
           <p style={{ color: 'var(--stone)' }}>
-            Evaluate organizations through your selected theatrical persona. 
-            You ask the questions and assess cultural fit.
+            Evaluate organizations through your selected theatrical persona. You ask the questions
+            and assess cultural fit.
           </p>
         </section>
 
@@ -180,9 +183,7 @@ export default function InterviewPage() {
                         >
                           {compatibility.fit_score}%
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--stone)' }}>
-                          Fit Score
-                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--stone)' }}>Fit Score</div>
                       </div>
                     )}
                     <button
@@ -233,12 +234,10 @@ export default function InterviewPage() {
                 fontSize: '0.85rem',
               }}
             >
-              <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
-                💡 Inverted Interview
-              </div>
+              <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>💡 Inverted Interview</div>
               <p className="section-subtitle" style={{ margin: 0, fontSize: '0.8rem' }}>
-                In this interview, <strong>you</strong> evaluate the organization.
-                Answer thoughtfully to assess cultural and value alignment.
+                In this interview, <strong>you</strong> evaluate the organization. Answer
+                thoughtfully to assess cultural and value alignment.
               </p>
             </div>
           </div>
@@ -278,8 +277,8 @@ export default function InterviewPage() {
                 <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎭</div>
                 <h3 style={{ margin: '0 0 0.5rem 0' }}>Select Your Persona</h3>
                 <p style={{ color: 'var(--stone)', margin: 0, maxWidth: '300px' }}>
-                  Choose which theatrical mask you'll use to evaluate this organization.
-                  Different personas may assess fit differently.
+                  Choose which theatrical mask you'll use to evaluate this organization. Different
+                  personas may assess fit differently.
                 </p>
               </div>
             )}
@@ -299,39 +298,31 @@ export default function InterviewPage() {
           <h2 style={{ marginTop: 0 }}>About Inverted Interviews</h2>
           <div style={{ columns: '2', gap: '2rem', columnGap: '2rem' }}>
             <div>
-              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>
-                Power Dynamics
-              </h3>
+              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>Power Dynamics</h3>
               <p className="section-subtitle">
-                Traditional interviews give all the power to employers. Inverted interviews
-                balance this by letting you (the candidate) ask questions and evaluate.
+                Traditional interviews give all the power to employers. Inverted interviews balance
+                this by letting you (the candidate) ask questions and evaluate.
               </p>
             </div>
             <div>
-              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>
-                Five Dimensions
-              </h3>
+              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>Five Dimensions</h3>
               <p className="section-subtitle">
-                Questions cover: Culture, Growth, Sustainability, Impact, and Values.
-                These reveal what an organization truly prioritizes versus what they claim.
+                Questions cover: Culture, Growth, Sustainability, Impact, and Values. These reveal
+                what an organization truly prioritizes versus what they claim.
               </p>
             </div>
             <div>
-              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>
-                Multiple Perspectives
-              </h3>
+              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>Multiple Perspectives</h3>
               <p className="section-subtitle">
-                Evaluate the same organization through different theatrical masks. What fits
-                one persona might not fit another—and that's valuable information.
+                Evaluate the same organization through different theatrical masks. What fits one
+                persona might not fit another—and that's valuable information.
               </p>
             </div>
             <div>
-              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>
-                Compatibility Scores
-              </h3>
+              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>Compatibility Scores</h3>
               <p className="section-subtitle">
-                The interview generates a fit score based on your responses. Share this with
-                the organization to demonstrate your evaluation criteria.
+                The interview generates a fit score based on your responses. Share this with the
+                organization to demonstrate your evaluation criteria.
               </p>
             </div>
           </div>

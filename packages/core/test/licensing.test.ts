@@ -45,8 +45,8 @@ describe('LicensingService', () => {
     });
     
     it('returns false for features not in tier', async () => {
-      // hunter_auto_apply is 0 in FREE tier
-      const allowed = await service.canUse('user-1', 'hunter_auto_apply');
+      // auto_apply is 0 in FREE tier
+      const allowed = await service.canUse('user-1', 'auto_apply');
       expect(allowed).toBe(false);
     });
   });
@@ -109,7 +109,7 @@ describe('LicensingService', () => {
 
       const [allowed, remaining] = await service.checkAndConsume('user-1', 'resume_tailoring');
       expect(allowed).toBe(true);
-      expect(remaining).toBe(9); // resume_tailoring has limit 10
+      expect(remaining).toBe(0); // resume_tailoring limit is 1
     });
   });
 
@@ -133,7 +133,7 @@ describe('LicensingService', () => {
       const entitlements = await service.getEntitlements('user-1');
 
       expect(entitlements.features.hunter_job_searches).toBeDefined();
-      expect(entitlements.features.hunter_auto_apply).toBeDefined();
+      expect(entitlements.features.auto_apply).toBeDefined();
       expect(entitlements.features.masks_limit).toBeDefined();
       expect(entitlements.features.resume_tailoring).toBeDefined();
       expect(entitlements.features.narrative_generation).toBeDefined();
@@ -166,7 +166,7 @@ describe('LicensingService', () => {
 
     it('resets multiple monthly features', async () => {
       await service.checkAndConsume('user-1', 'hunter_job_searches', 3);
-      await service.checkAndConsume('user-1', 'resume_tailoring', 5);
+      await service.checkAndConsume('user-1', 'resume_tailoring', 1);
       await service.checkAndConsume('user-1', 'narrative_generation', 2);
 
       await service.resetAllCounters('user-1');

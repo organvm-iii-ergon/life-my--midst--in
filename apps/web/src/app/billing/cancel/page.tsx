@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { NeoCard } from "@in-midst-my-life/design-system";
+import { NeoCard } from '@in-midst-my-life/design-system';
 
 export default function CheckoutCancelPage() {
   const router = useRouter();
@@ -16,13 +16,13 @@ export default function CheckoutCancelPage() {
         <p className="text-gray-400 mb-8">Your payment was cancelled. No charges were made.</p>
 
         <div className="flex flex-col gap-3">
-          <button 
+          <button
             onClick={() => router.push('/pricing')}
             className="w-full bg-white text-black hover:bg-gray-200 font-bold py-3 px-6 rounded-lg transition-all"
           >
             Back to Pricing
           </button>
-          <button 
+          <button
             onClick={() => router.push('/dashboard')}
             className="w-full bg-transparent hover:bg-gray-900 text-gray-400 font-bold py-3 px-6 rounded-lg border border-gray-800 transition-all"
           >

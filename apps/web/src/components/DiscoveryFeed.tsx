@@ -79,14 +79,14 @@ export default function DiscoveryFeed() {
         (p) =>
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.headline.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.topSkills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+          p.topSkills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase())),
       );
     }
 
     // Expertise filter
     if (filters.expertise.length > 0) {
       filtered = filtered.filter((p) =>
-        p.topSkills.some((skill) => filters.expertise.some((f) => skill.includes(f)))
+        p.topSkills.some((skill) => filters.expertise.some((f) => skill.includes(f))),
       );
     }
 
@@ -255,7 +255,9 @@ export default function DiscoveryFeed() {
                           : 'hover:bg-gray-100 text-gray-400'
                       }`}
                     >
-                      <Heart className={`w-5 h-5 ${likedProfiles.has(profile.id) ? 'fill-current' : ''}`} />
+                      <Heart
+                        className={`w-5 h-5 ${likedProfiles.has(profile.id) ? 'fill-current' : ''}`}
+                      />
                     </button>
                   </div>
 
@@ -267,7 +269,10 @@ export default function DiscoveryFeed() {
                     <div className="text-xs font-semibold text-gray-600 mb-2">Personas</div>
                     <div className="flex flex-wrap gap-1">
                       {profile.featuredPersonas.slice(0, 3).map((persona) => (
-                        <span key={persona} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
+                        <span
+                          key={persona}
+                          className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded"
+                        >
                           {persona}
                         </span>
                       ))}
@@ -284,7 +289,10 @@ export default function DiscoveryFeed() {
                     <div className="text-xs font-semibold text-gray-600 mb-2">Top Skills</div>
                     <div className="flex flex-wrap gap-1">
                       {profile.topSkills.slice(0, 4).map((skill) => (
-                        <span key={skill} className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded">
+                        <span
+                          key={skill}
+                          className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded"
+                        >
                           {skill}
                         </span>
                       ))}
@@ -320,8 +328,8 @@ export default function DiscoveryFeed() {
           <div className="mt-12 p-6 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="font-semibold text-blue-900 mb-2">💡 Discover Network</h3>
             <p className="text-sm text-blue-800">
-              Find professionals in your field, explore different personas, and build meaningful connections. All
-              profiles shown here have chosen to be publicly discoverable.
+              Find professionals in your field, explore different personas, and build meaningful
+              connections. All profiles shown here have chosen to be publicly discoverable.
             </p>
           </div>
         )}

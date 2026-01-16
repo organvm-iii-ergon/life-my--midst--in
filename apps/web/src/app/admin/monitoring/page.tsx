@@ -1,17 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  TrendingDown,
-  TrendingUp,
-  Database,
-  Zap,
-  Clock,
-  Gauge,
-} from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Database, Zap, Gauge } from 'lucide-react';
 
 interface ServiceHealth {
   name: string;
@@ -42,7 +32,7 @@ interface Alert {
 }
 
 export default function MonitoringDashboard() {
-  const [services, setServices] = useState<ServiceHealth[]>([
+  const [services] = useState<ServiceHealth[]>([
     {
       name: 'API Server',
       status: 'healthy',
@@ -133,6 +123,7 @@ export default function MonitoringDashboard() {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [autoRefresh]);
 
   const getStatusBadge = (status: ServiceHealth['status']) => {
@@ -160,6 +151,14 @@ export default function MonitoringDashboard() {
           text: 'text-red-800',
           icon: <AlertTriangle className="w-4 h-4 text-red-600" />,
           label: 'Down',
+        };
+      default:
+        return {
+          bg: 'bg-gray-100',
+          border: 'border-gray-300',
+          text: 'text-gray-800',
+          icon: <AlertTriangle className="w-4 h-4 text-gray-600" />,
+          label: 'Unknown',
         };
     }
   };
@@ -212,7 +211,9 @@ export default function MonitoringDashboard() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-gray-900">{service.name}</h3>
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${badge.bg} ${badge.text}`}>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${badge.bg} ${badge.text}`}
+                    >
                       {badge.icon}
                       {badge.label}
                     </span>
@@ -221,7 +222,9 @@ export default function MonitoringDashboard() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <p className="text-xs text-gray-600">Uptime</p>
-                      <p className="text-lg font-bold text-gray-900">{service.uptime.toFixed(2)}%</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {service.uptime.toFixed(2)}%
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">Response Time</p>
@@ -229,7 +232,9 @@ export default function MonitoringDashboard() {
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">Error Rate</p>
-                      <p className="text-lg font-bold text-gray-900">{service.errorRate.toFixed(2)}%</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {service.errorRate.toFixed(2)}%
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">Req/Sec</p>

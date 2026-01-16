@@ -1,6 +1,6 @@
 /**
  * useProfileData Hook
- * 
+ *
  * Fetches and manages profile CV data including:
  * - Master curriculum vitae
  * - CV entries with filtering
@@ -43,7 +43,7 @@ interface UseProfileDataReturn {
   deleteEntry: (id: string) => Promise<boolean>;
 }
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
 export function useProfileData(profileId: string | null): UseProfileDataReturn {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -96,26 +96,20 @@ export function useProfileData(profileId: string | null): UseProfileDataReturn {
           params.append('includePersonae', JSON.stringify(filter.includePersonae));
         if (filter.excludePersonae)
           params.append('excludePersonae', JSON.stringify(filter.excludePersonae));
-        if (filter.includeAetas)
-          params.append('includeAetas', JSON.stringify(filter.includeAetas));
-        if (filter.excludeAetas)
-          params.append('excludeAetas', JSON.stringify(filter.excludeAetas));
+        if (filter.includeAetas) params.append('includeAetas', JSON.stringify(filter.includeAetas));
+        if (filter.excludeAetas) params.append('excludeAetas', JSON.stringify(filter.excludeAetas));
         if (filter.includeScaenae)
           params.append('includeScaenae', JSON.stringify(filter.includeScaenae));
         if (filter.excludeScaenae)
           params.append('excludeScaenae', JSON.stringify(filter.excludeScaenae));
         if (filter.minPriority !== undefined)
           params.append('minPriority', filter.minPriority.toString());
-        if (filter.includeTags)
-          params.append('includeTags', JSON.stringify(filter.includeTags));
-        if (filter.excludeTags)
-          params.append('excludeTags', JSON.stringify(filter.excludeTags));
+        if (filter.includeTags) params.append('includeTags', JSON.stringify(filter.includeTags));
+        if (filter.excludeTags) params.append('excludeTags', JSON.stringify(filter.excludeTags));
         params.append('offset', (filter.offset ?? 0).toString());
         params.append('limit', (filter.limit ?? 50).toString());
 
-        const res = await fetch(
-          `${apiBase}/profiles/${profileId}/cv/entries?${params.toString()}`
-        );
+        const res = await fetch(`${apiBase}/profiles/${profileId}/cv/entries?${params.toString()}`);
         if (!res.ok) throw new Error('Failed to filter entries');
 
         const data = await res.json();
@@ -131,7 +125,7 @@ export function useProfileData(profileId: string | null): UseProfileDataReturn {
         setLoading(false);
       }
     },
-    [profileId]
+    [profileId],
   );
 
   const addEntry = useCallback(
@@ -153,7 +147,7 @@ export function useProfileData(profileId: string | null): UseProfileDataReturn {
         return null;
       }
     },
-    [profileId, fetchProfile]
+    [profileId, fetchProfile],
   );
 
   const updateEntry = useCallback(
@@ -175,7 +169,7 @@ export function useProfileData(profileId: string | null): UseProfileDataReturn {
         return null;
       }
     },
-    [profileId, fetchProfile]
+    [profileId, fetchProfile],
   );
 
   const deleteEntry = useCallback(
@@ -193,7 +187,7 @@ export function useProfileData(profileId: string | null): UseProfileDataReturn {
         return false;
       }
     },
-    [profileId, fetchProfile]
+    [profileId, fetchProfile],
   );
 
   return {

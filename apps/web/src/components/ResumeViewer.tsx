@@ -15,7 +15,7 @@ interface ResumeViewerProps {
 
 /**
  * Resume viewer with theatrical framing.
- * 
+ *
  * Displays:
  * - Theatrical preamble explaining the persona lens
  * - Filtered CV entries sorted by priority
@@ -73,7 +73,7 @@ export function ResumeViewer({
       acc[type].push(entry);
       return acc;
     },
-    {} as Record<string, CVEntry[]>
+    {} as Record<string, CVEntry[]>,
   );
 
   // Sort within each group by priority
@@ -140,9 +140,7 @@ export function ResumeViewer({
                 <p style={{ margin: '0 0 0.5rem 0', color: 'var(--stone)', fontStyle: 'italic' }}>
                   {persona.nomen}
                 </p>
-                <p style={{ margin: '0 0 1rem 0', color: 'var(--dark)' }}>
-                  {persona.role_vector}
-                </p>
+                <p style={{ margin: '0 0 1rem 0', color: 'var(--dark)' }}>{persona.role_vector}</p>
                 {persona.motto && (
                   <p style={{ margin: 0, color: 'var(--stone)', fontStyle: 'italic' }}>
                     "{persona.motto}"
@@ -152,10 +150,7 @@ export function ResumeViewer({
               <div style={{ textAlign: 'right' }}>
                 {persona.visibility_scope && persona.visibility_scope.length > 0 && (
                   <div>
-                    <div
-                      className="label"
-                      style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}
-                    >
+                    <div className="label" style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
                       Stages
                     </div>
                     <div className="chip-row" style={{ justifyContent: 'flex-end', gap: '0.3rem' }}>
@@ -238,9 +233,7 @@ export function ResumeViewer({
       {/* Entries */}
       {entries.length === 0 ? (
         <div className="stat-card">
-          <p className="section-subtitle">
-            No entries match the filters for this persona.
-          </p>
+          <p className="section-subtitle">No entries match the filters for this persona.</p>
         </div>
       ) : (
         <div className="stack" style={{ gap: '0.75rem' }}>
@@ -333,7 +326,10 @@ export function ResumeViewer({
                             entry.aetas?.length ||
                             entry.scaenae?.length ||
                             entry.tags?.length) && (
-                            <div className="chip-row" style={{ gap: '0.3rem', marginTop: '0.5rem' }}>
+                            <div
+                              className="chip-row"
+                              style={{ gap: '0.3rem', marginTop: '0.5rem' }}
+                            >
                               {entry.tags?.map((tag) => (
                                 <span key={tag} className="chip" style={{ fontSize: '0.75rem' }}>
                                   {tag}
@@ -397,8 +393,8 @@ export function ResumeViewer({
         >
           <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>Generate Resumes for All Masks</h3>
           <p className="section-subtitle">
-            Create filtered resumes for all {allPersonas.length} of your theatrical personas in
-            one action.
+            Create filtered resumes for all {allPersonas.length} of your theatrical personas in one
+            action.
           </p>
           <div className="hero-actions" style={{ marginTop: '1rem' }}>
             <button

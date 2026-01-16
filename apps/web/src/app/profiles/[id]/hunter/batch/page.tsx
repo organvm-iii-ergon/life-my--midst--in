@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Settings, Download, BarChart3 } from 'lucide-react';
 import BatchApplications from '@/components/BatchApplications';
+import { usePersonae } from '@/hooks/usePersonae';
 
 interface PageProps {
   params: {
@@ -13,11 +14,22 @@ interface PageProps {
 
 export default function BatchApplicationsPage({ params }: PageProps) {
   const { id: profileId } = params;
-  const [personaId, setPersonaId] = useState('Architect');
+  const { personas, selectedPersonaId, selectPersona } = usePersonae(profileId);
+  const [personaId, setPersonaId] = useState<string | null>(null);
   const [minScore, setMinScore] = useState(70);
   const [showSettings, setShowSettings] = useState(false);
   const [maxApplicationsPerDay, setMaxApplicationsPerDay] = useState(10);
   const [emailNotifications, setEmailNotifications] = useState(true);
+
+  // Initialize persona selection
+  useEffect(() => {
+    if (selectedPersonaId && !personaId) {
+      setPersonaId(selectedPersonaId);
+    } else if (personas.length > 0 && !personaId && !selectedPersonaId) {
+      setPersonaId(personas[0].id);
+      selectPersona(personas[0].id);
+    }
+  }, [personas, selectedPersonaId, personaId, selectPersona]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -64,16 +76,20 @@ export default function BatchApplicationsPage({ params }: PageProps) {
                 Primary Persona
               </label>
               <select
-                value={personaId}
-                onChange={(e) => setPersonaId(e.target.value)}
+                value={personaId || 'default'}
+                onChange={(e) => {
+                  const newId = e.target.value;
+                  setPersonaId(newId);
+                  selectPersona(newId);
+                }}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option>Architect</option>
-                <option>Engineer</option>
-                <option>Technician</option>
-                <option>Analyst</option>
-                <option>Synthesist</option>
-                <option>Generalist</option>
+                <option value="default">Default</option>
+                {personas.map((persona) => (
+                  <option key={persona.id} value={persona.id}>
+                    {persona.name || `Persona ${persona.id.slice(0, 8)}`}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -189,7 +205,9 @@ export default function BatchApplicationsPage({ params }: PageProps) {
 
         {/* Best Practices */}
         <div className="mt-12 bg-white rounded-lg shadow p-8">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Best Practices for Batch Applications</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-4">
+            Best Practices for Batch Applications
+          </h2>
           <div className="grid grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold text-slate-900 mb-2">Before You Apply</h3>
@@ -219,11 +237,13 @@ export default function BatchApplicationsPage({ params }: PageProps) {
         <div className="mt-8 p-6 bg-purple-50 border border-purple-200 rounded-lg">
           <h3 className="font-semibold text-purple-900 mb-2">🎭 On Theatrical Performance</h3>
           <p className="text-sm text-purple-800">
-            Each application presents you through a specific persona—the Architect, the Engineer, the Generalist.
-            This is not deception. It is strategic curation of your genuine capabilities. Each persona is authentically you,
-            simply emphasizing different facets of your complete humanity. The resume tailoring highlights strengths most
-            relevant to each role, while the generated cover letters speak to genuine interests and growth opportunities.
-            You are not becoming someone else; you are showing which version of your authentic self best aligns with each opportunity.
+            Each application presents you through a specific persona—the Architect, the Engineer,
+            the Generalist. This is not deception. It is strategic curation of your genuine
+            capabilities. Each persona is authentically you, simply emphasizing different facets of
+            your complete humanity. The resume tailoring highlights strengths most relevant to each
+            role, while the generated cover letters speak to genuine interests and growth
+            opportunities. You are not becoming someone else; you are showing which version of your
+            authentic self best aligns with each opportunity.
           </p>
         </div>
       </div>

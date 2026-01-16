@@ -116,7 +116,8 @@ export default function MessageThread({ threadId, participantName, onBack }: Mes
 
     if (diffMinutes < 1) return 'now';
     if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffMinutes < 1440) return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    if (diffMinutes < 1440)
+      return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     return date.toLocaleDateString();
   };
 
@@ -125,10 +126,7 @@ export default function MessageThread({ threadId, participantName, onBack }: Mes
       {/* Header */}
       <div className="border-b border-gray-200 p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
+          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
           <div>
@@ -210,8 +208,14 @@ export default function MessageThread({ threadId, participantName, onBack }: Mes
             <div className="bg-gray-100 px-4 py-2 rounded-lg">
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                <div
+                  className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                  style={{ animationDelay: '0.2s' }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                  style={{ animationDelay: '0.4s' }}
+                ></div>
               </div>
             </div>
           </div>

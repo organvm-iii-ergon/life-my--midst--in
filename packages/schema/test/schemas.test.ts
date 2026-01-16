@@ -20,6 +20,7 @@ describe("Schema Validation Suite", () => {
   describe("Profile Schema", () => {
     const validProfile = {
       id: "550e8400-e29b-41d4-a716-446655440000",
+      identityId: "650e8400-e29b-41d4-a716-446655440001",
       displayName: "Jane Doe",
       title: "Senior Engineer",
       summaryMarkdown: "Experienced software engineer",
@@ -31,7 +32,9 @@ describe("Schema Validation Suite", () => {
       slug: "jane-doe",
       visibility: { default: "everyone" },
       sectionOrder: ["experience", "education", "skills"],
-      agentSettings: { enabled: false }
+      agentSettings: { enabled: false },
+      createdAt: "2024-01-01T00:00:00Z",
+      updatedAt: "2024-01-01T00:00:00Z"
     };
 
     it("validates a valid profile", () => {
@@ -52,7 +55,14 @@ describe("Schema Validation Suite", () => {
     });
 
     it("allows minimal profile with just displayName", () => {
-      const minimal = { displayName: "John Doe" };
+      const minimal = {
+        id: "750e8400-e29b-41d4-a716-446655440001",
+        identityId: "750e8400-e29b-41d4-a716-446655440002",
+        displayName: "John Doe",
+        slug: "john-doe",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
       const result = ProfileSchema.safeParse(minimal);
       expect(result.success).toBe(true);
     });
@@ -203,13 +213,16 @@ describe("Schema Validation Suite", () => {
 
   describe("Experience Schema", () => {
     const validExperience = {
-      id: "exp-001",
+      id: "770e8400-e29b-41d4-a716-446655440001",
+      profileId: "550e8400-e29b-41d4-a716-446655440000",
       roleTitle: "Senior Engineer",
       organization: "Tech Corp",
       startDate: "2020-01-01T00:00:00Z",
       isCurrent: true,
       tags: ["leadership", "engineering"],
-      descriptionMarkdown: "Led the engineering team"
+      descriptionMarkdown: "Led the engineering team",
+      createdAt: "2020-01-01T00:00:00Z",
+      updatedAt: "2024-01-01T00:00:00Z"
     };
 
     it("validates a valid experience", () => {
@@ -238,11 +251,15 @@ describe("Schema Validation Suite", () => {
 
   describe("Education Schema", () => {
     const validEducation = {
-      id: "edu-001",
+      id: "880e8400-e29b-41d4-a716-446655440002",
+      profileId: "550e8400-e29b-41d4-a716-446655440000",
       institution: "MIT",
       fieldOfStudy: "Computer Science",
-      degreeType: "Bachelor",
-      startDate: "2016-09-01T00:00:00Z"
+      degree: "Bachelor",
+      startDate: "2016-09-01T00:00:00Z",
+      isCurrent: false,
+      createdAt: "2016-09-01T00:00:00Z",
+      updatedAt: "2020-06-01T00:00:00Z"
     };
 
     it("validates a valid education entry", () => {
@@ -257,7 +274,7 @@ describe("Schema Validation Suite", () => {
     });
 
     it("allows optional graduationDate", () => {
-      const withGraduation = { ...validEducation, graduationDate: "2020-05-30T00:00:00Z" };
+      const withGraduation = { ...validEducation, endDate: "2020-05-30T00:00:00Z" };
       const result = EducationSchema.safeParse(withGraduation);
       expect(result.success).toBe(true);
     });
@@ -265,10 +282,14 @@ describe("Schema Validation Suite", () => {
 
   describe("Skill Schema", () => {
     const validSkill = {
-      id: "skill-typescript",
+      id: "990e8400-e29b-41d4-a716-446655440003",
+      profileId: "550e8400-e29b-41d4-a716-446655440000",
       name: "TypeScript",
-      category: "Programming Languages",
-      proficiencyLevel: "Expert"
+      category: "technical",
+      level: "expert",
+      isPrimary: true,
+      createdAt: "2020-01-01T00:00:00Z",
+      updatedAt: "2024-01-01T00:00:00Z"
     };
 
     it("validates a valid skill", () => {
@@ -283,16 +304,16 @@ describe("Schema Validation Suite", () => {
     });
 
     it("validates proficiency levels", () => {
-      const levels = ["Beginner", "Intermediate", "Advanced", "Expert"];
+      const levels = ["novice", "intermediate", "advanced", "expert"];
       levels.forEach((level) => {
-        const skill = { ...validSkill, proficiencyLevel: level };
+        const skill = { ...validSkill, level };
         const result = SkillSchema.safeParse(skill);
         expect(result.success).toBe(true);
       });
     });
 
     it("rejects invalid proficiency level", () => {
-      const invalid = { ...validSkill, proficiencyLevel: "Superhero" };
+      const invalid = { ...validSkill, level: "superhero" };
       const result = SkillSchema.safeParse(invalid);
       expect(result.success).toBe(false);
     });
@@ -369,11 +390,14 @@ describe("Schema Validation Suite", () => {
 
   describe("Verification Schema", () => {
     const validLog = {
-      id: "verif-001",
+      id: "660e8400-e29b-41d4-a716-446655440000",
       profileId: "550e8400-e29b-41d4-a716-446655440000",
+      entityType: "experience" as const,
+      entityId: "770e8400-e29b-41d4-a716-446655440000",
+      source: "manual" as const,
       status: "verified" as const,
-      verifiedAt: new Date().toISOString(),
-      verificationMethod: "email"
+      createdAt: "2024-01-01T00:00:00Z",
+      updatedAt: "2024-01-01T00:00:00Z"
     };
 
     it("validates a verification log", () => {

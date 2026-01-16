@@ -84,7 +84,7 @@ export default function PersonaCollaborationCard({
         setIsSubmitting(false);
       }
     },
-    [profileId, personaId, advisorEmail, message, isSubmitting, onRequestSent]
+    [profileId, personaId, advisorEmail, message, isSubmitting, onRequestSent],
   );
 
   const copyToClipboard = () => {
@@ -113,8 +113,8 @@ export default function PersonaCollaborationCard({
       {!isOpen && (
         <div>
           <p className="text-sm text-gray-700 mb-4">
-            Get constructive feedback on your <strong>{personaName}</strong> persona. Share a link with mentors or
-            advisors to get their insights on how you can refine this persona.
+            Get constructive feedback on your <strong>{personaName}</strong> persona. Share a link
+            with mentors or advisors to get their insights on how you can refine this persona.
           </p>
 
           <button
@@ -158,7 +158,10 @@ export default function PersonaCollaborationCard({
           {!showLink && (
             <form onSubmit={handleSendRequest} className="space-y-3">
               <div>
-                <label htmlFor="advisorEmail" className="block text-sm font-semibold text-gray-900 mb-1">
+                <label
+                  htmlFor="advisorEmail"
+                  className="block text-sm font-semibold text-gray-900 mb-1"
+                >
                   Advisor Email
                 </label>
                 <input
@@ -188,7 +191,8 @@ export default function PersonaCollaborationCard({
 
               {submitStatus === 'success' && (
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
-                  ✓ Feedback request sent! Your advisor will receive an email with a link to review your persona.
+                  ✓ Feedback request sent! Your advisor will receive an email with a link to review
+                  your persona.
                 </div>
               )}
 
@@ -221,8 +225,8 @@ export default function PersonaCollaborationCard({
           {showLink && (
             <div className="space-y-3">
               <p className="text-sm text-gray-700">
-                Share this link with anyone. They can view your <strong>{personaName}</strong> persona and provide
-                feedback without needing to create an account.
+                Share this link with anyone. They can view your <strong>{personaName}</strong>{' '}
+                persona and provide feedback without needing to create an account.
               </p>
 
               {!shareLink ? (
@@ -272,8 +276,8 @@ export default function PersonaCollaborationCard({
       {/* Info */}
       <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
         <p className="text-xs text-amber-800">
-          💡 <strong>Tip:</strong> Feedback helps you refine how you present yourself. Choose advisors who know you
-          well and can give honest, constructive input.
+          💡 <strong>Tip:</strong> Feedback helps you refine how you present yourself. Choose
+          advisors who know you well and can give honest, constructive input.
         </p>
       </div>
     </div>

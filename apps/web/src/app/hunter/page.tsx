@@ -1,20 +1,20 @@
-import HunterDashboard from "@/components/HunterDashboard";
-import { headers } from "next/headers";
+import HunterDashboard from '@/components/HunterDashboard';
+import { headers } from 'next/headers';
 
 async function getProfile() {
-  const apiUrl = process.env.API_URL || "http://localhost:3001";
-  
+  const apiUrl = process.env['API_URL'] || 'http://localhost:3001';
+
   try {
     const res = await fetch(`${apiUrl}/profiles?limit=1`, {
-      cache: "no-store",
+      cache: 'no-store',
     });
-    
+
     if (!res.ok) return null;
-    
+
     const data = await res.json();
     return data.data?.[0] || null;
   } catch (error) {
-    console.error("Failed to fetch profile:", error);
+    console.error('Failed to fetch profile:', error);
     return null;
   }
 }
@@ -29,8 +29,8 @@ export default async function HunterPage() {
         <p className="text-gray-600 mb-8">
           No active profile found. Please create a profile to use the Hunter Protocol.
         </p>
-        <a 
-          href="/" 
+        <a
+          href="/"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
         >
           Return Home
@@ -41,10 +41,7 @@ export default async function HunterPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <HunterDashboard 
-        profileId={profile.id} 
-        personaId="default" // TODO: Add persona selector
-      />
+      <HunterDashboard profileId={profile.id} />
     </main>
   );
 }

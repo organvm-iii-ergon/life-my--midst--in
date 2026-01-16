@@ -15,7 +15,7 @@ interface AppHeaderProps {
 
 /**
  * AppHeader Component
- * 
+ *
  * Top navigation bar with:
  * - Profile/branding
  * - Current persona context (compact view)
@@ -69,9 +69,7 @@ export function AppHeader({
           {profileName && (
             <>
               <div style={{ color: 'var(--stone)', fontSize: '0.9rem' }}>•</div>
-              <div style={{ fontSize: '0.95rem', color: 'var(--dark)' }}>
-                {profileName}
-              </div>
+              <div style={{ fontSize: '0.95rem', color: 'var(--dark)' }}>{profileName}</div>
             </>
           )}
         </div>
@@ -187,12 +185,10 @@ export function AppHeader({
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                (e.target as HTMLButtonElement).style.background =
-                  'rgba(211, 107, 60, 0.15)';
+                (e.target as HTMLButtonElement).style.background = 'rgba(211, 107, 60, 0.15)';
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLButtonElement).style.background =
-                  'rgba(211, 107, 60, 0.1)';
+                (e.target as HTMLButtonElement).style.background = 'rgba(211, 107, 60, 0.1)';
               }}
             >
               <span>🎭</span>
@@ -245,9 +241,7 @@ export function AppHeader({
                       }}
                       style={{
                         width: '100%',
-                        background: isSelected
-                          ? 'rgba(211, 107, 60, 0.1)'
-                          : 'transparent',
+                        background: isSelected ? 'rgba(211, 107, 60, 0.1)' : 'transparent',
                         border: 'none',
                         padding: '0.75rem 1rem',
                         textAlign: 'left',
@@ -263,8 +257,9 @@ export function AppHeader({
                         }
                       }}
                       onMouseLeave={(e) => {
-                        (e.target as HTMLButtonElement).style.background =
-                          isSelected ? 'rgba(211, 107, 60, 0.1)' : 'transparent';
+                        (e.target as HTMLButtonElement).style.background = isSelected
+                          ? 'rgba(211, 107, 60, 0.1)'
+                          : 'transparent';
                       }}
                     >
                       <div

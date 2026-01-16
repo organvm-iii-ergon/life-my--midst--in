@@ -269,7 +269,7 @@ describe('BatchApplications Component', () => {
       const customizeLinks = screen.getAllByText(/customize/i);
       expect(customizeLinks[0].closest('a')).toHaveAttribute(
         'href',
-        '/profiles/profile-123/hunter/job-1'
+        '/profiles/profile-123/hunter/job-1',
       );
     });
   });
@@ -330,9 +330,7 @@ describe('BatchApplications Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/how batch operations work/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/auto-apply submits applications/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/auto-apply submits applications/i)).toBeInTheDocument();
     });
   });
 

@@ -37,7 +37,8 @@ export type Subscription = z.infer<typeof SubscriptionSchema>;
 // Feature Definition
 export const FeatureKeySchema = z.enum([
   "hunter_job_searches",      // Count per month/day
-  "hunter_auto_apply",        // Boolean
+  "auto_apply",               // Boolean
+  "cover_letter_generation",  // Count
   "masks_limit",              // Count (e.g. 3 vs 16)
   "resume_tailoring",         // Count
   "narrative_generation"      // Count

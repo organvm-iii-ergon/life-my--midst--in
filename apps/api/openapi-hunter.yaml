@@ -1,0 +1,1101 @@
+openapi: 3.0.3
+info:
+  title: In–Midst–My–Life Hunter Protocol API
+  description: |
+    Job search automation and career advancement engine.
+
+    ## Overview
+    The Hunter Protocol enables autonomous job search with intelligent resume
+    and cover letter tailoring. Features are tiered and quota-based:
+
+    - **FREE Tier**: 5 job searches/month, no document generation
+    - **PRO Tier**: Unlimited searches, 5 resume tailoring, 3 cover letters
+    - **ENTERPRISE Tier**: Unlimited everything
+
+    ## Authentication
+    All endpoints require bearer token in Authorization header:
+    ```
+    Authorization: Bearer <jwt_token>
+    ```
+
+    ## Rate Limiting
+    Quota-based rate limiting (per feature, per user):
+    - Job searches: 5/month (FREE), unlimited (PRO/ENTERPRISE)
+    - Resume tailoring: 0/month (FREE), 5/month (PRO), unlimited (ENTERPRISE)
+    - Cover letters: 0/month (FREE), 3/month (PRO), unlimited (ENTERPRISE)
+    - Auto-apply: 0/month (FREE), 5/month (PRO), unlimited (ENTERPRISE)
+
+    ## Errors
+    All errors follow standard HTTP status codes:
+    - 400: Invalid request (validation error)
+    - 401: Unauthorized (missing/invalid auth)
+    - 403: Forbidden (quota exceeded or feature not available)
+    - 404: Not found (job, profile, or submission not found)
+    - 500: Server error
+
+  version: 1.0.0
+  contact:
+    name: In–Midst–My–Life Support
+    url: https://example.com/support
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:3001
+    description: Development server
+  - url: https://api.yourdomain.com
+    description: Production server
+  - url: https://staging-api.yourdomain.com
+    description: Staging server
+
+paths:
+  /hunter/analyze-gap:
+    post:
+      operationId: analyzeSkillGap
+      summary: Analyze skill gaps for target role
+      description: |
+        Analyzes user's profile against a target job role to identify
+        skill gaps and provide improvement suggestions.
+
+        **Cost**: No quota consumed (informational)
+      tags:
+        - Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyzeGapRequest'
+      responses:
+        '200':
+          description: Gap analysis completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - data
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/CompatibilityReport'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /hunter/find-jobs:
+    post:
+      operationId: findJobs
+      summary: Search and rank jobs by compatibility
+      description: |
+        Searches for jobs matching specified criteria and automatically
+        ranks them by compatibility with user's profile.
+
+        **Cost**: 1 search quota per request (FREE: 5/month, PRO: unlimited)
+
+        **Ranking**: Results sorted by match score (0-1, higher better)
+      tags:
+        - Search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobSearchRequest'
+      responses:
+        '200':
+          description: Jobs found and ranked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - data
+                  - pagination
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankedJob'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          description: Invalid search parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Quota exceeded - no more searches available this month
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaExceededError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /hunter/tailor-resume/{jobId}:
+    post:
+      operationId: tailorResume
+      summary: Generate resume tailored to specific job
+      description: |
+        Generates a customized resume tailored to a specific job listing.
+        Highlights relevant skills and experience for the target role.
+
+        **Cost**: 1 resume tailoring quota (FREE: unavailable, PRO: 5/month, ENTERPRISE: unlimited)
+
+        **Quality**: Returns confidence score (0-1) indicating how well the
+        resume matches the job description.
+      tags:
+        - Documents
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the job listing to tailor resume for
+          example: "job_12345"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentRequestOptions'
+      responses:
+        '200':
+          description: Resume generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - data
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/TailoredResume'
+        '400':
+          description: Invalid request or unsupported format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Feature unavailable or quota exceeded
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/FeatureNotAvailableError'
+                  - $ref: '#/components/schemas/QuotaExceededError'
+        '404':
+          description: Job or profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /hunter/generate-letter/{jobId}:
+    post:
+      operationId: generateCoverLetter
+      summary: Generate customized cover letter
+      description: |
+        Generates a personalized cover letter for a specific job listing.
+        Supports multiple templates and tones to match company culture.
+
+        **Cost**: 1 cover letter quota (FREE: unavailable, PRO: 3/month, ENTERPRISE: unlimited)
+
+        **Templates Available**:
+        - professional: Traditional business format
+        - creative: More personal, less formal
+        - direct: Concise, action-focused
+        - academic: Research/academic positions
+      tags:
+        - Documents
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the job listing
+          example: "job_12345"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LetterRequestOptions'
+      responses:
+        '200':
+          description: Cover letter generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - data
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/GeneratedCoverLetter'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Feature unavailable for tier or quota exceeded
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/FeatureNotAvailableError'
+                  - $ref: '#/components/schemas/QuotaExceededError'
+        '404':
+          description: Job or profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /hunter/submit-application/{jobId}:
+    post:
+      operationId: submitApplication
+      summary: Submit job application
+      description: |
+        Submits a complete job application with tailored resume and
+        cover letter. Can auto-submit to job boards (PRO+ feature).
+
+        **Cost**: Varies by options:
+        - Basic submission: Consumes 1 resume tailoring + 1 cover letter quota
+        - Auto-submit: Also consumes 1 auto-apply quota (PRO: 5/month)
+
+        **Process**:
+        1. Generates or uses custom resume
+        2. Generates or uses custom cover letter
+        3. Submits to job board (if auto-submit enabled)
+        4. Returns tracking ID and confirmation code
+      tags:
+        - Applications
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the job to apply for
+          example: "job_12345"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSubmissionRequest'
+      responses:
+        '200':
+          description: Application submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - data
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ApplicationSubmissionResult'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Auto-submit unavailable or quota exceeded
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/FeatureNotAvailableError'
+                  - $ref: '#/components/schemas/QuotaExceededError'
+        '404':
+          description: Job or profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /hunter/submissions:
+    get:
+      operationId: listApplications
+      summary: List all submitted applications
+      description: |
+        Retrieves list of all job applications submitted by the user.
+        Paginated and sortable by date and status.
+      tags:
+        - Applications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: ["submitted", "reviewing", "rejected", "accepted"]
+          description: Filter by application status
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: ["date", "status", "company"]
+            default: "date"
+          description: Sort order
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (1-indexed)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Results per page
+      responses:
+        '200':
+          description: Applications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - data
+                  - pagination
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApplicationRecord'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /hunter/quotas:
+    get:
+      operationId: getQuotaStatus
+      summary: Fetch current quota usage and limits
+      description: |
+        Returns the user's remaining quota per feature and the reset window.
+      tags:
+        - Applications
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: string
+            format: date
+            example: "2024-02-01"
+          description: Month to inspect (defaults to current month)
+      responses:
+        '200':
+          description: Quota snapshot retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - data
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuotaStatus'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  schemas:
+    AnalyzeGapRequest:
+      type: object
+      required:
+        - targetRole
+      properties:
+        targetRole:
+          type: string
+          description: Job title or role to analyze against
+          example: "Senior Software Engineer"
+        context:
+          type: string
+          description: Additional context (company, industry, etc.)
+          example: "At a mid-market fintech"
+    JobSearchRequest:
+      type: object
+      properties:
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Keywords to search for
+          example: ["TypeScript", "Node.js", "AWS"]
+        location:
+          type: string
+          description: Job location filter
+          example: "Remote"
+        minSalary:
+          type: integer
+          description: Minimum salary in USD
+          example: 150000
+        maxSalary:
+          type: integer
+          description: Maximum salary in USD
+          example: 250000
+        experienceLevel:
+          type: string
+          enum: ["entry", "mid", "senior", "lead"]
+          description: Desired experience level
+          example: "senior"
+        limit:
+          type: integer
+          default: 20
+          description: Maximum results to return
+          example: 10
+        includeRemote:
+          type: boolean
+          default: true
+          description: Include remote roles
+        featureFlags:
+          type: object
+          properties:
+            prioritizeCompanyCulture:
+              type: boolean
+              default: false
+            preferHigherScore:
+              type: boolean
+              default: true
+    DocumentRequestOptions:
+      type: object
+      properties:
+        format:
+          type: string
+          enum: ["pdf", "docx", "markdown"]
+          default: "markdown"
+          description: Desired output format
+        highlightGaps:
+          type: boolean
+          default: true
+          description: Highlight skill gaps and improvements
+    LetterRequestOptions:
+      type: object
+      properties:
+        template:
+          type: string
+          enum: ["professional", "creative", "direct", "academic"]
+          default: "professional"
+          description: Letter template/style
+        tone:
+          type: string
+          enum: ["formal", "conversational", "enthusiastic"]
+          default: "formal"
+          description: Tone of voice
+        includeSalutation:
+          type: boolean
+          default: true
+        includeSignature:
+          type: boolean
+          default: true
+    ApplicationSubmissionRequest:
+      type: object
+      properties:
+        autoSubmit:
+          type: boolean
+          default: false
+          description: Auto-submit to job board (PRO+ feature)
+        customResume:
+          type: string
+          description: Custom resume content (skip generation)
+        customCoverLetter:
+          type: string
+          description: Custom cover letter (skip generation)
+        applicantNotes:
+          type: string
+          description: Additional notes for the application
+    CompatibilityReport:
+      type: object
+      required:
+        - profileId
+        - targetRole
+        - compatibility
+        - gaps
+        - suggestions
+      properties:
+        profileId:
+          type: string
+          description: User profile ID
+          example: "profile_12345"
+        targetRole:
+          type: string
+          description: Target job title/role analyzed
+          example: "Senior Software Engineer"
+        compatibility:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Compatibility score (0-1, higher is better)
+          example: 0.78
+        gaps:
+          type: array
+          items:
+            type: string
+          description: Identified skill gaps or missing experience
+          example:
+            - "Missing 3 years of leadership experience"
+            - "Need proficiency in Kubernetes"
+        suggestions:
+          type: array
+          items:
+            type: string
+          description: Actionable suggestions for improvement
+          example:
+            - "Take advanced Kubernetes certification course"
+            - "Gain team leadership experience through mentoring"
+        timestamp:
+          type: string
+          format: date-time
+          description: When analysis was performed
+    RankedJob:
+      type: object
+      required:
+        - id
+        - title
+        - company
+        - score
+      properties:
+        id:
+          type: string
+          description: Job listing ID
+          example: "job_12345"
+        title:
+          type: string
+          description: Job title
+          example: "Senior Software Engineer"
+        company:
+          type: string
+          description: Company name
+          example: "TechCorp Inc"
+        score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Compatibility score with user profile
+          example: 0.89
+        location:
+          type: string
+          description: Job location
+          example: "Remote"
+        salary:
+          type: object
+          properties:
+            min:
+              type: integer
+              example: 200000
+            max:
+              type: integer
+              example: 280000
+            currency:
+              type: string
+              default: "USD"
+        description:
+          type: string
+          description: Job description excerpt
+        url:
+          type: string
+          format: uri
+          description: Link to job posting
+        benefits:
+          type: array
+          items:
+            type: string
+          description: Highlighted perks or benefits
+    TailoredResume:
+      type: object
+      required:
+        - profileId
+        - jobId
+        - jobTitle
+        - resume
+        - metadata
+      properties:
+        profileId:
+          type: string
+        jobId:
+          type: string
+        jobTitle:
+          type: string
+        jobCompany:
+          type: string
+        resume:
+          type: object
+          properties:
+            content:
+              type: string
+              description: Full resume content
+            format:
+              type: string
+              enum: ["pdf", "docx", "markdown"]
+            confidence:
+              type: number
+              format: float
+              description: How well resume matches job (0-1)
+              example: 0.85
+            keywordMatches:
+              type: array
+              items:
+                type: string
+              description: Keywords from job found in resume
+              example: ["TypeScript", "System Design", "AWS"]
+            suggestedImprovements:
+              type: array
+              items:
+                type: string
+              description: Ways to improve resume match
+        metadata:
+          type: object
+          properties:
+            generatedAt:
+              type: string
+              format: date-time
+            remainingTailorings:
+              type: integer
+              description: Tailorings remaining this month
+              example: 3
+            expiresAt:
+              type: string
+              format: date-time
+              description: When quota resets
+    GeneratedCoverLetter:
+      type: object
+      required:
+        - profileId
+        - jobId
+        - coverLetter
+        - metadata
+      properties:
+        profileId:
+          type: string
+        jobId:
+          type: string
+        jobTitle:
+          type: string
+        jobCompany:
+          type: string
+        hiringManager:
+          type: string
+          description: Name of hiring manager (if known)
+        coverLetter:
+          type: object
+          properties:
+            content:
+              type: string
+              description: Full cover letter text
+            template:
+              type: string
+              enum: ["professional", "creative", "direct", "academic"]
+            tone:
+              type: string
+              enum: ["formal", "conversational", "enthusiastic"]
+            wordCount:
+              type: integer
+              example: 320
+            readingTime:
+              type: integer
+              description: Estimated reading time in minutes
+              example: 1
+        metadata:
+          type: object
+          properties:
+            generatedAt:
+              type: string
+              format: date-time
+            remainingLetters:
+              type: integer
+              example: 2
+            expiresAt:
+              type: string
+              format: date-time
+            editableUntil:
+              type: string
+              format: date-time
+              description: 24-hour editing window
+    ApplicationSubmissionResult:
+      type: object
+      required:
+        - success
+        - submissionId
+        - confirmationCode
+        - submitted
+      properties:
+        success:
+          type: boolean
+          example: true
+        submissionId:
+          type: string
+          description: Unique submission tracking ID
+          example: "app_1704067200_abc123def"
+        jobTitle:
+          type: string
+        jobCompany:
+          type: string
+        confirmationCode:
+          type: string
+          description: Code for user reference
+          example: "36O2WQL-FPX2KQR"
+        submitted:
+          type: object
+          properties:
+            resume:
+              type: boolean
+            coverLetter:
+              type: boolean
+            autoSubmitted:
+              type: boolean
+        nextSteps:
+          type: array
+          items:
+            type: string
+          description: Guidance for user on what happens next
+          example:
+            - "Your application has been recorded"
+            - "You will receive updates as hiring progresses"
+        metadata:
+          type: object
+          properties:
+            submittedAt:
+              type: string
+              format: date-time
+            trackingId:
+              type: string
+            communicationPreferences:
+              type: object
+              properties:
+                emailNotifications:
+                  type: boolean
+                smsNotifications:
+                  type: boolean
+                inAppNotifications:
+                  type: boolean
+    ApplicationRecord:
+      type: object
+      required:
+        - id
+        - jobTitle
+        - company
+        - status
+        - submittedAt
+      properties:
+        id:
+          type: string
+        jobTitle:
+          type: string
+        company:
+          type: string
+        status:
+          type: string
+          enum: ["submitted", "reviewing", "rejected", "accepted"]
+        submittedAt:
+          type: string
+          format: date-time
+        confirmationCode:
+          type: string
+        lastUpdate:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 124
+        pages:
+          type: integer
+          example: 7
+    QuotaStatus:
+      type: object
+      required:
+        - feature
+        - usage
+        - limit
+        - resetsAt
+      properties:
+        feature:
+          type: string
+          example: "resume_tailoring"
+        usage:
+          type: integer
+          example: 3
+        limit:
+          type: integer
+          example: 5
+        remaining:
+          type: integer
+          example: 2
+        resetsAt:
+          type: string
+          format: date-time
+        tier:
+          type: string
+          enum: ["FREE", "PRO", "ENTERPRISE"]
+    ErrorResponse:
+      type: object
+      required:
+        - ok
+        - error
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error code
+          example: "NOT_FOUND"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Profile not found"
+        details:
+          type: object
+          additionalProperties:
+            type: string
+    ValidationError:
+      type: object
+      required:
+        - ok
+        - error
+        - message
+        - fields
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            keywords: "Keywords array is required"
+            minSalary: "Must be a positive number"
+    QuotaExceededError:
+      type: object
+      required:
+        - ok
+        - error
+        - message
+        - context
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "QUOTA_EXCEEDED"
+        message:
+          type: string
+        context:
+          type: object
+          properties:
+            feature:
+              type: string
+              example: "hunter_job_searches"
+            limit:
+              type: integer
+              example: 5
+            used:
+              type: integer
+              example: 5
+            remaining:
+              type: integer
+              example: 0
+            resetsAt:
+              type: string
+              format: date-time
+    FeatureNotAvailableError:
+      type: object
+      required:
+        - ok
+        - error
+        - message
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "FEATURE_NOT_AVAILABLE"
+        message:
+          type: string
+          example: "Feature 'cover_letter_generation' is not available in FREE tier"
+        availableInTiers:
+          type: array
+          items:
+            type: string
+          example: ["PRO", "ENTERPRISE"]
+    SubscriptionTier:
+      type: object
+      required:
+        - tier
+        - label
+        - features
+      properties:
+        tier:
+          type: string
+          enum: ["FREE", "PRO", "ENTERPRISE"]
+        label:
+          type: string
+        description:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+    TierFeatureMatrix:
+      type: object
+      properties:
+        feature:
+          type: string
+        free:
+          type: string
+        pro:
+          type: string
+        enterprise:
+          type: string
+    UsageSummary:
+      type: object
+      properties:
+        feature:
+          type: string
+        usage:
+          type: integer
+        quota:
+          type: integer
+        resetsAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+  responses:
+    UnauthorizedError:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "UNAUTHORIZED"
+              message:
+                type: string
+                example: "Authentication required"
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "INTERNAL_ERROR"
+              message:
+                type: string
+                example: "An unexpected error occurred"
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token in Authorization header
+security:
+  - BearerAuth: []
+tags:
+  - name: Analysis
+    description: Skill gap analysis and career assessment
+  - name: Search
+    description: Job search and discovery
+  - name: Documents
+    description: Resume and cover letter generation
+  - name: Applications
+    description: Application submission and tracking

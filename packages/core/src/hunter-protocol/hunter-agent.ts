@@ -5,14 +5,11 @@ import type {
   Application,
   Profile,
 } from "@in-midst-my-life/schema";
+import type { JobSearchService } from "../jobs";
 
 /**
  * Hunter Protocol Agent
- * Autonomous job-search orchestrator with 4 core tools:
- * 1. find_jobs - Search job boards intelligently
- * 2. analyze_gap - Honest skill assessment
- * 3. tailor_resume - Show the right mask for this role
- * 4. write_cover_letter - Personalized, authentic
+ * ...
  */
 
 export interface FindJobsInput {
@@ -94,7 +91,7 @@ export class HunterAgent {
     const jobs = await this.jobSearchService.search(input.filter);
 
     // Rank by recency and relevance
-    const rankedJobs = this.rankJobs(jobs, input.filter);
+    const rankedJobs = this.rankJobs(jobs as any, input.filter);
 
     const results = rankedJobs.slice(0, input.maxResults || 50);
 
@@ -309,14 +306,6 @@ export class HunterAgent {
   private generateId(): string {
     return `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
-}
-
-/**
- * Job Search Service Interface
- * Implement to integrate with LinkedIn, Indeed, etc.
- */
-export interface JobSearchService {
-  search(filter: HunterSearchFilter): Promise<JobListing[]>;
 }
 
 /**

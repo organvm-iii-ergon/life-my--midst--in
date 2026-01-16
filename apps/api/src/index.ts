@@ -1,4 +1,4 @@
-import './types';
+import './types.d.ts';
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { Pool } from "pg";
@@ -84,7 +84,33 @@ export function buildServer(options: ApiServerOptions = {}) {
     webhookSecret: process.env["STRIPE_WEBHOOK_SECRET"] || "whsec_test_mock",
   });
 
-  fastify.register(cors);
+  fastify.register(cors, {
+    origin: (origin, cb) => {
+      // Development: allow localhost
+      const allowed = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'https://yourdomain.com',
+        'https://app.yourdomain.com'
+      ];
+
+      const allowedOrigins = process.env['ALLOWED_ORIGINS']
+        ? process.env['ALLOWED_ORIGINS'].split(',')
+        : allowed;
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Not allowed by CORS'), false);
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+    maxAge: 86400 // 24 hours
+  });
 
   fastify.addHook("onRequest", async () => {
     metrics.requests += 1;

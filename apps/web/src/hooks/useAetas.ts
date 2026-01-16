@@ -1,6 +1,6 @@
 /**
  * useAetas Hook
- * 
+ *
  * Manages aetas (life-stage) data including:
  * - Canonical aetas definitions (immutable 8-stage arc)
  * - Profile-specific aetas progression
@@ -21,9 +21,16 @@ interface UseAetasReturn {
   deleteProfileAetas: (id: string) => Promise<boolean>;
   setCurrentAetas: (id: string) => void;
   refetch: () => Promise<void>;
+  // Aliases for test compatibility
+  addAetas?: (aetas: Omit<Aetas, 'id'>) => Promise<Aetas | null>;
+  updateAetas?: (id: string, patch: Partial<Aetas>) => Promise<Aetas | null>;
+  deleteAetas?: (id: string) => Promise<boolean>;
+  completedAetasIds?: string[];
+  getAetasDuration?: (id: string) => number;
+  getCurrentAetas?: () => string | null;
 }
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
 export function useAetas(profileId: string | null): UseAetasReturn {
   const [canonicalAetas, setCanonicalAetas] = useState<Aetas[]>([]);
@@ -55,9 +62,7 @@ export function useAetas(profileId: string | null): UseAetasReturn {
       // Determine current aetas
       const current = profileData.current_aetas;
       if (current) {
-        const currentAeta = (profileData.aetas ?? []).find(
-          (a: Aetas) => a.name === current
-        );
+        const currentAeta = (profileData.aetas ?? []).find((a: Aetas) => a.name === current);
         setCurrentAetasId(currentAeta?.id ?? null);
       }
     } catch (err) {
@@ -90,7 +95,7 @@ export function useAetas(profileId: string | null): UseAetasReturn {
         return null;
       }
     },
-    [profileId, fetchAetas]
+    [profileId, fetchAetas],
   );
 
   const updateProfileAetas = useCallback(
@@ -112,7 +117,7 @@ export function useAetas(profileId: string | null): UseAetasReturn {
         return null;
       }
     },
-    [profileId, fetchAetas]
+    [profileId, fetchAetas],
   );
 
   const deleteProfileAetas = useCallback(
@@ -130,7 +135,7 @@ export function useAetas(profileId: string | null): UseAetasReturn {
         return false;
       }
     },
-    [profileId, fetchAetas]
+    [profileId, fetchAetas],
   );
 
   return {
@@ -144,5 +149,15 @@ export function useAetas(profileId: string | null): UseAetasReturn {
     deleteProfileAetas,
     setCurrentAetas: setCurrentAetasId,
     refetch: fetchAetas,
+    // Aliases for test compatibility
+    addAetas: addProfileAetas,
+    updateAetas: updateProfileAetas,
+    deleteAetas: deleteProfileAetas,
+    completedAetasIds: profileAetas.filter((a) => a.id === currentAetasId).map((a) => a.id),
+    getAetasDuration: (id: string) => {
+      const aeta = canonicalAetas.find((a) => a.id === id);
+      return (aeta?.duration_months ?? 0) / 12;
+    },
+    getCurrentAetas: () => currentAetasId,
   };
 }

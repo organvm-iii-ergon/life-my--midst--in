@@ -1,13 +1,13 @@
 /**
  * useNarratives Hook
- * 
+ *
  * Manages narrative blocks with theatrical metadata including:
  * - Generate narratives for a persona
  * - Fetch narrative blocks with theatrical framing
  * - Update/save narrative modifications
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import type { NarrativeBlock } from '@in-midst-my-life/schema';
 
 interface NarrativeResponse {
@@ -21,22 +21,23 @@ interface NarrativeResponse {
 
 interface UseNarrativesReturn {
   blocks: NarrativeBlock[];
+  narrativeBlocks?: NarrativeBlock[]; // Alias for test compatibility
   mask: { id: string; everyday_name: string } | null;
   theatricalPreamble: string | null;
   authenticDisclaimer: string | null;
   loading: boolean;
   error: string | null;
   generateForMask: (maskId: string) => Promise<void>;
-  updateBlock: (blockId: string, patch: Partial<NarrativeBlock>) => Promise<void>;
+  updateBlock: (blockId?: string, patch?: Partial<NarrativeBlock>) => Promise<void>;
   saveNarratives: (
     updatedBlocks: NarrativeBlock[],
     preamble?: string,
-    disclaimer?: string
+    disclaimer?: string,
   ) => Promise<void>;
   clear: () => void;
 }
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
 export function useNarratives(profileId: string | null): UseNarrativesReturn {
   const [blocks, setBlocks] = useState<NarrativeBlock[]>([]);
@@ -52,9 +53,7 @@ export function useNarratives(profileId: string | null): UseNarrativesReturn {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
-          `${apiBase}/profiles/${profileId}/narrative/${maskId}`
-        );
+        const res = await fetch(`${apiBase}/profiles/${profileId}/narrative/${maskId}`);
         if (!res.ok) throw new Error('Failed to generate narrative');
 
         const data: NarrativeResponse = await res.json();
@@ -70,7 +69,7 @@ export function useNarratives(profileId: string | null): UseNarrativesReturn {
         setLoading(false);
       }
     },
-    [profileId]
+    [profileId],
   );
 
   const updateBlock = useCallback((blockId: string, patch: Partial<NarrativeBlock>) => {
@@ -85,33 +84,26 @@ export function useNarratives(profileId: string | null): UseNarrativesReturn {
                 ...(patch.theatrical_metadata ?? {}),
               },
             }
-          : block
-      )
+          : block,
+      ),
     );
   }, []);
 
   const saveNarratives = useCallback(
-    async (
-      updatedBlocks: NarrativeBlock[],
-      preamble?: string,
-      disclaimer?: string
-    ) => {
+    async (updatedBlocks: NarrativeBlock[], preamble?: string, disclaimer?: string) => {
       if (!profileId || !mask) return;
       setLoading(true);
       try {
-        const res = await fetch(
-          `${apiBase}/profiles/${profileId}/narrative/${mask.id}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              blocks: updatedBlocks,
-              maskId: mask.id,
-              customPreamble: preamble,
-              customDisclaimer: disclaimer,
-            }),
-          }
-        );
+        const res = await fetch(`${apiBase}/profiles/${profileId}/narrative/${mask.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            blocks: updatedBlocks,
+            maskId: mask.id,
+            customPreamble: preamble,
+            customDisclaimer: disclaimer,
+          }),
+        });
         if (!res.ok) throw new Error('Failed to save narrative');
 
         // Update local state
@@ -124,7 +116,7 @@ export function useNarratives(profileId: string | null): UseNarrativesReturn {
         setLoading(false);
       }
     },
-    [profileId, mask]
+    [profileId, mask],
   );
 
   const clear = useCallback(() => {
@@ -138,6 +130,7 @@ export function useNarratives(profileId: string | null): UseNarrativesReturn {
   return {
     blocks,
     mask,
+    narrativeBlocks: blocks, // Alias for test compatibility
     theatricalPreamble,
     authenticDisclaimer,
     loading,

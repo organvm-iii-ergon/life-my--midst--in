@@ -90,13 +90,37 @@ const BADGE_DEFINITIONS: Omit<Badge, 'isEarned' | 'progress' | 'maxProgress'>[] 
 ];
 
 const rarityColors = {
-  common: { bg: 'bg-gray-100', border: 'border-gray-300', text: 'text-gray-700', badge: 'bg-gray-200' },
-  uncommon: { bg: 'bg-green-100', border: 'border-green-300', text: 'text-green-700', badge: 'bg-green-200' },
-  rare: { bg: 'bg-blue-100', border: 'border-blue-300', text: 'text-blue-700', badge: 'bg-blue-200' },
-  legendary: { bg: 'bg-purple-100', border: 'border-purple-300', text: 'text-purple-700', badge: 'bg-purple-200' },
+  common: {
+    bg: 'bg-gray-100',
+    border: 'border-gray-300',
+    text: 'text-gray-700',
+    badge: 'bg-gray-200',
+  },
+  uncommon: {
+    bg: 'bg-green-100',
+    border: 'border-green-300',
+    text: 'text-green-700',
+    badge: 'bg-green-200',
+  },
+  rare: {
+    bg: 'bg-blue-100',
+    border: 'border-blue-300',
+    text: 'text-blue-700',
+    badge: 'bg-blue-200',
+  },
+  legendary: {
+    bg: 'bg-purple-100',
+    border: 'border-purple-300',
+    text: 'text-purple-700',
+    badge: 'bg-purple-200',
+  },
 };
 
-export default function CommunityBadges({ userId, userBadges = [], onBadgeEarned }: CommunityBadgesProps) {
+export default function CommunityBadges({
+  userId,
+  userBadges = [],
+  onBadgeEarned,
+}: CommunityBadgesProps) {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
@@ -160,7 +184,9 @@ export default function CommunityBadges({ userId, userBadges = [], onBadgeEarned
                   : 'bg-gray-50 border-gray-200 cursor-not-allowed opacity-60'
               }`}
             >
-              <div className={`w-8 h-8 mx-auto mb-2 ${badge.isEarned ? colors.text : 'text-gray-400'}`}>
+              <div
+                className={`w-8 h-8 mx-auto mb-2 ${badge.isEarned ? colors.text : 'text-gray-400'}`}
+              >
                 {badge.icon}
               </div>
               <h4 className="text-xs font-semibold text-gray-900 text-center leading-tight line-clamp-2">
@@ -200,9 +226,7 @@ export default function CommunityBadges({ userId, userBadges = [], onBadgeEarned
             </button>
 
             <div className="mb-4">
-              <div
-                className={`w-16 h-16 ${rarityColors[selectedBadge.rarity].text} mx-auto mb-4`}
-              >
+              <div className={`w-16 h-16 ${rarityColors[selectedBadge.rarity].text} mx-auto mb-4`}>
                 {selectedBadge.icon}
               </div>
 
@@ -227,7 +251,8 @@ export default function CommunityBadges({ userId, userBadges = [], onBadgeEarned
             {selectedBadge.isEarned && selectedBadge.earnedAt && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-4">
                 <p className="text-xs text-green-800">
-                  ✓ <strong>Earned</strong> on {new Date(selectedBadge.earnedAt).toLocaleDateString()}
+                  ✓ <strong>Earned</strong> on{' '}
+                  {new Date(selectedBadge.earnedAt).toLocaleDateString()}
                 </p>
               </div>
             )}

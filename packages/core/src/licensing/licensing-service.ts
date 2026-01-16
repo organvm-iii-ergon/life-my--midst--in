@@ -23,7 +23,8 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
     name: "Free Tier",
     features: {
       hunter_job_searches: { limit: 5, resetPeriod: "monthly" },
-      hunter_auto_apply: { limit: 0, resetPeriod: "never" },
+      auto_apply: { limit: 0, resetPeriod: "never" },
+      cover_letter_generation: { limit: 0, resetPeriod: "monthly" },
       masks_limit: { limit: 3, resetPeriod: "never" },
       resume_tailoring: { limit: 10, resetPeriod: "monthly" },
       narrative_generation: { limit: 5, resetPeriod: "monthly" },
@@ -38,9 +39,10 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
     name: "Professional",
     features: {
       hunter_job_searches: { limit: -1, resetPeriod: "never" }, // Unlimited (fair use: 100/day)
-      hunter_auto_apply: { limit: 1, resetPeriod: "never" },
+      auto_apply: { limit: 5, resetPeriod: "monthly" },
+      cover_letter_generation: { limit: 3, resetPeriod: "monthly" },
       masks_limit: { limit: 16, resetPeriod: "never" },
-      resume_tailoring: { limit: -1, resetPeriod: "never" },
+      resume_tailoring: { limit: 5, resetPeriod: "monthly" },
       narrative_generation: { limit: -1, resetPeriod: "never" },
     },
     stripePriceId: {
@@ -53,7 +55,8 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
     name: "Enterprise",
     features: {
       hunter_job_searches: { limit: -1, resetPeriod: "never" },
-      hunter_auto_apply: { limit: 1, resetPeriod: "never" },
+      auto_apply: { limit: -1, resetPeriod: "never" },
+      cover_letter_generation: { limit: -1, resetPeriod: "never" },
       masks_limit: { limit: -1, resetPeriod: "never" },
       resume_tailoring: { limit: -1, resetPeriod: "never" },
       narrative_generation: { limit: -1, resetPeriod: "never" },
@@ -205,6 +208,29 @@ export class LicensingService {
     }
 
     return { tier, features };
+  }
+
+  /**
+   * Retrieve the current tier for a profile
+   */
+  async getTierForProfile(profileId: string): Promise<SubscriptionTier> {
+    return this.currentTier(profileId);
+  }
+
+  /**
+   * Get the configured limit for a feature under the current tier
+   */
+  async getLimitForFeature(profileId: string, feature: FeatureKey): Promise<number> {
+    const tier = await this.currentTier(profileId);
+    const featureLimit = PLAN_DEFINITIONS[tier].features[feature];
+    return featureLimit?.limit ?? 0;
+  }
+
+  /**
+   * Get current usage for a feature
+   */
+  async getUsageForFeature(profileId: string, feature: FeatureKey): Promise<number> {
+    return this.rateLimitStore.getUsage(profileId, feature);
   }
 
   /**

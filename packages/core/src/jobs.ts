@@ -1,4 +1,4 @@
-import type { JobPosting } from "@in-midst-my-life/schema";
+import type { JobPosting, HunterSearchFilter, JobListing } from "@in-midst-my-life/schema";
 export type { JobPosting };
 
 export interface JobSearchQuery {
@@ -10,6 +10,11 @@ export interface JobSearchQuery {
 
 export interface JobSearchProvider {
   name: string;
-  search(query: JobSearchQuery): Promise<JobPosting[]>;
-  getById(id: string): Promise<JobPosting | null>;
+  search(query: JobSearchQuery | HunterSearchFilter): Promise<JobPosting[] | JobListing[]>;
+  getById?(id: string): Promise<JobPosting | null>;
 }
+
+/**
+ * JobSearchService is an alias for JobSearchProvider used in hunter-protocol
+ */
+export type JobSearchService = JobSearchProvider;

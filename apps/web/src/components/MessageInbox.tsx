@@ -84,7 +84,7 @@ export default function MessageInbox({ userId }: { userId: string }) {
       filtered = filtered.filter(
         (t) =>
           t.participantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          t.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
+          t.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -93,9 +93,7 @@ export default function MessageInbox({ userId }: { userId: string }) {
 
   const handleArchiveThread = async (threadId: string) => {
     // Update UI optimistically
-    setThreads((prev) =>
-      prev.map((t) => (t.id === threadId ? { ...t, isArchived: true } : t))
-    );
+    setThreads((prev) => prev.map((t) => (t.id === threadId ? { ...t, isArchived: true } : t)));
 
     // API call
     try {
@@ -197,7 +195,9 @@ export default function MessageInbox({ userId }: { userId: string }) {
           <div className="p-6 text-center text-gray-600">
             <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p>No conversations yet</p>
-            <p className="text-xs text-gray-500 mt-2">Start a conversation by clicking the + button</p>
+            <p className="text-xs text-gray-500 mt-2">
+              Start a conversation by clicking the + button
+            </p>
           </div>
         ) : (
           filteredThreads.map((thread) => (
@@ -212,7 +212,9 @@ export default function MessageInbox({ userId }: { userId: string }) {
                 {/* Avatar & Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 truncate">{thread.participantName}</h3>
+                    <h3 className="font-semibold text-gray-900 truncate">
+                      {thread.participantName}
+                    </h3>
                     {thread.unreadCount > 0 && (
                       <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-600 rounded-full">
                         {thread.unreadCount}
@@ -224,7 +226,9 @@ export default function MessageInbox({ userId }: { userId: string }) {
 
                 {/* Time & Actions */}
                 <div className="flex flex-col items-end gap-2">
-                  <span className="text-xs text-gray-500 whitespace-nowrap">{thread.lastMessageTime}</span>
+                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                    {thread.lastMessageTime}
+                  </span>
                   <button
                     onClick={(e) => {
                       e.preventDefault();

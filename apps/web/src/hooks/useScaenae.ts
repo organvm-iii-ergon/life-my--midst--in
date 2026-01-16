@@ -1,6 +1,6 @@
 /**
  * useScaenae Hook
- * 
+ *
  * Manages scaenae (theatrical stages/contexts) including:
  * - Canonical scaenae (6 immutable stages)
  * - Custom scaenae creation/management
@@ -8,11 +8,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import type { Scaena } from '@in-midst-my-life/schema';
-
-interface ScaenaeTaxonomy {
-  canonical_scaenae: string[];
-  custom_scaenae: string[];
-}
 
 interface UseScaenaeReturn {
   scaenae: Scaena[];
@@ -22,7 +17,7 @@ interface UseScaenaeReturn {
   refetch: () => Promise<void>;
 }
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
 export function useScaenae(): UseScaenaeReturn {
   const [scaenae, setScaenae] = useState<Scaena[]>([]);
@@ -39,7 +34,7 @@ export function useScaenae(): UseScaenaeReturn {
 
       const data = await res.json();
       const allScaenae = data.data?.scaenae ?? [];
-      
+
       setScaenae(allScaenae);
       setCanonicalScaenae(allScaenae.filter((s: Scaena) => s.metadata?.canonical === true));
     } catch (err) {

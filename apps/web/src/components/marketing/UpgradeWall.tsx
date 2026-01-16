@@ -1,5 +1,5 @@
-import React from "react";
-import { NeoCard } from "@in-midst-my-life/design-system";
+import React from 'react';
+import { NeoCard } from '@in-midst-my-life/design-system';
 
 export interface QuotaInfo {
   feature: string;
@@ -30,7 +30,7 @@ export function UpgradeWall({
 }: UpgradeWallProps) {
   if (!isOpen) return null;
 
-  const displayFeature = quotaInfo?.feature || featureName || "feature";
+  const displayFeature = quotaInfo?.feature || featureName || 'feature';
   const displayLimit = quotaInfo?.limit ?? legacyLimit ?? 0;
   const displayUsed = quotaInfo?.used ?? displayLimit;
   const displayReset = quotaInfo?.resetDate || legacyResetDate;
@@ -50,11 +50,10 @@ export function UpgradeWall({
           <div className="text-4xl mb-4">🛑</div>
           <h2 className="text-2xl font-bold text-white mb-2">Limit Reached</h2>
           <div className="text-gray-300 mb-6 space-y-2">
-            <p>
-              Your Hunter needs more fuel.
-            </p>
+            <p>Your Hunter needs more fuel.</p>
             <p className="text-sm bg-black/50 p-3 rounded border border-gray-800">
-              Usage: <strong>{displayUsed}</strong> / <strong>{displayLimit === -1 ? '∞' : displayLimit}</strong> {displayFeature}
+              Usage: <strong>{displayUsed}</strong> /{' '}
+              <strong>{displayLimit === -1 ? '∞' : displayLimit}</strong> {displayFeature}
             </p>
           </div>
 
@@ -65,7 +64,7 @@ export function UpgradeWall({
             >
               Unlock Unlimited Access
             </button>
-            
+
             {displayReset && (
               <p className="text-xs text-gray-500 mt-4">
                 Or wait until limits reset on {displayReset}
@@ -73,7 +72,7 @@ export function UpgradeWall({
             )}
           </div>
         </div>
-        
+
         {/* Decorative background element */}
         <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
       </NeoCard>

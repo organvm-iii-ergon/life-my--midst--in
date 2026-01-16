@@ -1,105 +1,101 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
-import { useNarratives } from "../useNarratives";
-import type { NarrativeBlock } from "@in-midst-my-life/schema";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { useNarratives } from '../useNarratives';
+import type { NarrativeBlock } from '@in-midst-my-life/schema';
 
 global.fetch = vi.fn();
 
 const mockNarrativeBlocks: NarrativeBlock[] = [
   {
-    id: "block-1",
-    title: "Technical Journey",
-    content: "Started coding at 14...",
+    id: 'block-1',
+    title: 'Technical Journey',
+    content: 'Started coding at 14...',
     weight: 85,
     theatrical_metadata: {
-      scaena: "scaena-1",
-      performance_note: "Technical depth",
-      authentic_caveat: "Emphasizes technical skills",
+      scaena: 'scaena-1',
+      performance_note: 'Technical depth',
+      authentic_caveat: 'Emphasizes technical skills',
     },
   },
 ];
 
-describe("useNarratives", () => {
+describe('useNarratives', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("initializes with loading state", () => {
-    (global.fetch as any).mockImplementation(() =>
-      new Promise(() => {}) // Never resolves
+  it('initializes with loading state', () => {
+    (global.fetch as any).mockImplementation(
+      () => new Promise(() => {}), // Never resolves
     );
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     expect(result.current.loading).toBe(true);
     expect(result.current.narrativeBlocks).toEqual([]);
     expect(result.current.theatricalPreamble).toBeNull();
   });
 
-  it("fetches narrative blocks for selected persona", async () => {
+  it('fetches narrative blocks for selected persona', async () => {
     (global.fetch as any).mockImplementation((url: string) => {
-      if (url.includes("/narrative/persona-1")) {
+      if (url.includes('/narrative/persona-1')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
-            preamble: "The following presents me as Engineer",
-            disclaimer: "Emphasizes technical work",
+            preamble: 'The following presents me as Engineer',
+            disclaimer: 'Emphasizes technical work',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
     expect(result.current.narrativeBlocks).toHaveLength(1);
-    expect(result.current.theatricalPreamble).toContain("Engineer");
+    expect(result.current.theatricalPreamble).toContain('Engineer');
   });
 
-  it("updates narratives when persona changes", async () => {
+  it('updates narratives when persona changes', async () => {
     let callCount = 0;
     (global.fetch as any).mockImplementation((url: string) => {
-      if (url.includes("/narrative/persona-1")) {
+      if (url.includes('/narrative/persona-1')) {
         callCount++;
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
             preamble: `Persona 1 - Call ${callCount}`,
-            disclaimer: "Emphasizes technical",
+            disclaimer: 'Emphasizes technical',
           }),
         });
       }
-      if (url.includes("/narrative/persona-2")) {
+      if (url.includes('/narrative/persona-2')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: [
               {
                 ...mockNarrativeBlocks[0],
-                title: "Artistic Journey",
+                title: 'Artistic Journey',
               },
             ],
-            preamble: "The following presents me as Artist",
-            disclaimer: "Emphasizes creative",
+            preamble: 'The following presents me as Artist',
+            disclaimer: 'Emphasizes creative',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
     const { result, rerender } = renderHook(
-      ({ personaId }) => useNarratives("profile-1", personaId),
-      { initialProps: { personaId: "persona-1" } }
+      ({ personaId }) => useNarratives('profile-1', personaId),
+      { initialProps: { personaId: 'persona-1' } },
     );
 
     await waitFor(() => {
@@ -109,52 +105,50 @@ describe("useNarratives", () => {
     const preamble1 = result.current.theatricalPreamble;
 
     // Change persona
-    rerender({ personaId: "persona-2" });
+    rerender({ personaId: 'persona-2' });
 
     await waitFor(() => {
       expect(result.current.theatricalPreamble).not.toBe(preamble1);
     });
 
-    expect(result.current.theatricalPreamble).toContain("Artist");
+    expect(result.current.theatricalPreamble).toContain('Artist');
   });
 
-  it("provides function to generate narratives for a mask", async () => {
+  it('provides function to generate narratives for a mask', async () => {
     (global.fetch as any).mockImplementation((url: string, options: any) => {
-      if (url.includes("/narrative/persona-1") && !options.method) {
+      if (url.includes('/narrative/persona-1') && !options.method) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
-            preamble: "Original",
-            disclaimer: "Original",
+            preamble: 'Original',
+            disclaimer: 'Original',
           }),
         });
       }
-      if (url.includes("/narrative/persona-1") && options.method === "POST") {
+      if (url.includes('/narrative/persona-1') && options.method === 'POST') {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: [
               ...mockNarrativeBlocks,
               {
-                id: "block-2",
-                title: "Generated Block",
-                content: "AI generated content",
+                id: 'block-2',
+                title: 'Generated Block',
+                content: 'AI generated content',
                 weight: 70,
                 theatrical_metadata: {},
               },
             ],
-            preamble: "Generated preamble",
-            disclaimer: "Generated disclaimer",
+            preamble: 'Generated preamble',
+            disclaimer: 'Generated disclaimer',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -165,110 +159,104 @@ describe("useNarratives", () => {
     expect(generated?.blocks.length).toBeGreaterThan(0);
   });
 
-  it("provides function to update narrative block", async () => {
+  it('provides function to update narrative block', async () => {
     (global.fetch as any).mockImplementation((url: string, options: any) => {
-      if (url.includes("/narrative/persona-1/block-1") && options.method === "PATCH") {
+      if (url.includes('/narrative/persona-1/block-1') && options.method === 'PATCH') {
         return Promise.resolve({
           ok: true,
           json: async () => ({
-            id: "block-1",
-            title: "Updated Title",
-            content: "Updated content",
+            id: 'block-1',
+            title: 'Updated Title',
+            content: 'Updated content',
             weight: 90,
             theatrical_metadata: {
-              scaena: "scaena-2",
+              scaena: 'scaena-2',
             },
           }),
         });
       }
-      if (url.includes("/narrative/persona-1") && !options.method) {
+      if (url.includes('/narrative/persona-1') && !options.method) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
-            preamble: "Preamble",
-            disclaimer: "Disclaimer",
+            preamble: 'Preamble',
+            disclaimer: 'Disclaimer',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    const updated = await result.current.updateBlock("block-1", {
-      title: "Updated Title",
+    const updated = await result.current.updateBlock('block-1', {
+      title: 'Updated Title',
       weight: 90,
     });
 
-    expect(updated?.title).toBe("Updated Title");
+    expect(updated?.title).toBe('Updated Title');
     expect(updated?.weight).toBe(90);
   });
 
-  it("provides function to delete narrative block", async () => {
+  it('provides function to delete narrative block', async () => {
     (global.fetch as any).mockImplementation((url: string, options: any) => {
-      if (url.includes("/narrative/persona-1/block-1") && options.method === "DELETE") {
+      if (url.includes('/narrative/persona-1/block-1') && options.method === 'DELETE') {
         return Promise.resolve({ ok: true });
       }
-      if (url.includes("/narrative/persona-1")) {
+      if (url.includes('/narrative/persona-1')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
-            preamble: "Preamble",
-            disclaimer: "Disclaimer",
+            preamble: 'Preamble',
+            disclaimer: 'Disclaimer',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    const deleted = await result.current.deleteBlock("block-1");
+    const deleted = await result.current.deleteBlock('block-1');
     expect(deleted).toBe(true);
   });
 
-  it("provides function to save all narratives", async () => {
+  it('provides function to save all narratives', async () => {
     (global.fetch as any).mockImplementation((url: string, options: any) => {
-      if (url.includes("/narrative/persona-1") && options.method === "PUT") {
+      if (url.includes('/narrative/persona-1') && options.method === 'PUT') {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
-            preamble: "Saved preamble",
-            disclaimer: "Saved disclaimer",
+            preamble: 'Saved preamble',
+            disclaimer: 'Saved disclaimer',
           }),
         });
       }
-      if (url.includes("/narrative/persona-1") && !options.method) {
+      if (url.includes('/narrative/persona-1') && !options.method) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
-            preamble: "Original",
-            disclaimer: "Original",
+            preamble: 'Original',
+            disclaimer: 'Original',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -276,81 +264,75 @@ describe("useNarratives", () => {
 
     const saved = await result.current.saveNarratives(
       mockNarrativeBlocks,
-      "Saved preamble",
-      "Saved disclaimer"
+      'Saved preamble',
+      'Saved disclaimer',
     );
 
     expect(saved).toBeDefined();
   });
 
-  it("provides function to get block by ID", async () => {
+  it('provides function to get block by ID', async () => {
     (global.fetch as any).mockImplementation((url: string) => {
-      if (url.includes("/narrative/persona-1")) {
+      if (url.includes('/narrative/persona-1')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: mockNarrativeBlocks,
-            preamble: "Preamble",
-            disclaimer: "Disclaimer",
+            preamble: 'Preamble',
+            disclaimer: 'Disclaimer',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    const block = result.current.getBlock("block-1");
+    const block = result.current.getBlock('block-1');
     expect(block).toBeDefined();
-    expect(block?.title).toBe("Technical Journey");
+    expect(block?.title).toBe('Technical Journey');
   });
 
-  it("provides function to reorder blocks", async () => {
+  it('provides function to reorder blocks', async () => {
     const blocks = [
-      { ...mockNarrativeBlocks[0], id: "block-1", weight: 85 },
-      { ...mockNarrativeBlocks[0], id: "block-2", weight: 75 },
-      { ...mockNarrativeBlocks[0], id: "block-3", weight: 65 },
+      { ...mockNarrativeBlocks[0], id: 'block-1', weight: 85 },
+      { ...mockNarrativeBlocks[0], id: 'block-2', weight: 75 },
+      { ...mockNarrativeBlocks[0], id: 'block-3', weight: 65 },
     ];
 
     (global.fetch as any).mockImplementation((url: string) => {
-      if (url.includes("/narrative/persona-1")) {
+      if (url.includes('/narrative/persona-1')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks,
-            preamble: "Preamble",
-            disclaimer: "Disclaimer",
+            preamble: 'Preamble',
+            disclaimer: 'Disclaimer',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
     // Reorder by moving block-2 to end
-    const reordered = result.current.reorderBlocks(["block-1", "block-3", "block-2"]);
-    expect(reordered[2].id).toBe("block-2");
+    const reordered = result.current.reorderBlocks(['block-1', 'block-3', 'block-2']);
+    expect(reordered[2].id).toBe('block-2');
   });
 
-  it("handles fetch errors gracefully", async () => {
-    (global.fetch as any).mockRejectedValue(new Error("Network error"));
+  it('handles fetch errors gracefully', async () => {
+    (global.fetch as any).mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -360,43 +342,41 @@ describe("useNarratives", () => {
     expect(result.current.narrativeBlocks).toHaveLength(0);
   });
 
-  it("provides theatrical metadata with each block", async () => {
+  it('provides theatrical metadata with each block', async () => {
     const blockWithMetadata: NarrativeBlock = {
-      id: "block-1",
-      title: "Title",
-      content: "Content",
+      id: 'block-1',
+      title: 'Title',
+      content: 'Content',
       weight: 80,
       theatrical_metadata: {
-        scaena: "scaena-1",
-        performance_note: "Note",
-        authentic_caveat: "Caveat",
+        scaena: 'scaena-1',
+        performance_note: 'Note',
+        authentic_caveat: 'Caveat',
       },
     };
 
     (global.fetch as any).mockImplementation((url: string) => {
-      if (url.includes("/narrative/persona-1")) {
+      if (url.includes('/narrative/persona-1')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
             blocks: [blockWithMetadata],
-            preamble: "Preamble",
-            disclaimer: "Disclaimer",
+            preamble: 'Preamble',
+            disclaimer: 'Disclaimer',
           }),
         });
       }
-      return Promise.reject(new Error("Unknown URL"));
+      return Promise.reject(new Error('Unknown URL'));
     });
 
-    const { result } = renderHook(() =>
-      useNarratives("profile-1", "persona-1")
-    );
+    const { result } = renderHook(() => useNarratives('profile-1', 'persona-1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    const block = result.current.getBlock("block-1");
+    const block = result.current.getBlock('block-1');
     expect(block?.theatrical_metadata).toBeDefined();
-    expect(block?.theatrical_metadata?.scaena).toBe("scaena-1");
+    expect(block?.theatrical_metadata?.scaena).toBe('scaena-1');
   });
 });

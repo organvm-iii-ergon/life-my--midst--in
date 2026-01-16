@@ -6,6 +6,14 @@ export * from './errors';
 export * from './jobs';
 export * from './search';
 export * from './hunter';
+export {
+  HunterAgent as HunterProtocolAgent,
+  createHunterProtocolAgent,
+  MockJobSearchProvider as HunterMockJobSearchProvider,
+  createJobSearchProvider,
+  DefaultCompatibilityAnalyzer
+} from './hunter-protocol';
+export { DocumentGenerator } from './hunter-protocol';
 export * from './licensing/licensing-service';
 export * from './billing/billing-service';
 export * from './analytics/events';

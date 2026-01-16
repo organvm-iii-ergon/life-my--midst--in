@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Copy, Download, Send, AlertCircle, CheckCircle, Info } from 'lucide-react';
-import { Job, CompatibilityResult } from '@in-midst-my-life/schema';
+import {
+  JobPosting as Job,
+  CompatibilityAnalysis as CompatibilityResult,
+} from '@in-midst-my-life/schema';
 
 interface TailoredResume {
   resume: string;
@@ -50,7 +53,8 @@ export default function TailorResumeViewer({ params }: PageProps) {
           company: 'TechCorp',
           location: 'San Francisco, CA',
           remote: 'hybrid',
-          description: 'Join our growing engineering team building next-generation infrastructure...',
+          description:
+            'Join our growing engineering team building next-generation infrastructure...',
           requirements: '5+ years TypeScript, React, Node.js, PostgreSQL, system design',
           salary_min: 180000,
           salary_max: 240000,
@@ -72,7 +76,12 @@ export default function TailorResumeViewer({ params }: PageProps) {
           overall_score: 82,
           recommendation: 'apply_now',
           skill_gaps: [
-            { skill: 'Kubernetes', gap_severity: 'medium', proficiency_current: 0, proficiency_required: 70 },
+            {
+              skill: 'Kubernetes',
+              gap_severity: 'medium',
+              proficiency_current: 0,
+              proficiency_required: 70,
+            },
           ],
           strengths: [
             'Strong TypeScript and React expertise matches role requirements',
@@ -296,21 +305,25 @@ Jane Doe`;
                 {job?.remote && <span>•</span>}
                 <span className="capitalize">{job?.remote}</span>
                 <span>•</span>
-                <span>${job?.salary_min?.toLocaleString()}-${job?.salary_max?.toLocaleString()}</span>
+                <span>
+                  ${job?.salary_min?.toLocaleString()}-${job?.salary_max?.toLocaleString()}
+                </span>
               </div>
             </div>
 
             {compatibility && (
               <div className="text-right">
-                <div className={`text-4xl font-bold ${
-                  compatibility.overall_score >= 80
-                    ? 'text-green-600'
-                    : compatibility.overall_score >= 70
-                      ? 'text-yellow-600'
-                      : compatibility.overall_score >= 50
-                        ? 'text-orange-600'
-                        : 'text-red-600'
-                }`}>
+                <div
+                  className={`text-4xl font-bold ${
+                    compatibility.overall_score >= 80
+                      ? 'text-green-600'
+                      : compatibility.overall_score >= 70
+                        ? 'text-yellow-600'
+                        : compatibility.overall_score >= 50
+                          ? 'text-orange-600'
+                          : 'text-red-600'
+                  }`}
+                >
                   {compatibility.overall_score}%
                 </div>
                 <p className="text-slate-600 text-sm capitalize">
@@ -344,7 +357,9 @@ Jane Doe`;
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-slate-700">Skills Match</span>
-                    <span className="text-sm font-bold text-slate-900">{compatibility.skill_match}%</span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {compatibility.skill_match}%
+                    </span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
@@ -357,7 +372,9 @@ Jane Doe`;
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-slate-700">Cultural Fit</span>
-                    <span className="text-sm font-bold text-slate-900">{compatibility.cultural_match}%</span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {compatibility.cultural_match}%
+                    </span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
@@ -370,7 +387,9 @@ Jane Doe`;
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-slate-700">Growth Potential</span>
-                    <span className="text-sm font-bold text-slate-900">{compatibility.growth_potential}%</span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {compatibility.growth_potential}%
+                    </span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
@@ -383,7 +402,9 @@ Jane Doe`;
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-slate-700">Compensation Fit</span>
-                    <span className="text-sm font-bold text-slate-900">{compatibility.compensation_fit}%</span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {compatibility.compensation_fit}%
+                    </span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
@@ -396,7 +417,9 @@ Jane Doe`;
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-slate-700">Location Fit</span>
-                    <span className="text-sm font-bold text-slate-900">{compatibility.location_suitability}%</span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {compatibility.location_suitability}%
+                    </span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
                     <div

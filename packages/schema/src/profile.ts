@@ -163,6 +163,8 @@ export const ProfileSchema = z.object({
   avatarUrl: z.string().url().optional(),
   coverImageUrl: z.string().url().optional(),
   locationText: z.string().optional(),
+  email: z.string().email().optional(),
+  website: z.string().url().optional(),
   externalIds: z.array(ExternalIdSchema).optional(),
   // CV-related properties (optional - for compatibility with content-model)
   skills: z.array(SkillSchema).optional().describe("Professional skills and competencies"),

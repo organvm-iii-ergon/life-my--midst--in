@@ -17,7 +17,7 @@ interface ResumeData {
 
 /**
  * Resumes Page
- * 
+ *
  * Displays:
  * - All filtered resumes (one per active persona)
  * - Batch generation interface
@@ -29,15 +29,19 @@ export default function ResumesPage() {
   const profileId = params.profileId as string | null;
 
   const { profile, loading: profileLoading } = useProfileData(profileId);
-  const { personas, selectedPersonaId, selectPersona, loading: personaeLoading } =
-    usePersonae(profileId);
+  const {
+    personas,
+    selectedPersonaId,
+    selectPersona,
+    loading: personaeLoading,
+  } = usePersonae(profileId);
 
   const [resumes, setResumes] = useState<ResumeData[]>([]);
   const [loadingResumes, setLoadingResumes] = useState(false);
   const [activeResumeIdx, setActiveResumeIdx] = useState(0);
 
   const selectedPersona = personas.find((p) => p.id === selectedPersonaId) || null;
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
   // Generate batch resumes
   const generateAllResumes = async () => {
@@ -45,7 +49,7 @@ export default function ResumesPage() {
     setLoadingResumes(true);
     try {
       const res = await fetch(
-        `${apiBase}/profiles/${profileId}/cv/generate-resume/batch?activeOnly=true`
+        `${apiBase}/profiles/${profileId}/cv/generate-resume/batch?activeOnly=true`,
       );
       if (!res.ok) throw new Error('Failed to generate resumes');
 
@@ -94,9 +98,7 @@ export default function ResumesPage() {
 
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <section style={{ marginBottom: '2rem' }}>
-          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>
-            Filtered Resumes
-          </h1>
+          <h1 style={{ marginTop: 0, marginBottom: '0.5rem' }}>Filtered Resumes</h1>
           <p style={{ color: 'var(--stone)' }}>
             View and export context-specific resumes filtered for each theatrical persona.
           </p>
@@ -124,10 +126,7 @@ export default function ResumesPage() {
                     idx === activeResumeIdx
                       ? '2px solid var(--accent)'
                       : '1px solid rgba(29, 26, 22, 0.08)',
-                  background:
-                    idx === activeResumeIdx
-                      ? 'rgba(211, 107, 60, 0.1)'
-                      : '#fff',
+                  background: idx === activeResumeIdx ? 'rgba(211, 107, 60, 0.1)' : '#fff',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: idx === activeResumeIdx ? '600' : '400',
@@ -179,8 +178,8 @@ export default function ResumesPage() {
                 <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📄</div>
                 <h3 style={{ margin: '0 0 0.5rem 0' }}>No Resumes Generated</h3>
                 <p style={{ color: 'var(--stone)', margin: 0 }}>
-                  Click the "Generate All Resumes" button to create filtered resumes
-                  for all active personas.
+                  Click the "Generate All Resumes" button to create filtered resumes for all active
+                  personas.
                 </p>
                 <button
                   className="button"
@@ -260,10 +259,7 @@ export default function ResumesPage() {
               {currentResume
                 ? currentResume.entryCount
                 : resumes.length > 0
-                  ? Math.round(
-                      resumes.reduce((sum, r) => sum + r.entryCount, 0) /
-                        resumes.length
-                    )
+                  ? Math.round(resumes.reduce((sum, r) => sum + r.entryCount, 0) / resumes.length)
                   : 0}
             </div>
           </div>

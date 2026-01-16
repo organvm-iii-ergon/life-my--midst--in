@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { PricingCard } from "@/components/marketing/PricingCard";
-import { createCheckoutSession } from "@/lib/api-client";
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { PricingCard } from '@/components/marketing/PricingCard';
+import { createCheckoutSession } from '@/lib/api-client';
 
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null); // Track which tier is loading
@@ -16,7 +16,7 @@ export default function PricingPage() {
 
   const handleUpgrade = async (
     tier: 'PRO' | 'ENTERPRISE',
-    interval: 'monthly' | 'yearly' = 'monthly'
+    interval: 'monthly' | 'yearly' = 'monthly',
   ) => {
     setLoading(`${tier}-${interval}`);
     setError(null);
@@ -54,18 +54,23 @@ export default function PricingPage() {
         <div className="mx-auto max-w-4xl text-center mb-16">
           <h1 className="text-base font-semibold leading-7 text-cyan-400">Monetization Phase</h1>
           <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Invest in your <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Automated Future</span>
+            Invest in your{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
+              Automated Future
+            </span>
           </p>
           <p className="mt-6 text-lg leading-8 text-gray-300">
-            Stop manually applying to jobs. Let the Hunter Protocol work for you 24/7.
-            Gate the automation, not your data.
+            Stop manually applying to jobs. Let the Hunter Protocol work for you 24/7. Gate the
+            automation, not your data.
           </p>
         </div>
 
         {error && (
           <div className="mx-auto max-w-md mb-8 bg-red-900/50 border border-red-500 text-red-200 p-4 rounded-lg flex justify-between items-center">
             <p>Error: {error}</p>
-            <button onClick={() => setError(null)} className="text-red-200 hover:text-white">✕</button>
+            <button onClick={() => setError(null)} className="text-red-200 hover:text-white">
+              ✕
+            </button>
           </div>
         )}
 
@@ -76,14 +81,14 @@ export default function PricingPage() {
             price="$0"
             description="Perfect for casual browsing and organizing your identity."
             features={[
-              "5 AI Job Searches / month",
-              "3 Identity Masks",
-              "Basic Resume Builder",
-              "Manual Applications",
-              "7-day Data Retention"
+              '5 AI Job Searches / month',
+              '3 Identity Masks',
+              'Basic Resume Builder',
+              'Manual Applications',
+              '7-day Data Retention',
             ]}
             isCurrent={true} // TODO: Check actual entitlement
-            onSelect={() => console.log("Current plan is Free")}
+            onSelect={() => console.log('Current plan is Free')}
             loading={loading === 'FREE-monthly'}
           />
 
@@ -93,12 +98,12 @@ export default function PricingPage() {
             price="$29"
             description="For serious job seekers who value their time."
             features={[
-              "Unlimited AI Job Searches",
-              "16 Identity Masks",
-              "1 Autonomous Auto-Apply Agent",
-              "Advanced Resume Tailoring",
-              "Priority Processing",
-              "Unlimited Data Retention"
+              'Unlimited AI Job Searches',
+              '16 Identity Masks',
+              '1 Autonomous Auto-Apply Agent',
+              'Advanced Resume Tailoring',
+              'Priority Processing',
+              'Unlimited Data Retention',
             ]}
             isCurrent={false}
             isPopular={true}
@@ -112,16 +117,16 @@ export default function PricingPage() {
             price="Custom"
             description="For agencies and power users managing multiple profiles."
             features={[
-              "Multiple Autonomous Agents",
-              "Unlimited Masks",
-              "API Access",
-              "White-label Reports",
-              "Dedicated Account Manager",
-              "SLA Support"
+              'Multiple Autonomous Agents',
+              'Unlimited Masks',
+              'API Access',
+              'White-label Reports',
+              'Dedicated Account Manager',
+              'SLA Support',
             ]}
             isCurrent={false}
             loading={loading === 'ENTERPRISE-monthly'}
-            onSelect={() => window.location.href = "mailto:sales@in-midst.com"}
+            onSelect={() => (window.location.href = 'mailto:sales@in-midst.com')}
           />
         </div>
       </div>
