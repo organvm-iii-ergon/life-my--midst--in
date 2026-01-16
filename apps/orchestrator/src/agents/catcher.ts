@@ -114,6 +114,7 @@ export class CatcherAgent implements Agent {
         provider: integration.provider,
         accessToken,
         refreshToken,
+        folderPath: integration.metadata?.['rootPath'] as string | undefined,
         // In production, these would come from secret management service
         // For now, they are injected via env vars in the provider implementations
         // or could be stored encrypted in the integration record metadata
@@ -425,13 +426,12 @@ export class CatcherAgent implements Agent {
         return;
       }
 
-      // TODO: Phase 6 - Download file (would need provider instance)
-      // await provider.downloadFile(fileId, tempPath, (bytes) => {
-      //   console.log(`Downloaded ${bytes} bytes from ${cloudFile.name}`);
-      // });
-
-      // For MVP, skip download - would fail anyway without real provider
-      console.log(`[STUB] Would download ${cloudFile.name} to ${tempPath}`);
+      // Instantiate provider to download file
+      const provider = await this.authenticateProvider(integration);
+      
+      await provider.downloadFile(fileId, tempPath, (_bytes) => {
+        // console.log(`Downloaded ${_bytes} bytes from ${cloudFile.name}`);
+      });
 
       // Extract metadata from file
       const { metadata } = await processFile(
@@ -666,9 +666,13 @@ export class CatcherAgent implements Agent {
         }
       };
 
+      // Set to track observed files for deletion detection
+      const observedFileIds = new Set<string>();
+
       for (const folder of folders) {
         try {
           for await (const file of provider.listFiles(folder, options)) {
+            observedFileIds.add(file.fileId);
             const modifiedTime = new Date(file.modifiedTime);
             
             // If file modified after last sync, process it
@@ -679,10 +683,6 @@ export class CatcherAgent implements Agent {
               if (existingSync) {
                 // Modified file
                 if (file.checksum !== existingSync.checksum) {
-                  // Re-download and update if checksum changed
-                  // For now we treat modified files same as new for ingestion logic
-                  // but in updateArtifactFromCloudFile we handle updates specifically
-                  
                   // Download file to temp
                   await provider.downloadFile(file.fileId, join(tempDir, file.fileId));
                   await this.updateArtifactFromCloudFile(file, integration, profileId, tempDir, metrics);
@@ -695,6 +695,19 @@ export class CatcherAgent implements Agent {
           }
         } catch (err) {
           metrics.recordError(folder, `list_files_error: ${String(err)}`);
+        }
+      }
+
+      // Detect and handle deletions
+      const allSyncStates = await this.syncStateRepo.listByIntegration(integration.id);
+      for (const state of allSyncStates) {
+        if (!observedFileIds.has(state.sourceFileId)) {
+          // File not seen in scan, mark as deleted
+          if (state.artifactId) {
+            await this.artifactRepo.update(state.artifactId, profileId, { status: "archived" });
+            metrics.recordDeleted();
+          }
+          await this.syncStateRepo.delete(state.id);
         }
       }
       

@@ -316,8 +316,17 @@ class PostgresArtifactRepo implements ArtifactRepo {
   }
 }
 
-export function createArtifactRepo(pool?: Pool): ArtifactRepo {
-  if (pool) {
+export interface ArtifactRepoOptions {
+  pool?: Pool;
+  kind?: "memory" | "postgres";
+}
+
+export function createArtifactRepo(options: ArtifactRepoOptions = {}): ArtifactRepo {
+  if (options.kind === "postgres" || options.pool) {
+    if (!options.pool && !process.env["DATABASE_URL"]) {
+      throw new Error("Postgres repo requires pool or DATABASE_URL");
+    }
+    const pool = options.pool || new Pool({ connectionString: process.env["DATABASE_URL"] });
     return new PostgresArtifactRepo(pool);
   }
 

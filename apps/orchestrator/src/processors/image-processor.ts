@@ -91,16 +91,16 @@ export async function extractImageMetadata(filePath: string): Promise<ImageMetad
     }
 
     // Extract keywords/title from EXIF description if available
-    if (exifData && typeof exifData['$1'] === "string") {
-      result.keywords = [exifData['$1']].concat(
+    if (exifData && typeof exifData['ImageDescription'] === "string") {
+      result.keywords = [exifData['ImageDescription']].concat(
         result.keywords || []
       );
     }
 
     // Use EXIF DateTimeOriginal as creation date if available
-    if (exifData && exifData['$1']) {
+    if (exifData && exifData['DateTimeOriginal']) {
       // EXIF dates are in format "YYYY:MM:DD HH:MM:SS"
-      const dateStr = String(exifData['$1']).replace(/:/g, "-").replace(" ", "T");
+      const dateStr = String(exifData['DateTimeOriginal']).replace(/:/g, "-").replace(" ", "T");
       result.title = `Photo - ${dateStr}`;
     }
 
@@ -115,17 +115,17 @@ export async function extractImageMetadata(filePath: string): Promise<ImageMetad
  */
 function parseExifData(exif: Record<string, unknown>): ImageMetadata["exif"] {
   return {
-    camera: exif['$1'] ? String(exif['$1']) : undefined,
-    lensModel: exif['$1'] ? String(exif['$1']) : undefined,
-    iso: typeof exif['$1'] === "number" ? exif['$1'] : undefined,
-    aperture: exif['$1'] ? `f/${exif['$1']}` : undefined,
-    shutterSpeed: exif['$1'] ? formatShutterSpeed(exif['$1'] as number) : undefined,
-    focalLength: exif['$1'] ? `${exif['$1']}mm` : undefined,
-    dateTime: exif['$1']
-      ? formatExifDateTime(String(exif['$1']))
+    camera: exif['Model'] ? String(exif['Model']) : (exif['Make'] ? String(exif['Make']) : undefined),
+    lensModel: exif['LensModel'] ? String(exif['LensModel']) : undefined,
+    iso: typeof exif['ISO'] === "number" ? exif['ISO'] : undefined,
+    aperture: exif['FNumber'] ? `f/${exif['FNumber']}` : undefined,
+    shutterSpeed: exif['ExposureTime'] ? formatShutterSpeed(exif['ExposureTime'] as number) : undefined,
+    focalLength: exif['FocalLength'] ? `${exif['FocalLength']}mm` : undefined,
+    dateTime: exif['DateTimeOriginal']
+      ? formatExifDateTime(String(exif['DateTimeOriginal']))
       : undefined,
-    flashUsed: Boolean(exif['$1']),
-    software: exif['$1'] ? String(exif['$1']) : undefined,
+    flashUsed: Boolean(exif['Flash']),
+    software: exif['Software'] ? String(exif['Software']) : undefined,
     gps: exif['latitude'] && exif['longitude'] ? {
       latitude: Number(exif['latitude']),
       longitude: Number(exif['longitude']),

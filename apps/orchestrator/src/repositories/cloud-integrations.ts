@@ -255,8 +255,17 @@ class PostgresCloudIntegrationRepo implements CloudIntegrationRepo {
   }
 }
 
-export function createCloudIntegrationRepo(pool?: Pool): CloudIntegrationRepo {
-  if (pool) {
+export interface CloudIntegrationRepoOptions {
+  pool?: Pool;
+  kind?: "memory" | "postgres";
+}
+
+export function createCloudIntegrationRepo(options: CloudIntegrationRepoOptions = {}): CloudIntegrationRepo {
+  if (options.kind === "postgres" || options.pool) {
+    if (!options.pool && !process.env["DATABASE_URL"]) {
+      throw new Error("Postgres repo requires pool or DATABASE_URL");
+    }
+    const pool = options.pool || new Pool({ connectionString: process.env["DATABASE_URL"] });
     return new PostgresCloudIntegrationRepo(pool);
   }
 

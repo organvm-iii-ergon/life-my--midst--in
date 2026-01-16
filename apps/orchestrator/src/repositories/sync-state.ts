@@ -244,8 +244,17 @@ class PostgresSyncStateRepo implements SyncStateRepo {
   }
 }
 
-export function createSyncStateRepo(pool?: Pool): SyncStateRepo {
-  if (pool) {
+export interface SyncStateRepoOptions {
+  pool?: Pool;
+  kind?: "memory" | "postgres";
+}
+
+export function createSyncStateRepo(options: SyncStateRepoOptions = {}): SyncStateRepo {
+  if (options.kind === "postgres" || options.pool) {
+    if (!options.pool && !process.env["DATABASE_URL"]) {
+      throw new Error("Postgres repo requires pool or DATABASE_URL");
+    }
+    const pool = options.pool || new Pool({ connectionString: process.env["DATABASE_URL"] });
     return new PostgresSyncStateRepo(pool);
   }
 
