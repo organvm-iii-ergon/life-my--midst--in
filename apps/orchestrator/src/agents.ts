@@ -1,6 +1,7 @@
 import { CrawlerAgent } from "./agents/crawler";
 import { IngestorAgent } from "./agents/ingestor";
 import { HunterAgent } from "./agents/hunter";
+import { CatcherAgent } from "./agents/catcher";
 
 export type AgentRole =
   | "architect"
@@ -11,7 +12,8 @@ export type AgentRole =
   | "narrator"
   | "ingestor"
   | "crawler"
-  | "hunter";
+  | "hunter"
+  | "catcher";
 
 export interface AgentTask {
   id: string;
@@ -91,6 +93,7 @@ export function defaultAgents(executor?: AgentExecutor | Partial<Record<AgentRol
     createStubAgent("narrator", pickExecutor("narrator")),
     new IngestorAgent(pickExecutor("ingestor")),
     new CrawlerAgent(),
-    new HunterAgent({ executor: pickExecutor("hunter") })
+    new HunterAgent({ executor: pickExecutor("hunter") }),
+    new CatcherAgent()
   ];
 }

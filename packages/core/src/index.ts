@@ -18,3 +18,4 @@ export * from './licensing/licensing-service';
 export * from './billing/billing-service';
 export * from './analytics/events';
 export * from './analytics/analytics-service';
+export * from './integrations/cloud-storage-provider';

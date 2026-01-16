@@ -41,6 +41,11 @@ export interface SchedulerConfig {
   description: string;
 }
 
+export interface ArtifactSyncConfig {
+  enabled: boolean;
+  intervalMs: number;
+}
+
 export interface WorkerConfig {
   enabled: boolean;
   pollIntervalMs: number;
@@ -97,6 +102,7 @@ const DEFAULT_QUEUE_KEY = "orchestrator:queue";
 const DEFAULT_REDIS_URL = "redis://localhost:6379";
 const DEFAULT_TOOL_MAX_ITERATIONS = 3;
 const DEFAULT_SCHEDULE_INTERVAL_MS = 60_000;
+const DEFAULT_ARTIFACT_SYNC_INTERVAL_MS = 86_400_000; // 24 hours
 const DEFAULT_WORKER_POLL_INTERVAL_MS = 500;
 const DEFAULT_WORKER_MAX_RETRIES = 3;
 const DEFAULT_WORKER_BACKOFF_MS = 2000;
@@ -159,6 +165,7 @@ const ROLE_MODEL_ENV: Record<AgentRole, string> = {
   narrator: "LOCAL_LLM_MODEL_NARRATOR",
   ingestor: "LOCAL_LLM_MODEL_INGESTOR",
   crawler: "LOCAL_LLM_MODEL_CRAWLER",
+  catcher: "LOCAL_LLM_MODEL_CATCHER",
   hunter: "LOCAL_LLM_MODEL_HUNTER"
 };
 
@@ -243,6 +250,8 @@ const envSchema = z
     ORCH_SCHEDULE_INTERVAL_MS: optionalInt,
     ORCH_SCHEDULE_ROLES: optionalString,
     ORCH_SCHEDULE_DESCRIPTION: optionalString,
+    ORCH_ARTIFACT_SYNC_ENABLED: optionalBoolString,
+    ORCH_ARTIFACT_SYNC_INTERVAL_MS: optionalInt,
     ORCH_WORKER_ENABLED: optionalBoolString,
     ORCH_WORKER_POLL_INTERVAL_MS: optionalInt,
     ORCH_WORKER_MAX_RETRIES: optionalInt,
@@ -423,6 +432,14 @@ export const loadSchedulerConfig = (env: NodeJS.ProcessEnv = process.env): Sched
     intervalMs: parsed.ORCH_SCHEDULE_INTERVAL_MS ?? DEFAULT_SCHEDULE_INTERVAL_MS,
     roles: roles.length ? roles : ["architect", "implementer", "reviewer"],
     description: parsed.ORCH_SCHEDULE_DESCRIPTION ?? "Scheduled orchestrator run"
+  };
+};
+
+export const loadArtifactSyncConfig = (env: NodeJS.ProcessEnv = process.env): ArtifactSyncConfig => {
+  const parsed = parseEnv(env);
+  return {
+    enabled: parseBool(parsed.ORCH_ARTIFACT_SYNC_ENABLED),
+    intervalMs: parsed.ORCH_ARTIFACT_SYNC_INTERVAL_MS ?? DEFAULT_ARTIFACT_SYNC_INTERVAL_MS
   };
 };
 

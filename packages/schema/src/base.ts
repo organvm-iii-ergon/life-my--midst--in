@@ -25,7 +25,8 @@ export const CvEntityTypeSchema = z.enum([
   "timelineEvent",
   "verificationLog",
   "verifiableCredential",
-  "attestationLink"
+  "attestationLink",
+  "artifact"
 ]);
 
 /**

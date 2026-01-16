@@ -21,6 +21,7 @@ export * from "./hunter-protocol";
 export * from "./collaboration";
 export * from "./messaging";
 export * from "./billing";
+export * from "./artifact";
 
 // Re-export zod for convenience
 export { z } from "zod";

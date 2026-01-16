@@ -1,12 +1,13 @@
 import { buildOrchestrator } from "./server";
 import { defaultAgents } from "./agents";
-import { loadSchedulerConfig, loadServerConfig, loadWorkerConfig } from "./config";
+import { loadSchedulerConfig, loadServerConfig, loadWorkerConfig, loadArtifactSyncConfig } from "./config";
 import { resolveAgentExecutor } from "./llm";
 import { createTaskQueue } from "./queue";
 import { createTaskStore } from "./persistence";
 import { createRunStore } from "./runs";
 import { TaskScheduler } from "./scheduler";
 import { JobHuntScheduler } from "./job-hunt-scheduler";
+import { ArtifactSyncScheduler } from "./artifact-sync-scheduler";
 
 async function bootstrap() {
   const executor = resolveAgentExecutor();
@@ -15,6 +16,7 @@ async function bootstrap() {
   const runStore = createRunStore();
   const workerConfig = loadWorkerConfig();
   const schedulerConfig = loadSchedulerConfig();
+  const artifactSyncConfig = loadArtifactSyncConfig();
   
   const scheduler = schedulerConfig.enabled
     ? new TaskScheduler(queue, store, runStore, {
@@ -28,6 +30,13 @@ async function bootstrap() {
     jobs: [], // Start empty, populate via API
     apiBaseUrl: process.env["API_URL"] ?? "http://localhost:3001"
   });
+
+  const artifactSyncScheduler = artifactSyncConfig.enabled
+    ? new ArtifactSyncScheduler(queue, store, runStore, {
+        intervalMs: artifactSyncConfig.intervalMs,
+        apiBaseUrl: process.env["API_URL"] ?? "http://localhost:3001"
+      })
+    : undefined;
 
   const fastify = buildOrchestrator(executor ? defaultAgents(executor) : defaultAgents(), {
     queue,
@@ -44,6 +53,7 @@ async function bootstrap() {
   try {
     if (scheduler) scheduler.start();
     if (schedulerConfig.enabled) jobHuntScheduler.start();
+    if (artifactSyncScheduler) artifactSyncScheduler.start();
     
     await fastify.listen({ port: serverConfig.port, host: serverConfig.host });
   } catch (err) {
