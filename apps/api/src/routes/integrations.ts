@@ -45,18 +45,18 @@ const getOAuthConfig = (provider: string): OAuthConfig | null => {
   switch (provider) {
     case "google_drive":
       return {
-        clientId: process.env.GOOGLE_DRIVE_CLIENT_ID || "",
-        clientSecret: process.env.GOOGLE_DRIVE_CLIENT_SECRET || "",
-        redirectUri: process.env.GOOGLE_DRIVE_REDIRECT_URI || "http://localhost:3001/integrations/cloud-storage/callback",
+        clientId: process.env['GOOGLE_DRIVE_CLIENT_ID'] || "",
+        clientSecret: process.env['GOOGLE_DRIVE_CLIENT_SECRET'] || "",
+        redirectUri: process.env['GOOGLE_DRIVE_REDIRECT_URI'] || "http://localhost:3001/integrations/cloud-storage/callback",
         authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth",
         tokenUrl: "https://oauth2.googleapis.com/token"
       };
 
     case "dropbox":
       return {
-        clientId: process.env.DROPBOX_APP_KEY || "",
-        clientSecret: process.env.DROPBOX_APP_SECRET || "",
-        redirectUri: process.env.DROPBOX_REDIRECT_URI || "http://localhost:3001/integrations/cloud-storage/callback",
+        clientId: process.env['DROPBOX_APP_KEY'] || "",
+        clientSecret: process.env['DROPBOX_APP_SECRET'] || "",
+        redirectUri: process.env['DROPBOX_REDIRECT_URI'] || "http://localhost:3001/integrations/cloud-storage/callback",
         authorizationUrl: "https://www.dropbox.com/oauth2/authorize",
         tokenUrl: "https://api.dropboxapi.com/oauth2/token"
       };

@@ -48,17 +48,17 @@ export async function registerArtifactRoutes(fastify: FastifyInstance) {
 
       // Parse filters
       const filters: any = {};
-      if (query.status) filters.status = query.status;
-      if (query.type) filters.type = query.type;
-      if (query.tags) {
-        const tagsStr = String(query.tags);
+      if (query['status']) filters.status = query['status'];
+      if (query['type']) filters.type = query['type'];
+      if (query['tags']) {
+        const tagsStr = String(query['tags']);
         filters.tags = tagsStr.split(",").map((t) => t.trim());
       }
-      if (query.sourceProvider) filters.sourceProvider = query.sourceProvider;
+      if (query['sourceProvider']) filters.sourceProvider = query['sourceProvider'];
 
       // Parse pagination
-      const offset = Number(query.offset ?? 0);
-      const limit = Math.min(Number(query.limit ?? 20), 100); // Max 100 items per page
+      const offset = Number(query['offset'] ?? 0);
+      const limit = Math.min(Number(query['limit'] ?? 20), 100); // Max 100 items per page
 
       try {
         const result = await artifactService.listArtifacts(profileId, filters, {
@@ -96,8 +96,9 @@ export async function registerArtifactRoutes(fastify: FastifyInstance) {
       const { profileId } = request.params as { profileId: string };
       const query = request.query as Record<string, unknown>;
 
-      const offset = Number(query.offset ?? 0);
-      const limit = Math.min(Number(query.limit ?? 20), 100);
+      // Parse pagination
+      const offset = Number(query['offset'] ?? 0);
+      const limit = Math.min(Number(query['limit'] ?? 20), 100); // Max 100 items per page
 
       try {
         const result = await artifactService.listArtifacts(
