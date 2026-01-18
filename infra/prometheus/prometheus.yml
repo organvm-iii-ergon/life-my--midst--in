@@ -1,0 +1,67 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'inmidst-dev'
+    environment: 'development'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  - job_name: 'api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['api:3001']
+        labels:
+          service: 'api'
+          app: 'in-midst-my-life'
+
+  - job_name: 'api-prom-client'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['api:9464']
+        labels:
+          service: 'api'
+          app: 'in-midst-my-life'
+
+  - job_name: 'orchestrator'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['orchestrator:3002']
+        labels:
+          service: 'orchestrator'
+          app: 'in-midst-my-life'
+
+  - job_name: 'orchestrator-prom-client'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['orchestrator:9465']
+        labels:
+          service: 'orchestrator'
+          app: 'in-midst-my-life'
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgres'
+          app: 'in-midst-my-life'
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          app: 'in-midst-my-life'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
