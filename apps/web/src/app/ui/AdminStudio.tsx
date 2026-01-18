@@ -21,9 +21,9 @@ type AdminStudioProps = {
   onUpdateMask: (mask: Mask) => void;
   onUpdateStage: (stage: Stage) => void;
   onUpdateEpoch: (epoch: Epoch) => void;
-  setMasks: (masks: Mask[]) => void;
-  setStages: (stages: Stage[]) => void;
-  setEpochs: (epochs: Epoch[]) => void;
+  setMasks: (callback: (prev: Mask[]) => Mask[]) => void;
+  setStages: (callback: (prev: Stage[]) => Stage[]) => void;
+  setEpochs: (callback: (prev: Epoch[]) => Epoch[]) => void;
 };
 
 export function AdminStudio({

@@ -133,7 +133,7 @@ export function MaskEditor({
       const maskData: Mask = {
         id: initialMask?.id || `mask-${Date.now()}`,
         name: state.name,
-        ontology: state.ontology,
+        ontology: state.ontology as 'cognitive' | 'expressive' | 'operational',
         functional_scope: state.functionalScope,
         stylistic_parameters: {
           tone: state.tone,

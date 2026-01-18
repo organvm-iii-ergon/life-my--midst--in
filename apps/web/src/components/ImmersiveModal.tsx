@@ -32,7 +32,7 @@ export function ImmersiveModal({ item, onClose }: ImmersiveModalProps) {
   useEffect(() => {
     if (!item) return;
     let active = true;
-    
+
     // Note: Cryptographic verification is done server-side to avoid bundling crypto modules
     // Client receives pre-verified artifacts from the API
     // This useEffect just marks items as "self-attested" by default

@@ -74,7 +74,7 @@ COMMENT ON COLUMN subscriptions.stripe_customer_id IS 'Stripe customer ID (immut
 COMMENT ON COLUMN subscriptions.stripe_subscription_id IS 'Stripe subscription ID (changes if subscription is recreated)';
 COMMENT ON COLUMN subscriptions.tier IS 'Current subscription tier (FREE, PRO, ENTERPRISE)';
 COMMENT ON COLUMN subscriptions.status IS 'Subscription status from Stripe (active, canceled, past_due, etc.)';
-COMMENT ON COLUMN subscriptions.cancel_at TIMESTAMP IS 'Timestamp when subscription will be canceled';
+COMMENT ON COLUMN subscriptions.cancel_at IS 'Timestamp when subscription will be canceled';
 COMMENT ON COLUMN subscriptions.cancel_at_period_end IS 'If true, cancel at period end; otherwise cancel immediately';
 
 COMMENT ON TABLE stripe_events IS 'Log of all Stripe webhook events for idempotency';

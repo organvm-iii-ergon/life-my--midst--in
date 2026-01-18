@@ -32,7 +32,7 @@ export default function PendingArtifactsPage() {
       const url = `${apiBase}/profiles/${pid}/artifacts/pending`;
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (data.ok) {
         setArtifacts(data.data || []);
       }
@@ -89,9 +89,8 @@ export default function PendingArtifactsPage() {
     loadArtifacts(profileId);
   };
 
-  const filteredArtifacts = filterType === 'all'
-    ? artifacts
-    : artifacts.filter(a => a.artifactType === filterType);
+  const filteredArtifacts =
+    filterType === 'all' ? artifacts : artifacts.filter((a) => a.artifactType === filterType);
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>

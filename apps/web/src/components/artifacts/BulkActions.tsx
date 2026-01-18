@@ -45,9 +45,7 @@ export function BulkActions({
         zIndex: 1000,
       }}
     >
-      <p style={{ marginBottom: '0.75rem', fontWeight: 600 }}>
-        {selectedCount} selected
-      </p>
+      <p style={{ marginBottom: '0.75rem', fontWeight: 600 }}>{selectedCount} selected</p>
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         <button
           className="button button-success"

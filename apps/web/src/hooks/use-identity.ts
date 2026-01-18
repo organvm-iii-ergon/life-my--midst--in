@@ -6,8 +6,8 @@ import * as jose from 'jose';
 // Type matching @in-midst-my-life/core KeyPair for compatibility
 interface KeyPair {
   did: string;
-  publicKey: jose.KeyLike;
-  privateKey: jose.KeyLike;
+  publicKey: any; // jose.KeyLike is not exported in this version
+  privateKey: any; // jose.KeyLike is not exported in this version
 }
 
 const STORAGE_KEY = 'midst:identity:v1';
@@ -52,7 +52,7 @@ export function useIdentity() {
     try {
       // Generate EdDSA key pair using Web Crypto
       const { publicKey, privateKey } = await jose.generateKeyPair('EdDSA');
-      
+
       // Export to JWK for storage
       const pubJwk = await jose.exportJWK(publicKey);
       const privJwk = await jose.exportJWK(privateKey);
@@ -68,13 +68,13 @@ export function useIdentity() {
       };
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(storagePayload));
-      
+
       const keyPair: KeyPair = {
         did,
         publicKey,
         privateKey,
       };
-      
+
       setIdentity(keyPair);
     } catch (e) {
       console.error('Failed to generate identity', e);
@@ -85,9 +85,7 @@ export function useIdentity() {
 
   async function exportIdentity(): Promise<string> {
     if (!identity) return '';
-    // @ts-expect-error - JoseKey type compatibility
     const pubJwk = await jose.exportJWK(identity.publicKey);
-    // @ts-expect-error - JoseKey type compatibility
     const privJwk = await jose.exportJWK(identity.privateKey);
     return JSON.stringify(
       {
@@ -121,9 +119,7 @@ export function useIdentity() {
       false,
       ['encrypt'],
     );
-    // @ts-expect-error - JoseKey type compatibility
     const pubJwk = await jose.exportJWK(identity.publicKey);
-    // @ts-expect-error - JoseKey type compatibility
     const privJwk = await jose.exportJWK(identity.privateKey);
     const payload = JSON.stringify({ did: identity.did, publicKey: pubJwk, privateKey: privJwk });
     const ciphertext = await crypto.subtle.encrypt(

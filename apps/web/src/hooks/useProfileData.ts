@@ -51,7 +51,7 @@ const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:300
 export function useProfileData(profileId: string | null): UseProfileDataReturn {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cv, setCV] = useState<CVData | null>(null);
-  const [loading, setLoading] = useState(true);  // Start with loading=true since we auto-fetch on mount
+  const [loading, setLoading] = useState(true); // Start with loading=true since we auto-fetch on mount
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = useCallback(async () => {
@@ -143,7 +143,7 @@ export function useProfileData(profileId: string | null): UseProfileDataReturn {
         // Handle both { data: entry } and direct entry response formats
         // Check for entry-specific fields to distinguish from CV object
         if (data.data) return data.data;
-        if (data.type !== undefined) return data;  // It's an entry, has type field
+        if (data.type !== undefined) return data; // It's an entry, has type field
         return null;
       } catch (err) {
         setError((err as Error).message);

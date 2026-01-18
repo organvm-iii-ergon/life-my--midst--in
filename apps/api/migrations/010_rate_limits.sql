@@ -20,9 +20,10 @@ CREATE INDEX IF NOT EXISTS idx_rate_limits_profile_feature
 CREATE INDEX IF NOT EXISTS idx_rate_limits_period_end
   ON rate_limits(period_end);
 
+-- Note: Partial index with NOW() removed because NOW() is not IMMUTABLE
+-- Use application-level filtering for active rate limits instead
 CREATE INDEX IF NOT EXISTS idx_rate_limits_profile_period
-  ON rate_limits(profile_id, period_end)
-  WHERE period_end > NOW();
+  ON rate_limits(profile_id, period_end);
 
 -- Trigger to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_rate_limits_updated_at()

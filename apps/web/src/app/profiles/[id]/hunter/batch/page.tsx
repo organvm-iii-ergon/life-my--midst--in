@@ -87,7 +87,9 @@ export default function BatchApplicationsPage({ params }: PageProps) {
                 <option value="default">Default</option>
                 {personas.map((persona) => (
                   <option key={persona.id} value={persona.id}>
-                    {persona.name || `Persona ${persona.id.slice(0, 8)}`}
+                    {(persona as any).everyday_name ||
+                      (persona as any).nomen ||
+                      `Persona ${persona.id.slice(0, 8)}`}
                   </option>
                 ))}
               </select>

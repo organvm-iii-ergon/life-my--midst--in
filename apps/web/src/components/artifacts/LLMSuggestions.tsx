@@ -24,13 +24,19 @@ export function LLMSuggestions({ artifact, onAcceptSuggestion }: LLMSuggestionsP
         border: '1px solid var(--color-border)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}
+      >
         <Sparkles size={20} style={{ color: 'var(--color-primary)' }} />
-        <h4 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600 }}>
-          AI Suggestions
-        </h4>
+        <h4 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600 }}>AI Suggestions</h4>
       </div>
-      <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '0.75rem' }}>
+      <p
+        style={{
+          fontSize: '0.875rem',
+          color: 'var(--color-text-secondary)',
+          marginBottom: '0.75rem',
+        }}
+      >
         Classification confidence: {Math.round((artifact.confidence || 0) * 100)}%
       </p>
       {artifact.confidence && artifact.confidence < 0.7 && (

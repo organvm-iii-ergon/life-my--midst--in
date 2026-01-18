@@ -49,25 +49,24 @@ export default function TailorResumeViewer({ params }: PageProps) {
         // For now, we'll simulate the data structure
         const mockJob: Job = {
           id: jobId,
+          profileId: profileId,
           title: 'Senior Software Engineer',
           company: 'TechCorp',
           location: 'San Francisco, CA',
           remote: 'hybrid',
-          description:
+          descriptionMarkdown:
             'Join our growing engineering team building next-generation infrastructure...',
-          requirements: '5+ years TypeScript, React, Node.js, PostgreSQL, system design',
-          salary_min: 180000,
-          salary_max: 240000,
-          currency: 'USD',
-          job_url: 'https://example.com/jobs/senior-engineer',
-          posted_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-          source: 'linkedin' as const,
-          company_industry: 'Software/SaaS',
-          company_size: 'scale-up' as const,
-          technologies: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'Docker'],
+          url: 'https://example.com/jobs/senior-engineer',
+          salaryRange: '$180,000 - $240,000',
+          status: 'active',
+          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          updatedAt: new Date().toISOString(),
         };
 
         const mockCompatibility: CompatibilityResult = {
+          job_id: jobId,
+          profile_id: profileId,
+          persona_id: 'architect-mask',
           skill_match: 85,
           cultural_match: 78,
           growth_potential: 82,
@@ -78,9 +77,12 @@ export default function TailorResumeViewer({ params }: PageProps) {
           skill_gaps: [
             {
               skill: 'Kubernetes',
+              required_level: 'intermediate',
+              candidate_level: 'junior',
               gap_severity: 'medium',
-              proficiency_current: 0,
-              proficiency_required: 70,
+              explanation:
+                'Job emphasizes container orchestration; you have basic exposure but need production experience',
+              learnable: true,
             },
           ],
           strengths: [
@@ -93,13 +95,15 @@ export default function TailorResumeViewer({ params }: PageProps) {
             'No Docker Compose production experience mentioned',
           ],
           negotiation_points: [
-            'Competitive salary range ($180-240k) - you could negotiate for equity component',
+            'Competitive salary range - could negotiate for equity component',
             'Hybrid work already matches your preference',
             'Professional development budget negotiable for Kubernetes training',
           ],
           suggested_mask: 'Architect',
           key_points_to_emphasize: ['system design', 'scalability', 'mentorship'],
           areas_to_de_emphasize: ['junior projects', 'legacy systems'],
+          analysis_date: new Date(),
+          effort_estimate_minutes: 45,
         };
 
         const mockResume: TailoredResume = {
@@ -304,10 +308,8 @@ Jane Doe`;
                 <span>{job?.location}</span>
                 {job?.remote && <span>•</span>}
                 <span className="capitalize">{job?.remote}</span>
-                <span>•</span>
-                <span>
-                  ${job?.salary_min?.toLocaleString()}-${job?.salary_max?.toLocaleString()}
-                </span>
+                {job?.salaryRange && <span>•</span>}
+                {job?.salaryRange && <span>{job.salaryRange}</span>}
               </div>
             </div>
 

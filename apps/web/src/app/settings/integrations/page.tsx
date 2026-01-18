@@ -13,7 +13,9 @@ export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<CloudStorageIntegration[]>([]);
   const [loading, setLoading] = useState(true);
   const [showConnectModal, setShowConnectModal] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<'google_drive' | 'icloud' | 'dropbox'>('google_drive');
+  const [selectedProvider, setSelectedProvider] = useState<'google_drive' | 'icloud' | 'dropbox'>(
+    'google_drive',
+  );
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -29,7 +31,7 @@ export default function IntegrationsPage() {
     try {
       const response = await fetch(`${apiBase}/profiles/${pid}/integrations`);
       const data = await response.json();
-      
+
       if (data.ok) {
         setIntegrations(data.data || []);
       }
@@ -141,7 +143,13 @@ export default function IntegrationsPage() {
         ) : integrations.length === 0 ? (
           <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
             <p className="text-muted">No integrations connected yet.</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>
+            <p
+              style={{
+                fontSize: '0.875rem',
+                color: 'var(--color-text-secondary)',
+                marginTop: '0.5rem',
+              }}
+            >
               Connect a cloud storage provider above to get started.
             </p>
           </div>

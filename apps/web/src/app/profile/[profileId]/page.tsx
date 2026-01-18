@@ -120,10 +120,15 @@ export default function ProfilePage() {
             {canonicalAetas.length > 0 && (
               <div style={{ marginTop: '2rem' }}>
                 <div className="section" style={{ padding: '1.2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <div className="label">
-                      Life-Stage Progression
-                    </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    <div className="label">Life-Stage Progression</div>
                     <Link
                       href={`/profile/${profileId}/aetas`}
                       className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-cyan-600 hover:bg-cyan-500 text-white rounded transition-colors font-semibold"

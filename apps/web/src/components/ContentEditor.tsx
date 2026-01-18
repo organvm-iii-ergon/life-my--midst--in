@@ -51,7 +51,7 @@ export function ContentEditor({
       {activeTab === 'experience' && (
         <EntityList
           title="Experiences"
-          items={experiences}
+          items={experiences.filter((e): e is typeof e & { id: string } => !!e.id)}
           onCreate={() => setIsCreating(true)}
           onDelete={(id) => onDelete('experience', id)}
           renderItem={(item) => (
@@ -68,7 +68,7 @@ export function ContentEditor({
       {activeTab === 'project' && (
         <EntityList
           title="Projects"
-          items={projects}
+          items={projects.filter((p): p is typeof p & { id: string } => !!p.id)}
           onCreate={() => setIsCreating(true)}
           onDelete={(id) => onDelete('project', id)}
           renderItem={(item) => (
@@ -83,7 +83,7 @@ export function ContentEditor({
       {activeTab === 'education' && (
         <EntityList
           title="Education"
-          items={educations}
+          items={educations.filter((e): e is typeof e & { id: string } => !!e.id)}
           onCreate={() => setIsCreating(true)}
           onDelete={(id) => onDelete('education', id)}
           renderItem={(item) => (
@@ -98,7 +98,7 @@ export function ContentEditor({
       {activeTab === 'skill' && (
         <EntityList
           title="Skills"
-          items={skills}
+          items={skills.filter((s): s is typeof s & { id: string } => !!s.id)}
           onCreate={() => setIsCreating(true)}
           onDelete={(id) => onDelete('skill', id)}
           renderItem={(item) => (

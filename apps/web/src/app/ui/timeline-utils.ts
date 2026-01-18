@@ -40,7 +40,7 @@ const stripMarkdown = (value?: string) =>
 
 export function buildTimelineEntries(cvData: CvData): TimelineEntry[] {
   const entries: TimelineEntry[] = [];
-  
+
   cvData.experiences.forEach((exp) => {
     const map = STAGE_MAP['experience']!;
     entries.push({
@@ -55,7 +55,7 @@ export function buildTimelineEntries(cvData: CvData): TimelineEntry[] {
       settingId: map.settingId,
     });
   });
-  
+
   cvData.educations.forEach((edu) => {
     const map = STAGE_MAP['education']!;
     entries.push({
@@ -70,7 +70,7 @@ export function buildTimelineEntries(cvData: CvData): TimelineEntry[] {
       settingId: map.settingId,
     });
   });
-  
+
   cvData.projects.forEach((project) => {
     const map = STAGE_MAP['project']!;
     entries.push({
@@ -85,7 +85,7 @@ export function buildTimelineEntries(cvData: CvData): TimelineEntry[] {
       settingId: map.settingId,
     });
   });
-  
+
   cvData.publications.forEach((pub) => {
     const map = STAGE_MAP['publication']!;
     entries.push({
@@ -99,7 +99,7 @@ export function buildTimelineEntries(cvData: CvData): TimelineEntry[] {
       settingId: map.settingId,
     });
   });
-  
+
   cvData.awards.forEach((award) => {
     const map = STAGE_MAP['award']!;
     entries.push({
@@ -113,7 +113,7 @@ export function buildTimelineEntries(cvData: CvData): TimelineEntry[] {
       settingId: map.settingId,
     });
   });
-  
+
   cvData.certifications.forEach((cert) => {
     const map = STAGE_MAP['certification']!;
     entries.push({
@@ -128,6 +128,6 @@ export function buildTimelineEntries(cvData: CvData): TimelineEntry[] {
       settingId: map.settingId,
     });
   });
-  
+
   return entries.sort((a, b) => (a.start < b.start ? 1 : -1));
 }

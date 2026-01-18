@@ -18,16 +18,15 @@ const mockPersona: TabulaPersonarumEntry = {
 
 describe('InvertedInterviewInterface', () => {
   const mockOnSubmitResponse = vi.fn();
-  const mockOnCalculateCompatibility = vi.fn<
-    [TabulaPersonarumEntry, any[]],
-    PersonaResonance
-  >().mockReturnValue({
-    persona_id: 'persona-1',
-    context: 'Test Interview',
-    fit_score: 85,
-    alignment_keywords: ['growth', 'learning'],
-    misalignment_keywords: ['rigid'],
-  });
+  const mockOnCalculateCompatibility = vi
+    .fn<[TabulaPersonarumEntry, any[]], PersonaResonance>()
+    .mockReturnValue({
+      persona_id: 'persona-1',
+      context: 'Test Interview',
+      fit_score: 85,
+      alignment_keywords: ['growth', 'learning'],
+      misalignment_keywords: ['rigid'],
+    });
 
   beforeEach(() => {
     mockOnSubmitResponse.mockClear();

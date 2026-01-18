@@ -88,21 +88,50 @@ export function OAuthFlowHandler({
       )}
 
       {status === 'connecting' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '1rem',
+            backgroundColor: 'var(--color-bg-secondary)',
+            borderRadius: '8px',
+          }}
+        >
           <div className="spinner" />
           <p>Redirecting to {providerLabels[provider]}...</p>
         </div>
       )}
 
       {status === 'success' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', backgroundColor: 'var(--color-success-bg)', color: 'var(--color-success)', borderRadius: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '1rem',
+            backgroundColor: 'var(--color-success-bg)',
+            color: 'var(--color-success)',
+            borderRadius: '8px',
+          }}
+        >
           <CheckCircle size={20} />
           <p>Successfully connected! Redirecting...</p>
         </div>
       )}
 
       {status === 'error' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', backgroundColor: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '1rem',
+            backgroundColor: 'var(--color-error-bg)',
+            color: 'var(--color-error)',
+            borderRadius: '8px',
+          }}
+        >
           <AlertCircle size={20} />
           <div>
             <p style={{ fontWeight: 600 }}>Connection failed</p>

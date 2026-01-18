@@ -107,7 +107,7 @@ export function usePersonae(
         const data = await res.json();
         void fetchPersonae();
         // Handle both wrapped (data.data) and direct responses
-        return (data.data ?? data) ?? null;
+        return data.data ?? data ?? null;
       } catch (err) {
         setError((err as Error).message);
         return null;
@@ -130,7 +130,7 @@ export function usePersonae(
         const data = await res.json();
         void fetchPersonae();
         // Handle both wrapped (data.data) and direct responses
-        return (data.data ?? data) ?? null;
+        return data.data ?? data ?? null;
       } catch (err) {
         setError((err as Error).message);
         return null;

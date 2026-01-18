@@ -53,9 +53,7 @@ export function ArtifactCard({ artifact, onSelect, selected }: ArtifactCardProps
             <span className={`badge ${statusColor}`}>{artifact.status}</span>
             <span className="badge">{artifact.artifactType.replace('_', ' ')}</span>
             {artifact.confidence && (
-              <span className="badge">
-                {Math.round(artifact.confidence * 100)}% confidence
-              </span>
+              <span className="badge">{Math.round(artifact.confidence * 100)}% confidence</span>
             )}
           </div>
           <p className="text-muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>

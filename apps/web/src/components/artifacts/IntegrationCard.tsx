@@ -37,7 +37,9 @@ export function IntegrationCard({
   };
 
   const handleDisconnect = async () => {
-    if (!confirm('Are you sure you want to disconnect this integration? Artifacts will be preserved.')) {
+    if (
+      !confirm('Are you sure you want to disconnect this integration? Artifacts will be preserved.')
+    ) {
       return;
     }
     setDisconnecting(true);
@@ -65,7 +67,7 @@ export function IntegrationCard({
           </p>
         </div>
         <span
-          className={`badge ${integration.status === 'connected' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
+          className={`badge ${integration.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
         >
           {integration.status}
         </span>

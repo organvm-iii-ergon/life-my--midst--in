@@ -17,7 +17,17 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import type { Mask } from '@in-midst-my-life/schema';
-import { maskApi, ApiError } from '@/lib/api-client';
+
+// API error class
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode?: number,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
 
 export interface TabulaPersonarumProps {
   profileId: string;
@@ -60,15 +70,12 @@ export function TabulaPersonarum({
       setIsLoading(true);
       setError(null);
       try {
-        const fetchedMasks = await maskApi.list(profileId);
-        setMasks(fetchedMasks);
+        const response = await fetch(`/api/profiles/${profileId}/masks`);
+        if (!response.ok) throw new ApiError(`Failed to load masks`, response.status);
+        const { data } = await response.json();
+        setMasks(data || []);
       } catch (err) {
-        const message =
-          err instanceof ApiError
-            ? `API error: ${err.status} ${err.statusText}`
-            : err instanceof Error
-              ? err.message
-              : 'Failed to load masks';
+        const message = err instanceof Error ? err.message : 'Failed to load masks';
         setError(message);
         // Keep initial masks as fallback
         setMasks(initialMasks);
@@ -283,15 +290,15 @@ export function TabulaPersonarum({
           >
             <div>
               <div className="mask-name">{mask.name}</div>
-              {mask.traits && mask.traits.length > 0 && (
+              {mask.visibility_scope && mask.visibility_scope.length > 0 && (
                 <div className="mask-badge">
-                  {mask.traits.slice(0, 3).map((trait) => (
-                    <span key={trait} className="trait-chip">
-                      {trait}
+                  {mask.visibility_scope.slice(0, 3).map((scope) => (
+                    <span key={scope} className="trait-chip">
+                      {scope}
                     </span>
                   ))}
-                  {mask.traits.length > 3 && (
-                    <span className="trait-chip">+{mask.traits.length - 3}</span>
+                  {mask.visibility_scope.length > 3 && (
+                    <span className="trait-chip">+{mask.visibility_scope.length - 3}</span>
                   )}
                 </div>
               )}
@@ -310,17 +317,18 @@ export function TabulaPersonarum({
                 setIsLoading(true);
                 setError(null);
                 try {
-                  const newMask = await maskApi.create(profileId, data);
+                  const response = await fetch(`/api/profiles/${profileId}/masks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                  });
+                  if (!response.ok) throw new ApiError('Failed to create mask', response.status);
+                  const { data: newMask } = await response.json();
                   setMasks([...masks, newMask]);
                   onMaskCreated?.(newMask);
                   setIsCreateMode(false);
                 } catch (err) {
-                  const message =
-                    err instanceof ApiError
-                      ? `Failed to create mask: ${err.status}`
-                      : err instanceof Error
-                        ? err.message
-                        : 'Failed to create mask';
+                  const message = err instanceof Error ? err.message : 'Failed to create mask';
                   setError(message);
                 } finally {
                   setIsLoading(false);
@@ -346,17 +354,18 @@ export function TabulaPersonarum({
                   setIsLoading(true);
                   setError(null);
                   try {
-                    await maskApi.delete(profileId, selectedMask.id);
+                    const response = await fetch(
+                      `/api/profiles/${profileId}/masks/${selectedMask.id}`,
+                      {
+                        method: 'DELETE',
+                      },
+                    );
+                    if (!response.ok) throw new ApiError('Failed to delete mask', response.status);
                     setMasks(masks.filter((m) => m.id !== selectedMask.id));
                     onMaskDeleted?.(selectedMask.id);
                     setSelectedMask(null);
                   } catch (err) {
-                    const message =
-                      err instanceof ApiError
-                        ? `Failed to delete mask: ${err.status}`
-                        : err instanceof Error
-                          ? err.message
-                          : 'Failed to delete mask';
+                    const message = err instanceof Error ? err.message : 'Failed to delete mask';
                     setError(message);
                   } finally {
                     setIsLoading(false);
@@ -377,18 +386,22 @@ export function TabulaPersonarum({
                 setIsLoading(true);
                 setError(null);
                 try {
-                  const updatedMask = await maskApi.update(profileId, selectedMask.id, data);
+                  const response = await fetch(
+                    `/api/profiles/${profileId}/masks/${selectedMask.id}`,
+                    {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(data),
+                    },
+                  );
+                  if (!response.ok) throw new ApiError('Failed to update mask', response.status);
+                  const { data: updatedMask } = await response.json();
                   setMasks(masks.map((m) => (m.id === selectedMask.id ? updatedMask : m)));
                   setSelectedMask(updatedMask);
                   onMaskUpdated?.(updatedMask);
                   setIsEditing(false);
                 } catch (err) {
-                  const message =
-                    err instanceof ApiError
-                      ? `Failed to update mask: ${err.status}`
-                      : err instanceof Error
-                        ? err.message
-                        : 'Failed to update mask';
+                  const message = err instanceof Error ? err.message : 'Failed to update mask';
                   setError(message);
                 } finally {
                   setIsLoading(false);
@@ -416,14 +429,14 @@ function MaskDetail({ mask }: { mask: Mask }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div>
         <h2 style={{ margin: '0 0 0.5rem 0', color: 'rgba(229, 231, 235, 0.9)' }}>{mask.name}</h2>
-        {mask.description && (
+        {mask.functional_scope && (
           <p style={{ margin: 0, color: 'rgba(156, 163, 175, 0.8)', fontSize: '0.9rem' }}>
-            {mask.description}
+            {mask.functional_scope}
           </p>
         )}
       </div>
 
-      {mask.traits && mask.traits.length > 0 && (
+      {mask.visibility_scope && mask.visibility_scope.length > 0 && (
         <div>
           <h3
             style={{
@@ -432,12 +445,12 @@ function MaskDetail({ mask }: { mask: Mask }) {
               color: 'rgba(209, 213, 219, 0.8)',
             }}
           >
-            Traits
+            Visibility Scope
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {mask.traits.map((trait) => (
+            {mask.visibility_scope?.map((scope) => (
               <span
-                key={trait}
+                key={scope}
                 style={{
                   padding: '0.5rem 0.75rem',
                   background: 'rgba(59, 130, 246, 0.15)',
@@ -447,7 +460,7 @@ function MaskDetail({ mask }: { mask: Mask }) {
                   fontSize: '0.85rem',
                 }}
               >
-                {trait}
+                {scope}
               </span>
             ))}
           </div>
@@ -473,9 +486,9 @@ interface MaskFormProps {
 function MaskForm({ initialData, isLoading, onSubmit, onCancel }: MaskFormProps) {
   const [formData, setFormData] = useState<MaskFormData>({
     name: initialData?.name || '',
-    description: initialData?.description || '',
-    traits: initialData?.traits || [],
-    visibleOn: initialData?.visibleOn || [],
+    description: initialData?.functional_scope || '',
+    traits: initialData?.visibility_scope || [],
+    visibleOn: initialData?.visibility_scope || [],
   });
 
   const handleSubmit = (e: React.FormEvent) => {

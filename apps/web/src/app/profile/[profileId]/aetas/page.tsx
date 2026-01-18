@@ -79,8 +79,8 @@ export default function AetasEditorPage({ params }: PageProps) {
         await addProfileAetas({
           name: formData.name,
           description: formData.description || '',
-          start_date: formData.start_date,
-          end_date: formData.end_date,
+          typical_age_range: formData.typical_age_range,
+          duration_months: formData.duration_months,
         } as Omit<Aetas, 'id'>);
       }
       resetForm();
@@ -207,9 +207,7 @@ export default function AetasEditorPage({ params }: PageProps) {
                 {/* Progress Summary */}
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                    <div className="text-3xl font-bold text-cyan-400">
-                      {profileAetas.length}
-                    </div>
+                    <div className="text-3xl font-bold text-cyan-400">{profileAetas.length}</div>
                     <div className="text-xs text-gray-400">Stages Completed</div>
                   </div>
                   <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
@@ -256,16 +254,18 @@ export default function AetasEditorPage({ params }: PageProps) {
                             )}
 
                             <div className="flex gap-4 text-xs text-gray-400 ml-12">
-                              {aeta.start_date && (
+                              {aeta.typical_age_range &&
+                                (aeta.typical_age_range.min || aeta.typical_age_range.max) && (
+                                  <div className="flex items-center gap-1">
+                                    <Calendar size={14} />
+                                    Age: {aeta.typical_age_range.min || '?'}-
+                                    {aeta.typical_age_range.max || '?'}
+                                  </div>
+                                )}
+                              {aeta.duration_months && (
                                 <div className="flex items-center gap-1">
                                   <Calendar size={14} />
-                                  Start: {new Date(aeta.start_date).toLocaleDateString()}
-                                </div>
-                              )}
-                              {aeta.end_date && (
-                                <div className="flex items-center gap-1">
-                                  <Calendar size={14} />
-                                  End: {new Date(aeta.end_date).toLocaleDateString()}
+                                  Duration: {aeta.duration_months} months
                                 </div>
                               )}
                             </div>
@@ -317,9 +317,7 @@ export default function AetasEditorPage({ params }: PageProps) {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Stage Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Stage Name</label>
                   <input
                     type="text"
                     value={formData.name || ''}
@@ -341,37 +339,67 @@ export default function AetasEditorPage({ params }: PageProps) {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Start Date
+                      Min Age (Optional)
                     </label>
                     <input
-                      type="date"
-                      value={formData.start_date ? formData.start_date.split('T')[0] : ''}
+                      type="number"
+                      min="0"
+                      max="120"
+                      value={formData.typical_age_range?.min ?? ''}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          start_date: e.target.value ? new Date(e.target.value).toISOString() : undefined,
+                          typical_age_range: {
+                            ...(formData.typical_age_range || {}),
+                            min: e.target.value ? parseInt(e.target.value) : undefined,
+                          },
                         })
                       }
                       className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                      placeholder="e.g., 25"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      End Date
+                      Max Age (Optional)
                     </label>
                     <input
-                      type="date"
-                      value={formData.end_date ? formData.end_date.split('T')[0] : ''}
+                      type="number"
+                      min="0"
+                      max="120"
+                      value={formData.typical_age_range?.max ?? ''}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          end_date: e.target.value ? new Date(e.target.value).toISOString() : undefined,
+                          typical_age_range: {
+                            ...(formData.typical_age_range || {}),
+                            max: e.target.value ? parseInt(e.target.value) : undefined,
+                          },
                         })
                       }
                       className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                      placeholder="e.g., 45"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Duration (months, Optional)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.duration_months ?? ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          duration_months: e.target.value ? parseInt(e.target.value) : undefined,
+                        })
+                      }
+                      className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                      placeholder="e.g., 60"
                     />
                   </div>
                 </div>

@@ -31,7 +31,7 @@ export default function ArtifactDetailPage() {
     try {
       const response = await fetch(`${apiBase}/profiles/${pid}/artifacts/${artifactId}`);
       const data = await response.json();
-      
+
       if (data.ok) {
         setArtifact(data.data);
       }
@@ -138,7 +138,8 @@ export default function ArtifactDetailPage() {
             {artifact.title || artifact.name}
           </h1>
           <p className="text-muted">
-            {artifact.sourceProvider} • Captured {new Date(artifact.capturedDate).toLocaleDateString()}
+            {artifact.sourceProvider} • Captured{' '}
+            {new Date(artifact.capturedDate).toLocaleDateString()}
           </p>
         </div>
 

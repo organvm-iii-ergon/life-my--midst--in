@@ -38,15 +38,17 @@ export interface HunterDashboardProps {
   onApplyJob?: (job: Job, compatibility: CompatibilityResult) => void;
 }
 
-export default function HunterDashboard({
-  profileId,
-  onApplyJob,
-}: HunterDashboardProps) {
+export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboardProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'search' | 'schedule'>('search');
 
   // Persona management
-  const { personas, selectedPersonaId, selectPersona, loading: personaeLoading } = usePersonae(profileId);
+  const {
+    personas,
+    selectedPersonaId,
+    selectPersona,
+    loading: personaeLoading,
+  } = usePersonae(profileId);
 
   // Search State
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -286,7 +288,9 @@ export default function HunterDashboard({
                 <option value="default">Default</option>
                 {personas.map((persona) => (
                   <option key={persona.id} value={persona.id}>
-                    {persona.name || `Persona ${persona.id.slice(0, 8)}`}
+                    {(persona as any).everyday_name ||
+                      (persona as any).nomen ||
+                      `Persona ${persona.id.slice(0, 8)}`}
                   </option>
                 ))}
               </select>

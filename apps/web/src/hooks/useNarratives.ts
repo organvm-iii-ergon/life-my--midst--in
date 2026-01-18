@@ -15,8 +15,8 @@ interface NarrativeResponse {
   mask?: { id: string; everyday_name: string };
   theatrical_preamble?: string;
   authentic_disclaimer?: string;
-  preamble?: string;  // Alternative key
-  disclaimer?: string;  // Alternative key
+  preamble?: string; // Alternative key
+  disclaimer?: string; // Alternative key
   blocks?: NarrativeBlock[];
   block_count?: number;
 }
@@ -31,7 +31,10 @@ interface UseNarrativesReturn {
   error: string | null;
   generateForMask: (maskId: string) => Promise<void>;
   generateNarratives: () => Promise<NarrativeResponse | undefined>;
-  updateBlock: (blockId: string, patch: Partial<NarrativeBlock>) => Promise<NarrativeBlock | undefined>;
+  updateBlock: (
+    blockId: string,
+    patch: Partial<NarrativeBlock>,
+  ) => Promise<NarrativeBlock | undefined>;
   deleteBlock: (blockId: string) => Promise<boolean>;
   getBlock: (blockId: string) => NarrativeBlock | undefined;
   reorderBlocks: (blockIds: string[]) => NarrativeBlock[];
@@ -50,31 +53,34 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
   const [mask, setMask] = useState<{ id: string; everyday_name: string } | null>(null);
   const [theatricalPreamble, setTheatricalPreamble] = useState<string | null>(null);
   const [authenticDisclaimer, setAuthenticDisclaimer] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);  // Start loading since we auto-fetch
+  const [loading, setLoading] = useState(true); // Start loading since we auto-fetch
   const [error, setError] = useState<string | null>(null);
 
   // Fetch narratives for the current persona
-  const fetchNarratives = useCallback(async (maskId: string) => {
-    if (!profileId || !maskId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${apiBase}/profiles/${profileId}/narrative/${maskId}`);
-      if (!res.ok) throw new Error('Failed to fetch narrative');
+  const fetchNarratives = useCallback(
+    async (maskId: string) => {
+      if (!profileId || !maskId) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${apiBase}/profiles/${profileId}/narrative/${maskId}`);
+        if (!res.ok) throw new Error('Failed to fetch narrative');
 
-      const data: NarrativeResponse = await res.json();
-      setMask(data.mask ?? null);
-      setBlocks(data.blocks ?? []);
-      // Handle both response formats
-      setTheatricalPreamble(data.theatrical_preamble ?? data.preamble ?? null);
-      setAuthenticDisclaimer(data.authentic_disclaimer ?? data.disclaimer ?? null);
-    } catch (err) {
-      setError((err as Error).message);
-      setBlocks([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [profileId]);
+        const data: NarrativeResponse = await res.json();
+        setMask(data.mask ?? null);
+        setBlocks(data.blocks ?? []);
+        // Handle both response formats
+        setTheatricalPreamble(data.theatrical_preamble ?? data.preamble ?? null);
+        setAuthenticDisclaimer(data.authentic_disclaimer ?? data.disclaimer ?? null);
+      } catch (err) {
+        setError((err as Error).message);
+        setBlocks([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [profileId],
+  );
 
   // Auto-fetch when personaId changes
   useEffect(() => {
@@ -120,77 +126,102 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
   }, [profileId, personaId]);
 
   // Update a single block - async with API call
-  const updateBlock = useCallback(async (blockId: string, patch: Partial<NarrativeBlock>): Promise<NarrativeBlock | undefined> => {
-    if (!profileId || !personaId) return undefined;
-    try {
-      const res = await fetch(`${apiBase}/profiles/${profileId}/narrative/${personaId}/${blockId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(patch),
-      });
-      if (!res.ok) throw new Error('Failed to update block');
+  const updateBlock = useCallback(
+    async (
+      blockId: string,
+      patch: Partial<NarrativeBlock>,
+    ): Promise<NarrativeBlock | undefined> => {
+      if (!profileId || !personaId) return undefined;
+      try {
+        const res = await fetch(
+          `${apiBase}/profiles/${profileId}/narrative/${personaId}/${blockId}`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(patch),
+          },
+        );
+        if (!res.ok) throw new Error('Failed to update block');
 
-      const data = await res.json();
-      const updatedBlock = data.block ?? data.data ?? data;
+        const data = await res.json();
+        const updatedBlock = data.block ?? data.data ?? data;
 
-      // Update local state
-      setBlocks((prev) =>
-        prev.map((block) =>
-          block.id === blockId
-            ? {
-                ...block,
-                ...patch,
-                theatrical_metadata: {
-                  ...block.theatrical_metadata,
-                  ...(patch.theatrical_metadata ?? {}),
-                },
-              }
-            : block,
-        ),
-      );
+        // Update local state
+        setBlocks((prev: any) =>
+          (prev as any[]).map((block: any) =>
+            block.id === blockId
+              ? {
+                  ...block,
+                  ...patch,
+                  theatrical_metadata: {
+                    ...block.theatrical_metadata,
+                    ...(patch.theatrical_metadata ?? {}),
+                  },
+                }
+              : block,
+          ),
+        );
 
-      return updatedBlock;
-    } catch (err) {
-      setError((err as Error).message);
-      return undefined;
-    }
-  }, [profileId, personaId]);
+        return updatedBlock;
+      } catch (err) {
+        setError((err as Error).message);
+        return undefined;
+      }
+    },
+    [profileId, personaId],
+  );
 
   // Delete a block
-  const deleteBlock = useCallback(async (blockId: string): Promise<boolean> => {
-    if (!profileId || !personaId) return false;
-    try {
-      const res = await fetch(`${apiBase}/profiles/${profileId}/narrative/${personaId}/${blockId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to delete block');
+  const deleteBlock = useCallback(
+    async (blockId: string): Promise<boolean> => {
+      if (!profileId || !personaId) return false;
+      try {
+        const res = await fetch(
+          `${apiBase}/profiles/${profileId}/narrative/${personaId}/${blockId}`,
+          {
+            method: 'DELETE',
+          },
+        );
+        if (!res.ok) throw new Error('Failed to delete block');
 
-      // Update local state
-      setBlocks((prev) => prev.filter((block) => block.id !== blockId));
-      return true;
-    } catch (err) {
-      setError((err as Error).message);
-      return false;
-    }
-  }, [profileId, personaId]);
+        // Update local state
+        setBlocks((prev: any) => (prev as any[]).filter((block: any) => block.id !== blockId));
+        return true;
+      } catch (err) {
+        setError((err as Error).message);
+        return false;
+      }
+    },
+    [profileId, personaId],
+  );
 
   // Get a block by ID
-  const getBlock = useCallback((blockId: string): NarrativeBlock | undefined => {
-    return blocks.find((block) => block.id === blockId);
-  }, [blocks]);
+  const getBlock = useCallback(
+    (blockId: string): NarrativeBlock | undefined => {
+      return (blocks as any[]).find((block: any) => block.id === blockId);
+    },
+    [blocks],
+  );
 
   // Reorder blocks by ID list
-  const reorderBlocks = useCallback((blockIds: string[]): NarrativeBlock[] => {
-    const reordered = blockIds
-      .map((id) => blocks.find((block) => block.id === id))
-      .filter((block): block is NarrativeBlock => block !== undefined);
-    setBlocks(reordered);
-    return reordered;
-  }, [blocks]);
+  const reorderBlocks = useCallback(
+    (blockIds: string[]): NarrativeBlock[] => {
+      const reordered = blockIds
+        .map((id) => (blocks as any[]).find((block: any) => block.id === id))
+        .filter((block): block is NarrativeBlock => block !== undefined);
+      setBlocks(reordered);
+      return reordered;
+    },
+    [blocks],
+  );
 
   // Save all narratives
   const saveNarratives = useCallback(
-    async (updatedBlocks: NarrativeBlock[], preamble?: string, disclaimer?: string): Promise<NarrativeResponse | undefined> => {
+    async (
+      updatedBlocks: NarrativeBlock[],
+      preamble?: string,
+      disclaimer?: string,
+    ): Promise<NarrativeResponse | undefined> => {
       if (!profileId || !personaId) return undefined;
       setLoading(true);
       try {

@@ -6,7 +6,14 @@ const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:300
 const orchBase = process.env['NEXT_PUBLIC_ORCH_BASE_URL'] || 'http://localhost:3002';
 
 type Task = { id: string; description: string; status: string };
-type Envelope<T> = { ok: boolean; data?: T; offset?: number; limit?: number; total?: number; status?: string };
+type Envelope<T> = {
+  ok: boolean;
+  data?: T;
+  offset?: number;
+  limit?: number;
+  total?: number;
+  status?: string;
+};
 type BackupSummary = { id: string; profileId: string; label?: string; createdAt: string };
 type AgentToken = {
   id: string;
@@ -45,7 +52,7 @@ export function useDashboardData() {
   const [backups, setBackups] = useState<BackupSummary[]>([]);
   const [agentTokens, setAgentTokens] = useState<AgentToken[]>([]);
 
-  const getJson = useCallback(async <T,>(url: string, options?: RequestInit): Promise<T> => {
+  const getJson = useCallback(async <T>(url: string, options?: RequestInit): Promise<T> => {
     const res = await fetch(url, options);
     if (!res.ok) throw new Error(`${url} returned ${res.status}`);
     return (await res.json()) as T;
@@ -124,15 +131,25 @@ export function useDashboardData() {
           edgesRes,
         ] = await Promise.all([
           getJson<Envelope<Profile>>(`${apiBase}/profiles/${selected}`),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/experiences?offset=0&limit=200`),
+          getJson<Envelope<any[]>>(
+            `${apiBase}/profiles/${selected}/experiences?offset=0&limit=200`,
+          ),
           getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/educations?offset=0&limit=200`),
           getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/projects?offset=0&limit=200`),
           getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/skills?offset=0&limit=200`),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/publications?offset=0&limit=200`),
+          getJson<Envelope<any[]>>(
+            `${apiBase}/profiles/${selected}/publications?offset=0&limit=200`,
+          ),
           getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/awards?offset=0&limit=200`),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/certifications?offset=0&limit=200`),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/social-links?offset=0&limit=200`),
-          getJson<Envelope<ContentEdge[]>>(`${apiBase}/profiles/${selected}/graph/edges?offset=0&limit=400`),
+          getJson<Envelope<any[]>>(
+            `${apiBase}/profiles/${selected}/certifications?offset=0&limit=200`,
+          ),
+          getJson<Envelope<any[]>>(
+            `${apiBase}/profiles/${selected}/social-links?offset=0&limit=200`,
+          ),
+          getJson<Envelope<ContentEdge[]>>(
+            `${apiBase}/profiles/${selected}/graph/edges?offset=0&limit=400`,
+          ),
         ]);
 
         setProfile(profileRes.data ?? null);

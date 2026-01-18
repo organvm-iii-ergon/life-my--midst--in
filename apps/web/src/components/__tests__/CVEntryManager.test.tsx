@@ -143,8 +143,8 @@ describe('CVEntryManager', () => {
     // Find persona checkbox - there may be multiple "Engineer" texts
     const checkboxes = screen.getAllByRole('checkbox');
     // Find persona-related checkbox (first checkbox in the Personas section)
-    const personaCheckbox = checkboxes.find(
-      (cb) => cb.closest('label')?.textContent?.includes('Engineer'),
+    const personaCheckbox = checkboxes.find((cb) =>
+      cb.closest('label')?.textContent?.includes('Engineer'),
     );
     expect(personaCheckbox).toBeDefined();
 

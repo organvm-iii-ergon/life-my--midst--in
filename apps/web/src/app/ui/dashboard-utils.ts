@@ -15,7 +15,7 @@ export type GalleryItem = {
 
 export function buildGalleryItems(projects: Project[], profile: Profile | null): GalleryItem[] {
   const items: GalleryItem[] = [];
-  
+
   projects.forEach((project) => {
     if (project.mediaGallery && project.mediaGallery.length > 0) {
       project.mediaGallery.forEach((media) => {
@@ -44,7 +44,7 @@ export function buildGalleryItems(projects: Project[], profile: Profile | null):
       });
     }
   });
-  
+
   if (items.length === 0 && profile?.coverImageUrl) {
     items.push({
       id: profile.id,
@@ -55,13 +55,13 @@ export function buildGalleryItems(projects: Project[], profile: Profile | null):
       payload: profile as unknown as Record<string, unknown>,
     });
   }
-  
+
   return items;
 }
 
 export function buildMermaidChart(graphNodes: GraphNode[], edges: ContentEdge[]): string {
   if (graphNodes.length === 0) return '';
-  
+
   const nodeDefs = graphNodes
     .map((n) => {
       const safeId = n.id.replace(/-/g, '_');

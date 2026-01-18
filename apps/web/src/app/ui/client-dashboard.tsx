@@ -54,7 +54,14 @@ const graphLayoutMode = (process.env['NEXT_PUBLIC_GRAPH_LAYOUT'] || 'radial') as
 
 type ErrorResponse = { message?: string; error?: string };
 type Task = { id: string; description: string; status: string };
-type Envelope<T> = { ok: boolean; data?: T; offset?: number; limit?: number; total?: number; status?: string };
+type Envelope<T> = {
+  ok: boolean;
+  data?: T;
+  offset?: number;
+  limit?: number;
+  total?: number;
+  status?: string;
+};
 type HealthResponse = { status: string };
 type TaskListResponse = { ok: boolean; data: Task[] };
 
@@ -72,10 +79,37 @@ export type NarrativeResponse = {
   meta?: Record<string, unknown>;
 };
 
-type BundleSummary = { profile: number; experiences: number; educations: number; projects: number; skills: number; publications: number; awards: number; certifications: number; customSections: number; socialLinks: number; timelineEvents: number; verificationLogs: number; credentials: number; attestations: number; edges: number; revisions: number; masks: number; epochs: number; stages: number };
+type BundleSummary = {
+  profile: number;
+  experiences: number;
+  educations: number;
+  projects: number;
+  skills: number;
+  publications: number;
+  awards: number;
+  certifications: number;
+  customSections: number;
+  socialLinks: number;
+  timelineEvents: number;
+  verificationLogs: number;
+  credentials: number;
+  attestations: number;
+  edges: number;
+  revisions: number;
+  masks: number;
+  epochs: number;
+  stages: number;
+};
 type BackupSummary = { id: string; profileId: string; label?: string; createdAt: string };
 type BackupSnapshot = BackupSummary & { bundle?: Record<string, unknown> };
-type AgentToken = { id: string; label?: string; scopes: string[]; createdAt: string; lastUsedAt?: string; revokedAt?: string };
+type AgentToken = {
+  id: string;
+  label?: string;
+  scopes: string[];
+  createdAt: string;
+  lastUsedAt?: string;
+  revokedAt?: string;
+};
 
 type ImportResponse = {
   ok: boolean;
@@ -447,10 +481,7 @@ export default function ClientDashboard() {
     [cvData.projects, profile],
   );
 
-  const mermaidChart = useMemo(
-    () => buildMermaidChart(graphNodes, edges),
-    [graphNodes, edges],
-  );
+  const mermaidChart = useMemo(() => buildMermaidChart(graphNodes, edges), [graphNodes, edges]);
 
   const toggleGraphType = (type: string) => {
     setGraphFilter((prev) =>

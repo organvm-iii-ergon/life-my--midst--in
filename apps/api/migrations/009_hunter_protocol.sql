@@ -1,9 +1,10 @@
 -- Hunter Protocol Tables
 
 -- Job Postings
+-- Note: profile_id is TEXT to match other tables, FK constraint removed due to type mismatch with profiles.id (uuid)
 CREATE TABLE IF NOT EXISTS job_postings (
     id TEXT PRIMARY KEY,
-    profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    profile_id TEXT NOT NULL,
     title TEXT NOT NULL,
     company TEXT NOT NULL,
     description_markdown TEXT,
@@ -17,9 +18,10 @@ CREATE TABLE IF NOT EXISTS job_postings (
 );
 
 -- Job Applications
+-- Note: FK constraints on profile_id removed due to type mismatch, job_posting_id FK retained
 CREATE TABLE IF NOT EXISTS job_applications (
     id TEXT PRIMARY KEY,
-    profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    profile_id TEXT NOT NULL,
     job_posting_id TEXT NOT NULL REFERENCES job_postings(id) ON DELETE CASCADE,
     status TEXT NOT NULL DEFAULT 'draft',
     cover_letter_markdown TEXT,
