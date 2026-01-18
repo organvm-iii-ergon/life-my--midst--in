@@ -1,0 +1,229 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+
+jobs:
+  performance-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: midstsvc
+          POSTGRES_PASSWORD: testpass123
+          POSTGRES_DB: midst
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+          POSTGRES_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+        run: |
+          pnpm --filter @in-midst-my-life/api migrate
+          pnpm --filter @in-midst-my-life/api seed
+          pnpm --filter @in-midst-my-life/orchestrator migrate
+
+      - name: Start API server
+        env:
+          DATABASE_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+          POSTGRES_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: production
+        run: |
+          pnpm --filter @in-midst-my-life/api start &
+          API_PID=$!
+          echo "API_PID=$API_PID" >> $GITHUB_ENV
+          
+          # Wait for API to be ready
+          for i in {1..30}; do
+            if curl -sf http://localhost:3001/health > /dev/null; then
+              echo "API is ready"
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run smoke test
+        env:
+          API_BASE_URL: http://localhost:3001
+        run: k6 run scripts/load-test/smoke-test.js
+
+      - name: Run performance budget check
+        env:
+          API_URL: http://localhost:3001
+          THRESHOLD_P95_MS: 500
+          THRESHOLD_ERROR_RATE: 0.05
+        run: bash scripts/check-performance-budget.sh
+
+      - name: Database performance analysis
+        if: always()
+        env:
+          DATABASE_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+        run: tsx scripts/analyze-db-performance.ts
+
+      - name: Collect metrics
+        if: always()
+        run: |
+          echo "## Performance Metrics" >> $GITHUB_STEP_SUMMARY
+          curl -sf http://localhost:3001/metrics | grep -E "^(http_|db_|redis_|cache_)" >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Stop API server
+        if: always()
+        run: |
+          if [ -n "${{ env.API_PID }}" ]; then
+            kill ${{ env.API_PID }} || true
+          fi
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: |
+            performance-*.json
+            load-test-*.log
+          retention-days: 30
+
+  stress-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: midstsvc
+          POSTGRES_PASSWORD: testpass123
+          POSTGRES_DB: midst
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+          POSTGRES_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+        run: |
+          pnpm --filter @in-midst-my-life/api migrate
+          pnpm --filter @in-midst-my-life/api seed
+
+      - name: Start API server
+        env:
+          DATABASE_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+          POSTGRES_URL: postgresql://midstsvc:testpass123@localhost:5432/midst
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: production
+        run: |
+          pnpm --filter @in-midst-my-life/api start &
+          sleep 10
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run stress test
+        env:
+          API_BASE_URL: http://localhost:3001
+        run: k6 run scripts/load-test/stress-test.js
+
+      - name: Upload stress test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-test-results
+          path: |
+            stress-test-*.json
+          retention-days: 30
