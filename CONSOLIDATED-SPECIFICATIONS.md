@@ -316,6 +316,108 @@ interface Mask {
 - **Transmission Period**: Teaching, sharing
 - **Legacy Period**: Long-term impact, codification
 
+### 3.5 Mask Selection Algorithm
+
+**Location**: `packages/content-model/src/mask-selection.ts`
+
+The mask selection algorithm determines which mask(s) are most appropriate for a given narrative context. It uses a multi-factor scoring system that considers context alignment, tag affinity, stage relevance, and epoch modifiers.
+
+#### 3.5.1 Scoring Function
+
+```typescript
+function maskWeight(
+  mask: Mask,
+  view: NarrativeViewConfig,
+  options?: { activeEpochIds?: string[]; stageIds?: string[] }
+): number
+```
+
+**Scoring Components:**
+
+| Component | Points | Description |
+|-----------|--------|-------------|
+| **Context Match** | +2 per match | View contexts matching `activation_rules.contexts` |
+| **Trigger Match** | +1 per match | View contexts matching `activation_rules.triggers` |
+| **Include Tag Match** | +2 per match | View tags matching `filters.include_tags` |
+| **Exclude Tag Penalty** | -1 per match | View tags matching `filters.exclude_tags` |
+| **Priority Weight Bonus** | +weight value | View tags in `filters.priority_weights` |
+| **Stage Affinity** | 0–1 per stage | From `MASK_STAGE_AFFINITIES` lookup table |
+| **Epoch Modifier** | 0–1 per epoch | From `EPOCH_MASK_MODIFIERS` lookup table |
+
+**Total Score** = Context + Trigger + IncludeTags - ExcludeTags + PriorityWeights + StageAffinity + EpochModifier
+
+#### 3.5.2 Affinity Matrices
+
+**MASK_STAGE_AFFINITIES** — How well each mask fits each stage (0–1 scale):
+
+| Mask | inquiry | design | construction | calibration | transmission | reflection | negotiation | archival |
+|------|---------|--------|--------------|-------------|--------------|------------|-------------|----------|
+| analyst | 1.0 | — | — | 0.75 | — | — | — | 0.5 |
+| synthesist | 0.5 | 1.0 | — | — | — | 0.75 | — | — |
+| architect | — | 1.0 | 0.75 | 0.5 | — | — | — | — |
+| executor | — | — | 1.0 | — | 0.5 | — | — | — |
+| narrator | — | — | — | — | 1.0 | 0.75 | — | — |
+| ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
+**EPOCH_MASK_MODIFIERS** — Which masks are most relevant during each career epoch (0–1 scale):
+
+| Epoch | Primary Masks | Secondary Masks |
+|-------|---------------|-----------------|
+| initiation | observer (1.0) | analyst (0.75), artisan (0.5), synthesist (0.5) |
+| expansion | strategist (1.0) | integrator (0.75), mediator (0.5), executor (0.5) |
+| mastery | architect (1.0) | calibrator (0.75), custodian (0.5), narrator (0.5) |
+| legacy | custodian (1.0) | steward (0.75), narrator (0.5) |
+
+#### 3.5.3 Selection Functions
+
+**selectMasksForView(view)** — Returns masks sorted by relevance:
+1. Score each available mask using `scoreMaskForView()`
+2. Filter out masks with score ≤ 0
+3. Sort by score (descending), then alphabetically by name
+4. Return ordered array
+
+**selectBestMask(view, options)** — Returns single best mask:
+1. Use full `maskWeight()` scoring with epoch/stage context
+2. Return highest-scoring mask, or fall back to view's explicit mask
+
+#### 3.5.4 Usage Example
+
+```typescript
+// Given a view with research context and analysis tags
+const view: NarrativeViewConfig = {
+  profile: myProfile,
+  contexts: ["research", "validation"],
+  tags: ["analysis", "metrics", "impact"],
+  availableMasks: MASK_TAXONOMY,
+  epochs: [EPOCH_TAXONOMY[0]], // initiation
+};
+
+// Select best mask
+const selected = selectMasksForView(view);
+// Result: [Analyst, Observer, Synthesist, ...]
+
+// Analyst scores highest because:
+// - contexts: ["analysis", "research", "validation"] → +4 (2 matches × 2)
+// - triggers: ["metric", "benchmark"] → +1 (metrics ≈ metric)
+// - include_tags: ["analysis", "metrics", "impact"] → +6 (3 matches × 2)
+// - priority_weights: { impact: 2, metrics: 2 } → +4
+// - epoch (initiation): observer=1.0, analyst=0.75 → +0.75
+// Total: ~15+ points
+```
+
+#### 3.5.5 Timeline Entry Scoring
+
+For timeline-based contexts, individual entries are also scored for mask relevance:
+
+```typescript
+function maskWeightForEntry(entry: TimelineEntry, mask: Mask): number
+```
+
+This enables:
+- Filtering timeline entries by mask context
+- Weighting entries for narrative importance
+- Building stage/epoch arcs from timeline data
+
 ---
 
 ## 4. System Architecture
