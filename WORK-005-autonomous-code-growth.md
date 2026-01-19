@@ -347,7 +347,7 @@ architecture:
       - "REST/JSON APIs initially, later GraphQL optional"
     database:
       primary: "PostgreSQL"
-      migrations: "drizzle-orm"
+      migrations: "raw-sql"  # Direct SQL via pg.Pool (see ADR-004)
     infra:
       hosting: "Vercel for web"
       api_hosting: "Fly.io or similar"
@@ -432,7 +432,7 @@ quality_gates:
       allowlist_mode: true
       allowlisted_packages:
         - "zod"
-        - "drizzle-orm"
+        - "pg"  # Direct SQL access (see ADR-004)
         - "@tanstack/react-query"
         - "next"
         - "react"

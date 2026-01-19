@@ -1,8 +1,8 @@
 # DEFINITIONS
 ## Unified Glossary for in–midst–my-life
 
-**Version**: 1.0
-**Last Updated**: 2026-01-18
+**Version**: 1.1
+**Last Updated**: 2026-01-19
 **Purpose**: Single source of truth for all terminology used across documentation and code
 
 ---
@@ -123,6 +123,27 @@ The system uses theatrical terminology to describe professional identity present
 | **Civica** | Public, civic engagement | Mediator, Steward |
 | **Domestica** | Personal, intimate | Observer, Custodian |
 | **Occulta** | Private, hidden (fully redacted) | N/A |
+
+### Activity Frames (Work Stages)
+**Definition**: Distinct phases of work activity that complement theatrical Scaenae.
+**Purpose**: Describes *what kind of work* is being done, while Scaenae describe *where/for whom*.
+**Relationship to Scaenae**: Scaenae = audience context; Activity Frames = work mode.
+**Location**: Referenced in mask-stage affinity matrices (`packages/content-model/src/mask-selection.ts`)
+
+| Activity Frame | Description | Primary Masks |
+|----------------|-------------|---------------|
+| **Inquiry** | Research, exploration, question-formation | Analyst, Observer |
+| **Design** | Ideation, architectural thinking | Architect, Synthesist |
+| **Construction** | Production, implementation | Executor, Artisan |
+| **Calibration** | Testing, refinement, verification | Calibrator, Analyst |
+| **Transmission** | Publishing, dissemination | Narrator, Interpreter |
+| **Reflection** | Retrospective analysis | Observer, Synthesist |
+| **Negotiation** | Alignment, stakeholder engagement | Mediator, Strategist |
+| **Archival** | Documentation, versioning | Custodian, Steward |
+
+**Note**: Activity Frames and Scaenae are orthogonal dimensions:
+- You can be in **Academica** (scaena) doing **Construction** (activity frame)
+- Or in **Technica** (scaena) doing **Reflection** (activity frame)
 
 ### Tabula Personarum
 **Definition**: The complete registry of all available Masks for a profile.

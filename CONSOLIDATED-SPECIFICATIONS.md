@@ -1,9 +1,9 @@
 # CONSOLIDATED SPECIFICATIONS
 ## in–midst–my-life: Interactive CV/Résumé System
 
-**Version**: 1.0
+**Version**: 1.1
 **Compiled From**: 33 ChatGPT conversations
-**Last Updated**: 2025-12-28
+**Last Updated**: 2026-01-19
 
 ---
 
@@ -565,7 +565,7 @@ architecture:
     backend: ["Fastify"]
     database:
       primary: "PostgreSQL"
-      migrations: "drizzle-orm"
+      migrations: "raw-sql"  # Direct SQL via pg.Pool (see ADR-004)
 
 coding_standards:
   language: "TypeScript"

@@ -1,8 +1,8 @@
 # DECISION LOG
 ## Architecture Decision Records for in–midst–my-life
 
-**Version**: 1.0
-**Last Updated**: 2026-01-18
+**Version**: 1.1
+**Last Updated**: 2026-01-19
 **Format**: [ADR](https://adr.github.io/) (Architecture Decision Records)
 
 ---
@@ -24,6 +24,8 @@
 13. [ADR-013: Next.js 15 App Router](#adr-013-nextjs-15-app-router)
 14. [ADR-014: Single Reviewer Requirement](#adr-014-single-reviewer-requirement)
 15. [ADR-015: Advisory vs. Enforced Constraints](#adr-015-advisory-vs-enforced-constraints)
+16. [ADR-016: Schema Package Versioning Strategy](#adr-016-schema-package-versioning-strategy)
+17. [ADR-017: API Versioning Strategy](#adr-017-api-versioning-strategy)
 
 ---
 
@@ -579,14 +581,190 @@ Consider adding ESLint rules to enforce some constraints:
 
 ---
 
+## ADR-016: Schema Package Versioning Strategy
+
+**Date**: 2026-01-19
+**Status**: Accepted
+**Context**: The schema package (`@in-midst-my-life/schema`) is a critical foundation that all apps depend on. Breaking changes cascade across the entire codebase. Need a versioning strategy that protects consumers while allowing evolution.
+
+### Decision
+Adopt **Semantic Versioning 2.0** with these specific rules for the schema package:
+
+#### Version Format
+`MAJOR.MINOR.PATCH` where:
+- **MAJOR** (1.x.x → 2.x.x): Breaking schema changes
+  - Removing required fields
+  - Changing field types incompatibly
+  - Renaming exported types
+  - Removing exports
+- **MINOR** (1.1.x → 1.2.x): Backward-compatible additions
+  - New optional fields
+  - New entity types
+  - New validator functions
+  - Expanded union types
+- **PATCH** (1.1.1 → 1.1.2): Bug fixes and refinements
+  - Fixing validation edge cases
+  - Documentation updates
+  - TypeScript type refinements (non-breaking)
+
+#### Pre-1.0 Policy (Current State)
+While version is `0.x.x`:
+- MINOR version bumps MAY include breaking changes
+- Consumers should pin exact versions
+- Schema is considered unstable
+
+#### 1.0 Promotion Criteria
+Promote to 1.0.0 when:
+- [ ] All core entities implemented (Profile, Identity, CV, Mask, Epoch, Stage)
+- [ ] API has been stable for 2+ weeks
+- [ ] At least 90% test coverage on schema package
+- [ ] Integration tests cover schema serialization/deserialization
+
+### Rationale
+1. **Dependency safety**: Apps can depend on ranges like `^1.0.0` after stabilization
+2. **Clear communication**: Version number signals change severity
+3. **Ecosystem enablement**: Third-party tools can rely on schema stability
+4. **Migration path**: Major versions can coexist (import from `@in-midst-my-life/schema/v1`)
+
+### Implementation
+1. **Workspace protocol**: Use `workspace:*` for internal deps during development
+2. **Changesets**: Consider adopting changesets for monorepo versioning
+3. **Release notes**: Document all schema changes in CHANGELOG.md
+4. **Deprecation policy**: Deprecated fields kept for one minor version before removal
+
+### Consequences
+- (+) Consumers can safely upgrade within minor versions
+- (+) Clear contract for external tools
+- (+) Forces discipline in schema evolution
+- (-) Major version bumps require migration guides
+- (-) Must maintain CHANGELOG discipline
+
+---
+
+## ADR-017: API Versioning Strategy
+
+**Date**: 2026-01-19
+**Status**: Accepted
+**Context**: The API needs a versioning strategy to handle breaking changes while maintaining backward compatibility for existing clients. Need to decide how to version endpoints before v1.0 release.
+
+### Decision
+Adopt a **hybrid URL + header versioning** approach:
+
+1. **Primary**: URL path versioning (`/v1/profiles`, `/v2/profiles`)
+2. **Secondary**: `Accept-Version` header for minor feature opt-ins
+
+### URL Versioning (Primary)
+
+All endpoints will be prefixed with a major version:
+```
+GET /v1/profiles/:id
+POST /v1/profiles/:id/masks/select
+GET /v1/taxonomy/masks
+```
+
+#### Version Lifecycle
+
+| Phase | Duration | Behavior |
+|-------|----------|----------|
+| **Current** | Active | Full support, all features |
+| **Deprecated** | 6 months | Works but emits `Deprecation` header |
+| **Sunset** | 90 days | Final warning, then removed |
+
+#### Response Headers
+
+```http
+HTTP/1.1 200 OK
+X-API-Version: 1
+Deprecation: Sun, 01 Jan 2027 00:00:00 GMT
+Sunset: Sun, 01 Apr 2027 00:00:00 GMT
+Link: <https://api.inmidst.io/v2/profiles>; rel="successor-version"
+```
+
+### Header Versioning (Secondary)
+
+For minor feature variations within a major version:
+
+```http
+GET /v1/profiles/123
+Accept-Version: 1.2
+```
+
+Use cases:
+- Opt-in to new response fields
+- Beta features before promotion to stable
+- A/B testing different response formats
+
+### Implementation
+
+#### Middleware Structure
+```
+apps/api/src/
+├── middleware/
+│   └── versioning.ts    # Version detection & context
+├── routes/
+│   ├── v1/              # v1 routes (current)
+│   │   ├── profiles.ts
+│   │   ├── masks.ts
+│   │   └── ...
+│   └── v2/              # v2 routes (future)
+└── services/
+    └── version-adapter.ts  # Response transforms
+```
+
+#### Version Detection Priority
+1. URL path (`/v1/`) — highest priority
+2. `Accept-Version` header
+3. Default to latest stable version
+
+### Migration Strategy
+
+#### Phase 1: Add /v1/ prefix (non-breaking)
+- Register all current routes under `/v1/`
+- Keep root routes as aliases (90-day deprecation)
+- Add version headers to all responses
+
+#### Phase 2: Deprecate root routes
+- Emit `Deprecation` header on root routes
+- Document migration path in release notes
+- Monitor usage of deprecated routes
+
+#### Phase 3: Remove root aliases
+- After 90 days, remove root route aliases
+- Only versioned routes available
+
+### Rationale
+
+1. **Explicit versioning**: URL makes version visible and debuggable
+2. **Routing simplicity**: URL versions are easy to route at load balancer level
+3. **Cacheability**: Different versions cache separately
+4. **Documentation**: OpenAPI specs can document each version independently
+5. **Gradual migration**: Header versioning allows opt-in features without URL changes
+
+### Alternatives Considered
+
+| Alternative | Reason Rejected |
+|-------------|-----------------|
+| **Header-only versioning** | Hidden, harder to debug, cache issues |
+| **Query parameter (`?v=1`)** | Non-standard, pollutes URLs |
+| **Semantic versioning (no URL)** | Requires all clients to update together |
+| **No versioning** | Impossible to make breaking changes safely |
+| **Date-based versioning** | Confusing, no clear compatibility signal |
+
+### Consequences
+
+- (+) Clear version visibility in URLs
+- (+) Multiple versions can coexist
+- (+) Gradual migration path
+- (+) Standard headers for lifecycle communication
+- (-) URL prefix adds verbosity
+- (-) Must maintain multiple route registrations
+- (-) OpenAPI spec needs version-specific documents
+
+---
+
 ## Pending Decisions
 
 These decisions are not yet finalized and need further discussion:
-
-### API Versioning Strategy
-**Question**: How to version the API for breaking changes?
-**Options**: URL versioning (`/v1/`), header versioning, no versioning (semver)
-**Status**: Needs decision before v1.0 release
 
 ### Authentication Strategy
 **Question**: How to authenticate users in production?
