@@ -245,6 +245,64 @@ export class BillingService {
   }
 
   /**
+   * Cancel a subscription
+   *
+   * @param subscriptionId Stripe subscription ID
+   * @param atPeriodEnd If true, cancel at end of billing period; if false, cancel immediately
+   * @returns Updated subscription status
+   */
+  async cancelSubscription(
+    subscriptionId: string,
+    atPeriodEnd: boolean = true
+  ): Promise<{ canceled: boolean; cancelAt?: Date; status: string }> {
+    if (!subscriptionId) {
+      throw new Error("Subscription ID is required");
+    }
+
+    // For mock mode, return mock response
+    if (this.config.stripeSecretKey === "sk_test_mock" || !this.config.stripeSecretKey.startsWith("sk_live_")) {
+      const cancelAt = atPeriodEnd
+        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+        : new Date();
+
+      return {
+        canceled: true,
+        cancelAt,
+        status: atPeriodEnd ? "active" : "canceled",
+      };
+    }
+
+    try {
+      if (atPeriodEnd) {
+        // Schedule cancellation at period end
+        const subscription = await this.stripe.subscriptions.update(subscriptionId, {
+          cancel_at_period_end: true,
+        });
+
+        return {
+          canceled: true,
+          cancelAt: subscription.cancel_at
+            ? new Date(subscription.cancel_at * 1000)
+            : undefined,
+          status: subscription.status,
+        };
+      } else {
+        // Cancel immediately
+        const subscription = await this.stripe.subscriptions.cancel(subscriptionId);
+
+        return {
+          canceled: true,
+          cancelAt: new Date(),
+          status: subscription.status,
+        };
+      }
+    } catch (error) {
+      console.error("Failed to cancel subscription:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Verify Stripe webhook signature
    */
   verifyWebhookSignature(

@@ -3,7 +3,7 @@ import './tracing';
 import { initializeTracing } from './tracing';
 import { initializeSentry, Sentry } from './sentry';
 import { startMetricsServer } from './metrics-server';
-import Fastify from "fastify";
+import Fastify, { type FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import rawBody from "fastify-raw-body";
 import { Pool } from "pg";
@@ -44,6 +44,7 @@ import { registerAdminLicensingRoutes } from "./routes/admin-licensing";
 import { subscriptionRepo as defaultSubscriptionRepo, type SubscriptionRepo } from "./repositories/subscriptions";
 import { PostgresRateLimitStore, InMemoryRateLimitStore as LocalInMemoryRateLimitStore } from "./repositories/rate-limits";
 import { BillingService, LicensingService, type RateLimitStore } from "@in-midst-my-life/core";
+import { registerVersioningMiddleware, versionPrefix } from "./middleware/versioning";
 
 initializeTracing();
 initializeSentry();
@@ -135,8 +136,8 @@ export function buildServer(options: ApiServerOptions = {}) {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept-Version'],
+    exposedHeaders: ['X-Total-Count', 'X-Page-Count', 'X-API-Version', 'Deprecation', 'Sunset', 'Link'],
     maxAge: 86400 // 24 hours
   });
 
@@ -168,7 +169,7 @@ export function buildServer(options: ApiServerOptions = {}) {
   fastify.setErrorHandler((error, request, reply) => {
     fastify.log.error({ err: error, url: request.url }, "request_error");
     metrics.errors += 1;
-    
+
     if (process.env['SENTRY_DSN']) {
       Sentry.captureException(error, {
         contexts: {
@@ -180,7 +181,7 @@ export function buildServer(options: ApiServerOptions = {}) {
         }
       });
     }
-    
+
     const status = (error as any).statusCode ?? 500;
     return reply.status(status).send({
       ok: false,
@@ -188,6 +189,9 @@ export function buildServer(options: ApiServerOptions = {}) {
       message: error.message
     });
   });
+
+  // Note: Versioning middleware is registered per-scope in registerApiRoutes
+  // System endpoints (/health, /ready, /metrics) intentionally don't have version headers
 
   fastify.get("/health", async () => ({ status: "ok" }));
 
@@ -214,60 +218,95 @@ export function buildServer(options: ApiServerOptions = {}) {
     return (await register.metrics()) + "\n" + legacyMetrics;
   });
 
-  fastify.register(registerProfileRoutes, {
-    prefix: "/profiles",
-    repo: options.profileRepo,
-    maskRepo,
-    epochRepo,
-    stageRepo
-  });
-  fastify.register(registerCvRoutes, { prefix: "/profiles", repos: options.cvRepos ?? cvRepos });
-  fastify.register(registerCurriculumVitaeMultiplexRoutes, { prefix: "/profiles" });
-  fastify.register(registerNarrativeRoutes, { prefix: "/profiles" });
-  fastify.register(registerAetasRoutes, { prefix: "/profiles" });
-  fastify.register(registerExportRoutes, {
-    prefix: "/profiles",
-    profileRepo: options.profileRepo ?? profileRepo,
-    cvRepos: options.cvRepos ?? cvRepos,
-    backupRepo: options.backupRepo,
-    maskRepo,
-    epochRepo,
-    stageRepo
-  } as any);
-  fastify.register(registerBackupRoutes, {
-    prefix: "/profiles",
-    profileRepo: options.profileRepo ?? profileRepo,
-    cvRepos: options.cvRepos ?? cvRepos,
-    backupRepo: options.backupRepo
-  });
-  fastify.register(registerAgentRoutes, { prefix: "/agent" });
-  fastify.register(registerMaskRoutes, {
-    prefix: "/taxonomy",
-    masks: maskRepo,
-    epochs: epochRepo,
-    stages: stageRepo
-  });
-  fastify.register(registerAttestationBlockRoutes);
-    fastify.register(jobRoutes);
-    fastify.register(interviewRoutes);
-    fastify.register(registerHunterProtocolRoutes, {
+  /**
+   * Register all API routes under a given scope.
+   * This helper allows registering routes at both /v1/ (canonical) and root (deprecated).
+   *
+   * @param scope Fastify instance (scoped or root)
+   * @param isDeprecated Whether this scope is deprecated (adds deprecation headers)
+   */
+  const registerApiRoutes = async (scope: FastifyInstance, isDeprecated: boolean) => {
+    // Add X-API-Version header to all responses in this scope
+    // Using preHandler ensures headers are set before any response processing
+    scope.addHook("preHandler", async (_request, reply) => {
+      reply.header("X-API-Version", "1");
+    });
+
+    // Add deprecation headers for deprecated scope (root routes)
+    if (isDeprecated) {
+      const deprecationDate = new Date();
+      deprecationDate.setDate(deprecationDate.getDate() + 90); // 90-day deprecation window
+
+      scope.addHook("preHandler", async (_request, reply) => {
+        reply.header("Deprecation", "true");
+        reply.header("Sunset", deprecationDate.toUTCString());
+        reply.header("Link", `</v1${_request.url}>; rel="successor-version"`);
+      });
+    }
+
+    scope.register(registerProfileRoutes, {
+      prefix: "/profiles",
+      repo: options.profileRepo,
+      maskRepo,
+      epochRepo,
+      stageRepo
+    });
+    scope.register(registerCvRoutes, { prefix: "/profiles", repos: options.cvRepos ?? cvRepos });
+    scope.register(registerCurriculumVitaeMultiplexRoutes, { prefix: "/profiles" });
+    scope.register(registerNarrativeRoutes, { prefix: "/profiles" });
+    scope.register(registerAetasRoutes, { prefix: "/profiles" });
+    scope.register(registerExportRoutes, {
+      prefix: "/profiles",
+      profileRepo: options.profileRepo ?? profileRepo,
+      cvRepos: options.cvRepos ?? cvRepos,
+      backupRepo: options.backupRepo,
+      maskRepo,
+      epochRepo,
+      stageRepo
+    } as any);
+    scope.register(registerBackupRoutes, {
+      prefix: "/profiles",
+      profileRepo: options.profileRepo ?? profileRepo,
+      cvRepos: options.cvRepos ?? cvRepos,
+      backupRepo: options.backupRepo
+    });
+    scope.register(registerAgentRoutes, { prefix: "/agent" });
+    scope.register(registerMaskRoutes, {
+      prefix: "/taxonomy",
+      masks: maskRepo,
+      epochs: epochRepo,
+      stages: stageRepo
+    });
+    scope.register(registerAttestationBlockRoutes);
+    scope.register(jobRoutes);
+    scope.register(interviewRoutes);
+    scope.register(registerHunterProtocolRoutes, {
       prefix: "/profiles",
       repo: options.profileRepo ?? profileRepo,
       jobRepo: options.jobRepo ?? defaultJobRepo,
       licensingService
     });
-    fastify.register(registerBillingRoutes, {
-    prefix: "/billing",
-    billingService,
-    subscriptionRepo: subRepo,
-    licensingService
-  });
-  
-  fastify.register(registerAdminLicensingRoutes, licensingService);
+    scope.register(registerBillingRoutes, {
+      prefix: "/billing",
+      billingService,
+      subscriptionRepo: subRepo,
+      licensingService
+    });
+    scope.register(registerAdminLicensingRoutes, licensingService);
+    scope.register(registerArtifactRoutes);
+    scope.register(registerIntegrationRoutes);
+  };
 
-  // Phase 5: Cloud Storage & Artifacts
-  fastify.register(registerArtifactRoutes);
-  fastify.register(registerIntegrationRoutes);
+  // Register v1 API routes (canonical)
+  fastify.register(async (v1Scope) => {
+    await registerApiRoutes(v1Scope, false);
+  }, { prefix: versionPrefix(1) });
+
+  // Register root API routes (deprecated - 90-day sunset)
+  // These are backward-compatible aliases that will be removed after v1 adoption
+  fastify.register(async (rootScope) => {
+    await registerApiRoutes(rootScope, true);
+  });
 
   return fastify;
 }

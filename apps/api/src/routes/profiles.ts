@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { NarrativeBlockSchema, ProfileSchema } from "@in-midst-my-life/schema";
-import { applyMaskRedaction, matchMasksToContext, rankMasksByPriority, NotFoundError } from "@in-midst-my-life/core";
+import { applyMaskRedaction, matchMasksToContext, rankMasksByPriority, NotFoundError, BillingService } from "@in-midst-my-life/core";
 import { profileRepo, type ProfileRepo } from "../repositories/profiles";
 import type { MaskRepo, EpochRepo, StageRepo } from "../repositories/masks";
 import { narrativeRepo } from "../repositories/narratives";
@@ -21,13 +21,30 @@ import {
 
 export async function registerProfileRoutes(
   fastify: FastifyInstance,
-  deps?: { repo?: ProfileRepo; maskRepo?: MaskRepo; epochRepo?: EpochRepo; stageRepo?: StageRepo }
+  deps?: { repo?: ProfileRepo; maskRepo?: MaskRepo; epochRepo?: EpochRepo; stageRepo?: StageRepo; billingService?: BillingService }
 ) {
   const repo = deps?.repo ?? profileRepo;
   const defaults = createMaskRepo();
   const masks = deps?.maskRepo ?? defaults.masks;
   const epochs = deps?.epochRepo ?? defaults.epochs;
   const stages = deps?.stageRepo ?? defaults.stages;
+
+  // Initialize billing service for subscription cancellation on profile deletion
+  const billingService = deps?.billingService ?? new BillingService({
+    stripeSecretKey: process.env['STRIPE_SECRET_KEY'] || "sk_test_mock",
+    stripePriceIds: {
+      FREE: { monthly: "free", yearly: "free" },
+      PRO: {
+        monthly: process.env['STRIPE_PRO_MONTHLY'] || "price_pro_monthly",
+        yearly: process.env['STRIPE_PRO_YEARLY'] || "price_pro_yearly",
+      },
+      ENTERPRISE: {
+        monthly: process.env['STRIPE_ENTERPRISE_MONTHLY'] || "price_enterprise_custom",
+        yearly: process.env['STRIPE_ENTERPRISE_YEARLY'] || "price_enterprise_custom",
+      },
+    },
+    webhookSecret: process.env['STRIPE_WEBHOOK_SECRET'] || "whsec_test_mock",
+  });
 
   fastify.post("/validate", async (request, reply) => {
     const parsed = ProfileSchema.safeParse(request.body);
@@ -109,20 +126,22 @@ export async function registerProfileRoutes(
       // 2. Cancel active Stripe subscription if exists
       const subscription = await subscriptionRepo.getByProfileId(id);
       if (subscription && subscription.stripeSubscriptionId) {
-        // TODO: Call real Stripe API when credentials available
-        // For now, just log intent
-        console.log(`[GDPR] Would cancel Stripe subscription: ${subscription.stripeSubscriptionId}`);
-        
-        // Note: Subscription will be deleted via CASCADE when profile is deleted
+        try {
+          // Cancel immediately (not at period end) for GDPR deletion
+          const result = await billingService.cancelSubscription(
+            subscription.stripeSubscriptionId,
+            false // immediate cancellation for account deletion
+          );
+          console.log(`[GDPR] Canceled Stripe subscription: ${subscription.stripeSubscriptionId}, status: ${result.status}`);
+        } catch (error) {
+          // Log but don't block deletion - subscription data will be deleted anyway
+          console.error(`[GDPR] Failed to cancel Stripe subscription: ${subscription.stripeSubscriptionId}`, error);
+        }
       }
 
       // 3. Delete profile (cascades to subscriptions, rate_limits, etc.)
       // Assumes database foreign key cascades are configured
       await repo.remove(id);
-
-      // 4. Delete from external services
-      // TODO: Delete from Stripe if real integration
-      // TODO: Delete from any webhooks/integrations
 
       // 5. Log deletion for compliance
       console.log(`[GDPR] Profile deleted: ${id}`);

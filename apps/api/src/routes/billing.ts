@@ -244,20 +244,32 @@ export async function registerBillingRoutes(
           cancelAt.setTime(subscription.currentPeriodEnd.getTime());
         }
 
-        await repo.setCancelation(profileId, cancelAt, atPeriodEnd);
+        // Call Stripe API to cancel subscription
+        let stripeResult;
+        if (subscription.stripeSubscriptionId) {
+          stripeResult = await billingService!.cancelSubscription(
+            subscription.stripeSubscriptionId,
+            atPeriodEnd
+          );
 
-        // TODO: Call Stripe API to cancel subscription
-        // if (subscription.stripeSubscriptionId) {
-        //   await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-        //     cancel_at_period_end: atPeriodEnd,
-        //   });
-        // }
+          // Update cancel date from Stripe response
+          if (stripeResult.cancelAt) {
+            cancelAt.setTime(stripeResult.cancelAt.getTime());
+          }
+        }
+
+        await repo.setCancelation(profileId, cancelAt, atPeriodEnd);
 
         return reply.code(200).send({
           ok: true,
           message: atPeriodEnd
             ? "Subscription will be canceled at the end of the billing period"
             : "Subscription canceled immediately",
+          data: {
+            cancelAt,
+            atPeriodEnd,
+            stripeStatus: stripeResult?.status,
+          },
         });
       } catch (error) {
         fastify.log.error(error);
