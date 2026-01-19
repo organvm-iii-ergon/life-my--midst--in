@@ -12,14 +12,14 @@ const mockPersona: TabulaPersonarumEntry = {
   tone_register: 'Analytical',
   visibility_scope: ['Technica'],
   active: true,
-  created_at: new Date(),
-  updated_at: new Date(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
 };
 
 describe('InvertedInterviewInterface', () => {
   const mockOnSubmitResponse = vi.fn();
   const mockOnCalculateCompatibility = vi
-    .fn<[TabulaPersonarumEntry, any[]], PersonaResonance>()
+    .fn<(persona: TabulaPersonarumEntry, responses: any[]) => PersonaResonance>()
     .mockReturnValue({
       persona_id: 'persona-1',
       context: 'Test Interview',

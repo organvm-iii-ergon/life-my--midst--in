@@ -431,7 +431,7 @@ export class CatcherAgent implements Agent {
       // Instantiate provider to download file
       const provider = await this.authenticateProvider(integration);
       
-      await provider.downloadFile(fileId, tempPath, (_bytes) => {
+      await provider.downloadFile(fileId, tempPath, (_bytes: number) => {
         // console.log(`Downloaded ${_bytes} bytes from ${cloudFile.name}`);
       });
 

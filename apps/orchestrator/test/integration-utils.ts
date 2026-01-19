@@ -326,7 +326,10 @@ export async function waitFor(
 // Task Test Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { Task } from "../src/types";
+import type { TrackedTask } from "../src/tasks";
+
+// Alias for backwards compatibility with tests
+type Task = TrackedTask;
 
 /**
  * Creates a test task with sensible defaults.

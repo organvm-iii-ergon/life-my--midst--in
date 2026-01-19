@@ -1,11 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useNarratives } from '../useNarratives';
-import type { NarrativeBlock } from '@in-midst-my-life/schema';
+
+// Test mock interface - allows id and extended properties for test data
+interface TestNarrativeBlock {
+  id?: string;
+  title?: string;
+  content?: string;
+  body?: string;
+  weight?: number;
+  priority?: number;
+  tags?: string[];
+  theatrical_metadata?: {
+    aetas?: string;
+    mask_name?: string;
+    scaena?: string;
+    performance_note?: string;
+    authentic_caveat?: string;
+  };
+  templateId?: string;
+}
 
 global.fetch = vi.fn();
 
-const mockNarrativeBlocks: NarrativeBlock[] = [
+const mockNarrativeBlocks: TestNarrativeBlock[] = [
   {
     id: 'block-1',
     title: 'Technical Journey',
@@ -326,7 +344,7 @@ describe('useNarratives', () => {
 
     // Reorder by moving block-2 to end
     const reordered = result.current.reorderBlocks(['block-1', 'block-3', 'block-2']);
-    expect(reordered[2].id).toBe('block-2');
+    expect((reordered[2] as any).id).toBe('block-2');
   });
 
   it('handles fetch errors gracefully', async () => {
@@ -343,7 +361,7 @@ describe('useNarratives', () => {
   });
 
   it('provides theatrical metadata with each block', async () => {
-    const blockWithMetadata: NarrativeBlock = {
+    const blockWithMetadata: TestNarrativeBlock = {
       id: 'block-1',
       title: 'Title',
       content: 'Content',

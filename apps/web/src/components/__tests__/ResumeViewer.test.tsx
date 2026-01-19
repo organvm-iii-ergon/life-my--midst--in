@@ -13,8 +13,8 @@ const mockPersona: TabulaPersonarumEntry = {
   visibility_scope: ['Technica'],
   motto: 'Via ratio ad solutionem',
   active: true,
-  created_at: new Date(),
-  updated_at: new Date(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
 };
 
 const mockEntries: CVEntry[] = [

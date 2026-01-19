@@ -46,7 +46,6 @@
       "node",
       "react",
       "react-dom",
-      "vitest/globals",
       "@testing-library/jest-dom"
     ],
     "incremental": true
@@ -58,7 +57,7 @@
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     ".next/types/**/*.ts",
-    "vitest.d.ts"
+    "test/vitest-setup.d.ts"
   ],
   "exclude": [
     "node_modules",

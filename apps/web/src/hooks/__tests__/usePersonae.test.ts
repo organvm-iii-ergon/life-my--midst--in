@@ -15,8 +15,8 @@ const mockPersonas: TabulaPersonarumEntry[] = [
     visibility_scope: ['Technica'],
     motto: 'Via ratio',
     active: true,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 'persona-2',
@@ -27,8 +27,8 @@ const mockPersonas: TabulaPersonarumEntry[] = [
     visibility_scope: ['Artistica'],
     motto: 'Creatio est vita',
     active: true,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
@@ -246,8 +246,8 @@ describe('usePersonae', () => {
             tone_register: 'Contemplative',
             visibility_scope: ['Academica'],
             active: true,
-            created_at: new Date(),
-            updated_at: new Date(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           }),
         });
       }

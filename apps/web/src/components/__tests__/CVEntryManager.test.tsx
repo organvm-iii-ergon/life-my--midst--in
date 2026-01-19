@@ -2,9 +2,47 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CVEntryManager from '../CVEntryManager';
-import type { CVEntry, TabulaPersonarumEntry, Aetas, Scaena } from '@in-midst-my-life/schema';
+import type { CVEntry } from '@in-midst-my-life/schema';
 
-const mockPersonas: TabulaPersonarumEntry[] = [
+// Test mock interfaces - allow flexibility for legacy/extended test properties
+interface TestPersona {
+  id: string;
+  nomen: string;
+  everyday_name: string;
+  role_vector: string;
+  tone_register: string;
+  visibility_scope: string[];
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface TestAetas {
+  id: string;
+  name: string;
+  nomen?: string;
+  label?: string;
+  age_range?: string;
+  description: string;
+  capability_profile?: Record<string, string[]>;
+  duration_years?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface TestScaena {
+  id: string;
+  name: string;
+  nomen?: string;
+  emoji?: string;
+  description: string;
+  immutable?: boolean;
+  canonical?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+const mockPersonas: TestPersona[] = [
   {
     id: 'persona-1',
     nomen: 'Archimago',
@@ -13,12 +51,12 @@ const mockPersonas: TabulaPersonarumEntry[] = [
     tone_register: 'Analytical',
     visibility_scope: ['Technica'],
     active: true,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
-const mockAetas: Aetas[] = [
+const mockAetas: TestAetas[] = [
   {
     id: 'aetas-1',
     name: 'Initium',
@@ -28,12 +66,12 @@ const mockAetas: Aetas[] = [
     description: 'Beginning phase',
     capability_profile: { primary: ['learning', 'exploration'] },
     duration_years: 7,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
-const mockScaenae: Scaena[] = [
+const mockScaenae: TestScaena[] = [
   {
     id: 'scaena-1',
     name: 'Technica',
@@ -42,8 +80,8 @@ const mockScaenae: Scaena[] = [
     description: 'Technical stage',
     immutable: true,
     canonical: true,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
@@ -78,9 +116,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
         onAddEntry={mockOnAddEntry}
       />,
     );
@@ -92,9 +130,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -109,9 +147,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -129,9 +167,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
         onAddEntry={mockOnAddEntry}
       />,
     );
@@ -159,9 +197,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
         onAddEntry={mockOnAddEntry}
       />,
     );
@@ -183,9 +221,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -202,9 +240,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
         onAddEntry={mockOnAddEntry}
       />,
     );
@@ -232,9 +270,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
         onDeleteEntry={mockOnDeleteEntry}
       />,
     );
@@ -250,9 +288,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
         loading={true}
       />,
     );
@@ -264,9 +302,9 @@ describe('CVEntryManager', () => {
     const { container } = render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -279,9 +317,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -301,9 +339,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -315,9 +353,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
         onUpdateEntry={mockOnUpdateEntry}
       />,
     );
@@ -334,9 +372,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -350,9 +388,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -365,9 +403,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={mockEntries}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 
@@ -381,9 +419,9 @@ describe('CVEntryManager', () => {
     render(
       <CVEntryManager
         entries={[]}
-        personas={mockPersonas}
-        aetas={mockAetas}
-        scaenae={mockScaenae}
+        personas={mockPersonas as any}
+        aetas={mockAetas as any}
+        scaenae={mockScaenae as any}
       />,
     );
 

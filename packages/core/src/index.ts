@@ -7,6 +7,17 @@ export * from './errors';
 export * from './jobs';
 export * from './search';
 export * from './hunter';
+
+// Re-export types from server module for TypeScript consumers
+// (Types don't carry runtime dependencies, so safe to export from main entry)
+export type {
+  ExtractedFileMetadata,
+  CloudStorageProvider,
+  CloudFile,
+  CloudCredentials,
+  ListOptions,
+  ProviderHealthStatus
+} from './integrations/cloud-storage-provider';
 export {
   HunterAgent as HunterProtocolAgent,
   createHunterProtocolAgent,

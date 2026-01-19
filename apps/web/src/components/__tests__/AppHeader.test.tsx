@@ -13,8 +13,8 @@ const mockPersonas: TabulaPersonarumEntry[] = [
     tone_register: 'Analytical',
     visibility_scope: ['Technica'],
     active: true,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 'persona-2',
@@ -24,8 +24,8 @@ const mockPersonas: TabulaPersonarumEntry[] = [
     tone_register: 'Expressive',
     visibility_scope: ['Artistica'],
     active: true,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 

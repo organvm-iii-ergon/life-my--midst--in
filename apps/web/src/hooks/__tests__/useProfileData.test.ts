@@ -1,19 +1,34 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useProfileData } from '../useProfileData';
-import type { Profile, CVEntry } from '@in-midst-my-life/schema';
+import type { CVEntry } from '@in-midst-my-life/schema';
+
+// Test mock interface - allows legacy test properties alongside schema fields
+interface TestProfile {
+  id: string;
+  identityId?: string;
+  slug?: string;
+  displayName?: string;
+  name?: string; // Legacy alias for displayName
+  email?: string;
+  summary?: string; // Legacy alias for summaryMarkdown
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 // Mock fetch
 global.fetch = vi.fn();
 
-const mockProfile: Profile = {
+const mockProfile: TestProfile = {
   id: 'profile-1',
-  userId: 'user-1',
-  name: 'John Doe',
+  identityId: 'user-1',
+  slug: 'john-doe',
+  displayName: 'John Doe',
+  name: 'John Doe', // Legacy alias for test assertions
   email: 'john@example.com',
   summary: 'Complete person with many capabilities',
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 const mockCVData = {
@@ -113,13 +128,13 @@ describe('useProfileData', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    const initialName = result.current.profile?.name;
+    const initialName = (result.current.profile as any)?.name;
 
     // Call refetch
     await result.current.refetch();
 
     await waitFor(() => {
-      expect(result.current.profile?.name).not.toBe(initialName);
+      expect((result.current.profile as any)?.name).not.toBe(initialName);
     });
   });
 

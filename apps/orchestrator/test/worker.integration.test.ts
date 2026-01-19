@@ -25,8 +25,7 @@ import {
   testId,
   testQueueKey,
   createTestTask,
-  clearQueue,
-  waitFor
+  clearQueue
 } from "./integration-utils";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -123,8 +122,8 @@ integrationDescribe("both")("Worker retry integration", () => {
       execute: async (t) => ({
         taskId: t.id,
         status: "completed" as const,
-        output: "Task executed successfully",
-        notes: [],
+        output: { message: "Task executed successfully" },
+        notes: "",
         llm: { provider: "test", model: "test" }
       })
     };
@@ -218,8 +217,8 @@ integrationDescribe("both")("Worker run tracking integration", () => {
         execute: async (t) => ({
           taskId: t.id,
           status: "completed" as const,
-          output: "Done",
-          notes: [],
+          output: { message: "Done" },
+          notes: "",
           llm: { provider: "test", model: "test" }
         })
       },
@@ -228,8 +227,8 @@ integrationDescribe("both")("Worker run tracking integration", () => {
         execute: async (t) => ({
           taskId: t.id,
           status: "completed" as const,
-          output: "Reviewed",
-          notes: [],
+          output: { message: "Reviewed" },
+          notes: "",
           llm: { provider: "test", model: "test" }
         })
       }
@@ -359,8 +358,8 @@ integrationDescribe("both")("Worker concurrent processing integration", () => {
         return {
           taskId: t.id,
           status: "completed" as const,
-          output: `Processed ${t.id}`,
-          notes: [],
+          output: { message: `Processed ${t.id}` },
+          notes: "",
           llm: { provider: "test", model: "test" }
         };
       }

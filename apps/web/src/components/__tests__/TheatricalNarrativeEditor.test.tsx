@@ -2,7 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TheatricalNarrativeEditor from '../TheatricalNarrativeEditor';
-import type { NarrativeBlock, TabulaPersonarumEntry } from '@in-midst-my-life/schema';
+import type { TabulaPersonarumEntry } from '@in-midst-my-life/schema';
+
+// Test mock interface - allows id and extended properties for narrative blocks
+interface TestNarrativeBlock {
+  id?: string;
+  title?: string;
+  content?: string;
+  body?: string;
+  weight?: number;
+  type?: string;
+  theatrical_metadata?: {
+    scaena?: string;
+    performance_note?: string;
+    authentic_caveat?: string;
+  };
+}
 
 const mockPersona: TabulaPersonarumEntry = {
   id: 'persona-1',
@@ -12,11 +27,11 @@ const mockPersona: TabulaPersonarumEntry = {
   tone_register: 'Analytical',
   visibility_scope: ['Technica'],
   active: true,
-  created_at: new Date(),
-  updated_at: new Date(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
 };
 
-const mockNarrativeBlocks: NarrativeBlock[] = [
+const mockNarrativeBlocks: TestNarrativeBlock[] = [
   {
     id: 'block-1',
     title: 'Technical Journey',

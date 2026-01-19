@@ -1,44 +1,61 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useAetas } from '../useAetas';
-import type { Aetas } from '@in-midst-my-life/schema';
+
+// Test mock interface - flexible for legacy/extended test properties
+interface TestAetas {
+  id: string;
+  nomen?: string;
+  name?: string;
+  label?: string;
+  age_range?: string;
+  description?: string;
+  capability_profile?: Record<string, string[]>;
+  duration_years?: number;
+  duration_months?: number;
+  endDate?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 global.fetch = vi.fn();
 
-const mockCanonicalAetas: Aetas[] = [
+const mockCanonicalAetas: TestAetas[] = [
   {
     id: 'aetas-1',
     nomen: 'Initium',
+    name: 'Initium',
     label: 'Initiation',
     age_range: '18-25',
     description: 'Beginning phase',
     capability_profile: { primary: ['learning'] },
     duration_years: 7,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 'aetas-2',
     nomen: 'Emergens',
+    name: 'Emergens',
     label: 'Emergence',
     age_range: '25-32',
     description: 'Finding voice',
     capability_profile: { primary: ['expression'] },
     duration_years: 7,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
 const mockProfileAetas = [
   {
     id: 'aetas-1',
-    startDate: new Date('2020-01-01'),
-    endDate: new Date('2024-01-01'),
+    startDate: new Date('2020-01-01').toISOString(),
+    endDate: new Date('2024-01-01').toISOString(),
   },
   {
     id: 'aetas-2',
-    startDate: new Date('2024-01-01'),
+    startDate: new Date('2024-01-01').toISOString(),
   },
 ];
 
@@ -178,7 +195,7 @@ describe('useAetas', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    const added = await result.current.addAetas('aetas-3');
+    const added = await result.current.addAetas('aetas-3' as any);
     expect(added).toBeDefined();
   });
 
@@ -218,10 +235,10 @@ describe('useAetas', () => {
     });
 
     const updated = await result.current.updateAetas('aetas-1', {
-      endDate: new Date('2024-06-01'),
-    });
+      endDate: new Date('2024-06-01').toISOString(),
+    } as any);
     expect(updated).toBeDefined();
-    expect(updated?.endDate).toBeDefined();
+    expect((updated as any)?.endDate).toBeDefined();
   });
 
   it('provides function to delete aetas', async () => {
@@ -348,6 +365,6 @@ describe('useAetas', () => {
 
     const current = result.current.getCurrentAetas();
     expect(current).toBeDefined();
-    expect(current?.label).toBe('Emergence');
+    expect((current as any)?.label).toBe('Emergence');
   });
 });
