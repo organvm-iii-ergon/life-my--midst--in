@@ -3,11 +3,12 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useNarratives } from '../useNarratives';
 
 // Test mock interface - allows id and extended properties for test data
+// Note: title and body are required by the hook but optional here for flexible test setup
 interface TestNarrativeBlock {
   id?: string;
-  title?: string;
+  title: string;
   content?: string;
-  body?: string;
+  body: string;
   weight?: number;
   priority?: number;
   tags?: string[];
@@ -27,6 +28,7 @@ const mockNarrativeBlocks: TestNarrativeBlock[] = [
   {
     id: 'block-1',
     title: 'Technical Journey',
+    body: 'Started coding at 14...',
     content: 'Started coding at 14...',
     weight: 85,
     theatrical_metadata: {
@@ -153,6 +155,7 @@ describe('useNarratives', () => {
               {
                 id: 'block-2',
                 title: 'Generated Block',
+                body: 'AI generated content',
                 content: 'AI generated content',
                 weight: 70,
                 theatrical_metadata: {},
@@ -185,6 +188,7 @@ describe('useNarratives', () => {
           json: async () => ({
             id: 'block-1',
             title: 'Updated Title',
+            body: 'Updated content',
             content: 'Updated content',
             weight: 90,
             theatrical_metadata: {
@@ -364,6 +368,7 @@ describe('useNarratives', () => {
     const blockWithMetadata: TestNarrativeBlock = {
       id: 'block-1',
       title: 'Title',
+      body: 'Content',
       content: 'Content',
       weight: 80,
       theatrical_metadata: {

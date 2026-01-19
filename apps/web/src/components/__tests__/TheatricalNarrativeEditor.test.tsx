@@ -7,9 +7,9 @@ import type { TabulaPersonarumEntry } from '@in-midst-my-life/schema';
 // Test mock interface - allows id and extended properties for narrative blocks
 interface TestNarrativeBlock {
   id?: string;
-  title?: string;
+  title: string;
   content?: string;
-  body?: string;
+  body: string;
   weight?: number;
   type?: string;
   theatrical_metadata?: {
@@ -35,6 +35,7 @@ const mockNarrativeBlocks: TestNarrativeBlock[] = [
   {
     id: 'block-1',
     title: 'Technical Journey',
+    body: 'Started coding at 14...',
     content: 'Started coding at 14...',
     weight: 85,
     type: 'experience',

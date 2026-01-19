@@ -278,6 +278,7 @@ describe('usePersonae', () => {
       role_vector: 'Thinks deeply',
       tone_register: 'Contemplative',
       visibility_scope: ['Academica'],
+      active: true,
     });
 
     expect(newPersona).toBeDefined();
