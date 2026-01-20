@@ -3,6 +3,9 @@
 Infrastructure-as-code and deployment configuration:
 - `terraform/` – Cloud resources
 - `helm/`      – Helm chart scaffold (`values.yaml` holds env overrides)
+- `k6/`        – Load testing scenarios (see [k6/README.md](k6/README.md))
+- `grafana/`   – Dashboards and provisioning configuration
+- `prometheus/` – Prometheus scrape configuration
 - `docker-compose.yml` – Local stack for Postgres, Redis, API, Orchestrator, Web
 
 ## Migrations & Seeds
@@ -16,3 +19,32 @@ Infrastructure-as-code and deployment configuration:
 - Web: `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_ORCH_BASE_URL`.
 
 Keep dev/test/integration databases distinct (e.g., `midst_dev`, `midst_test`, `midst_integration`). Seeds are idempotent (`ON CONFLICT DO NOTHING`).
+
+## Load Testing
+
+Performance testing is done with [k6](https://k6.io/). See [`k6/README.md`](k6/README.md) for detailed instructions.
+
+Quick start:
+```bash
+# Install k6 (macOS)
+brew install k6
+
+# Run smoke test (quick validation)
+k6 run infra/k6/scenarios/smoke.js
+
+# Run baseline test (normal load)
+k6 run infra/k6/scenarios/baseline.js
+
+# Run stress test (find breaking point)
+k6 run --env SCENARIO=stress infra/k6/scenarios/baseline.js
+```
+
+## Monitoring
+
+Grafana dashboards are in `grafana/dashboards/`:
+- `api-metrics.json` – Comprehensive API metrics (latency, throughput, errors)
+- `api-performance.json` – Performance-focused view
+- `database-redis.json` – Database and cache metrics
+- `system-overview.json` – System-level metrics
+
+Import dashboards via Grafana UI or use the provisioning files in `grafana/provisioning/`.

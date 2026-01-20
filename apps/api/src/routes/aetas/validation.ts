@@ -32,7 +32,6 @@ export const AetasCreateSchema = z.object({
     .describe("Sequential order in life arc (1-8)"),
   capability_profile: z
     .record(z.string())
-    .optional()
     .describe("Key capabilities/competencies at this stage"),
   typical_age_range: z
     .object({

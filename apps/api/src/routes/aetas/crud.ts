@@ -138,7 +138,15 @@ export async function registerAetasCrudRoutes(
     // Create new aetas (in production, save to database)
     const newAetas: Aetas = {
       id: `aetas_${Date.now()}`,
-      ...payload,
+      name: payload.name,
+      latin_name: payload.latin_name,
+      description: payload.description,
+      order: payload.order,
+      capability_profile: payload.capability_profile,
+      typical_age_range: payload.typical_age_range,
+      duration_months: payload.duration_months,
+      transitions_to: payload.transitions_to,
+      markers: payload.markers,
     };
 
     // Add to profile's aetas list
