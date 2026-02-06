@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `did:key`, `did:jwk`, `did:pkh` DID resolvers with plugin-based registry
+- EventEmitter PubSub engine for GraphQL subscription events
+- GraphQL subscription resolvers (`profileUpdated`, `narrativeGenerated`)
+- WebSocket transport for GraphQL subscriptions via `@fastify/websocket` + `graphql-ws`
+- DID resolution API endpoints (`GET /resolve/:did`, `GET /methods`)
+- Ownership middleware on all write routes (billing, profile deletion)
+- Admin middleware on taxonomy mutation routes
+- Global auth hook with 3-tier routing (public, optional, required)
+- SHA-256 checksums for content integrity verification
+- Minimatch-based tag filtering for mask selection
+- Architecture Decision Records ADR 011 (WebSocket subscriptions) and ADR 012 (DID resolvers)
 - Playwright E2E testing infrastructure with CI integration (chromium)
 - `test:coverage` scripts for all workspaces (`COVERAGE=true` env var)
 - Turbo `e2e` pipeline with webServer auto-start in CI

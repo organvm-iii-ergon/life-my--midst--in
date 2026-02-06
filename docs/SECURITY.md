@@ -55,27 +55,34 @@
 ## Authentication
 
 ### Current Status
-**Authentication is not yet implemented.** This section documents the planned approach.
+**Authentication is implemented** via JWT bearer tokens with role-based access control.
 
-### Recommended Strategy
+### Current Implementation
 
-#### Primary: Session-Based Authentication
-```typescript
-// Planned: apps/api/src/auth/session.ts
-interface SessionConfig {
-  cookieName: 'in_midst_session',
-  maxAge: 7 * 24 * 60 * 60, // 7 days
-  httpOnly: true,
-  secure: true, // HTTPS only
-  sameSite: 'strict',
-}
-```
+#### JWT Authentication
+- **Access tokens**: Short-lived (1 hour), signed with configurable algorithm
+- **Refresh tokens**: Long-lived (7 days)
+- **Claims**: `sub`, `email`, `roles`, `permissions`, `profileId`
+- **Library**: `jose` for JWT operations
+
+#### Middleware Stack
+- `createAuthMiddleware()` — Required auth (401 if missing/invalid)
+- `createOptionalAuthMiddleware()` — Proceeds without user context if no token
+- `createOwnershipMiddleware()` — Ensures user owns the resource (compares `profileId`)
+- `createAdminMiddleware()` — Requires admin role (403 if not admin)
+
+#### Global Auth Hook
+A three-tier `onRequest` hook applies authentication globally:
+- **Public routes** (exact match): `/health`, `/ready`, `/metrics`, `/plans`
+- **Public prefixes** (startsWith): `/public-profiles`, `/taxonomy`
+- **Optional auth prefixes** (GET-only): `/profiles`, `/masks`, `/epochs`, `/stages`
+- All other routes require valid JWT
 
 #### OAuth2/OIDC Integration
 Support social login via:
-- **Google** - Primary option for most users
-- **GitHub** - Developer audience
-- **LinkedIn** - Professional identity verification
+- **Google** — Primary option for most users
+- **GitHub** — Developer audience
+- **LinkedIn** — Professional identity verification
 
 #### DID-Based Authentication (Future)
 For Web3 users:
@@ -83,14 +90,23 @@ For Web3 users:
 - DID document verification
 - Non-custodial identity
 
+### WebSocket Security
+
+GraphQL WebSocket subscriptions (`GET /graphql/ws`) currently operate without connection-level authentication. Planned mitigations:
+- Connection init payload with JWT validation
+- Depth limiting (max 10) applies to subscription queries
+- CORS enforcement on WebSocket upgrade requests
+- Introspection disabled in production
+
 ### Implementation Checklist
-- [ ] Session management with secure cookies
-- [ ] Password hashing with bcrypt/argon2 (if local auth)
+- [x] JWT-based authentication with bearer tokens
+- [x] Ownership middleware for resource-level access control
+- [x] Admin middleware for privileged operations
+- [x] Global auth hook with route categorization
 - [ ] OAuth2 flow with PKCE
-- [ ] CSRF protection
-- [ ] Session invalidation on logout
+- [ ] CSRF protection for cookie-based sessions
 - [ ] Account lockout after failed attempts
-- [ ] Email verification for new accounts
+- [ ] WebSocket connection-level auth
 
 ---
 
@@ -471,7 +487,7 @@ export async function audit(event: AuditEvent): Promise<void> {
 
 | # | Vulnerability | Mitigation | Status |
 |---|---------------|------------|--------|
-| 1 | **Broken Access Control** | Authorization middleware, ownership checks | Planned |
+| 1 | **Broken Access Control** | Authorization middleware, ownership checks | Implemented |
 | 2 | **Cryptographic Failures** | TLS everywhere, secure password hashing | Ready |
 | 3 | **Injection** | Parameterized queries, Zod validation | Implemented |
 | 4 | **Insecure Design** | Security review, threat modeling | Planned |

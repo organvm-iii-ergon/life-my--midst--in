@@ -45,6 +45,17 @@
 | `agent-interface.ts` | GET | `/v1/query` | Bearer token (scopes) |
 | `hunter/letter.ts` | POST | `/hunter/generate-letter/:jobId` | `request.user` check |
 
+## GraphQL & DID Endpoints
+
+| File | Method | Path | Auth | Notes |
+|---|---|---|---|---|
+| `graphql.ts` | POST | `/graphql` | None | GraphQL queries/mutations (depth-limited) |
+| `graphql.ts` | GET | `/graphql` | None | GraphQL query params (dev only) |
+| `graphql.ts` | GET | `/graphql/ws` | None | WebSocket subscriptions |
+| `graphql.ts` | GET | `/graphql/schema` | None | SDL export (dev only) |
+| `did.ts` | GET | `/resolve/:did` | None | DID Document resolution |
+| `did.ts` | GET | `/methods` | None | List registered DID methods |
+
 ## Unprotected Routes (Need Auth)
 
 ### Profile Management

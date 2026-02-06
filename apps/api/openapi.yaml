@@ -95,7 +95,9 @@ tags:
   - name: Attestations
     description: Attestation block management
   - name: GraphQL
-    description: GraphQL API endpoint and schema
+    description: GraphQL API endpoint, schema, and WebSocket subscriptions
+  - name: DID
+    description: Decentralized Identifier resolution (W3C DID Core)
 
 paths:
   # ============ SYSTEM ENDPOINTS ============
@@ -3073,6 +3075,75 @@ paths:
             text/plain:
               schema:
                 type: string
+
+  /graphql/ws:
+    get:
+      tags: [GraphQL]
+      summary: GraphQL WebSocket subscriptions
+      description: |
+        WebSocket endpoint for GraphQL subscriptions using the graphql-ws protocol.
+        Clients should connect using a WebSocket client that speaks the graphql-ws
+        subprotocol (e.g., Apollo Client, urql).
+      operationId: graphqlWebSocket
+      responses:
+        '101':
+          description: WebSocket upgrade successful
+
+  # ============ DID ENDPOINTS ============
+  /resolve/{did}:
+    get:
+      tags: [DID]
+      summary: Resolve a DID to its DID Document
+      description: |
+        Resolves any supported Decentralized Identifier to its DID Document
+        per W3C DID Core specification. Supported methods: key, web, jwk, pkh.
+      operationId: resolveDid
+      parameters:
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The DID to resolve (e.g., did:key:z6Mk...)
+          example: "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK"
+      responses:
+        '200':
+          description: DID Document resolved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  didDocument:
+                    type: object
+                  didResolutionMetadata:
+                    type: object
+        '400':
+          description: Invalid DID format
+        '404':
+          description: DID not found
+        '502':
+          description: Resolver error
+
+  /methods:
+    get:
+      tags: [DID]
+      summary: List registered DID methods
+      description: Returns all DID methods supported by the resolver registry
+      operationId: listDidMethods
+      responses:
+        '200':
+          description: List of supported DID methods
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  methods:
+                    type: array
+                    items:
+                      type: string
+                    example: ["key", "web", "jwk", "pkh"]
 
   # ============ AGENT ENDPOINTS ============
   /agent/execute:
