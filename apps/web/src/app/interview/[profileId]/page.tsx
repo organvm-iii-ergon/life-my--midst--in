@@ -35,7 +35,12 @@ export default function InterviewPage() {
   const [jobTitle, setJobTitle] = useState('');
 
   // Results
-  const [compatibility, setCompatibility] = useState<any>(null);
+  const [compatibility, setCompatibility] = useState<{
+    scores: { overall: number; skillMatch: number; valuesAlign: number; growthFit: number };
+    greenFlags: string[];
+    redFlags: string[];
+    recommendations: string[];
+  } | null>(null);
 
   useEffect(() => {
     // Fetch interview questions

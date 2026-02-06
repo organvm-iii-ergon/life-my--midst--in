@@ -2,13 +2,13 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSubscription } from '@/lib/api-client';
+import { getSubscription, Subscription } from '@/lib/api-client';
 import { NeoCard } from '@in-midst-my-life/design-system';
 import { useAuth } from '@/hooks/useAuth';
 
 function SuccessContent() {
   const router = useRouter();
-  const [subscription, setSubscription] = useState<any>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { profileId } = useAuth();
@@ -25,7 +25,7 @@ function SuccessContent() {
           throw new Error(response.message || 'Failed to fetch subscription');
         }
 
-        setSubscription(response.data);
+        setSubscription(response.data ?? null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {

@@ -72,7 +72,12 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
   // Subscription & Quota State
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [showUpgradeWall, setShowUpgradeWall] = useState(false);
-  const [quotaInfo, setQuotaInfo] = useState<any>(null);
+  const [quotaInfo, setQuotaInfo] = useState<{
+    feature: string;
+    used: number;
+    limit: number;
+    resetDate: string;
+  } | null>(null);
 
   useEffect(() => {
     void fetchSubscription();
@@ -167,7 +172,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
           .filter(Boolean),
         min_salary: minSalary,
         max_salary: maxSalary,
-        remote_requirement: remoteType as any,
+        remote_requirement: remoteType as HunterSearchFilter['remote_requirement'],
         required_technologies: technologies
           .split(',')
           .map((t) => t.trim())
@@ -259,7 +264,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
         isOpen={showUpgradeWall}
         onClose={() => setShowUpgradeWall(false)}
         onUpgrade={() => router.push('/pricing')}
-        quotaInfo={quotaInfo}
+        quotaInfo={quotaInfo ?? undefined}
       />
 
       <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -280,9 +285,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
                 <option value="default">Default</option>
                 {personas.map((persona) => (
                   <option key={persona.id} value={persona.id}>
-                    {(persona as any).everyday_name ||
-                      (persona as any).nomen ||
-                      `Persona ${persona.id.slice(0, 8)}`}
+                    {persona.everyday_name || persona.nomen || `Persona ${persona.id.slice(0, 8)}`}
                   </option>
                 ))}
               </select>

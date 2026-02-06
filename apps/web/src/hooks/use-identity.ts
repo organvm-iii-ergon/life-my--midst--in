@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import * as jose from 'jose';
 
 // Type matching @in-midst-my-life/core KeyPair for compatibility
+// jose v6 uses CryptoKey in browser (WebCrypto) context
 interface KeyPair {
   did: string;
-  publicKey: any; // jose.KeyLike is not exported in this version
-  privateKey: any; // jose.KeyLike is not exported in this version
+  publicKey: CryptoKey;
+  privateKey: CryptoKey;
 }
 
 const STORAGE_KEY = 'midst:identity:v1';
@@ -32,8 +33,8 @@ export function useIdentity() {
         // We need to re-import the keys from JWK if we stored them as JWK
         // Or if we stored them as exported strings.
         // For simplicity in this prototype, let's assume we store JWKs.
-        const publicKey = await jose.importJWK(parsed.publicKey, 'EdDSA');
-        const privateKey = await jose.importJWK(parsed.privateKey, 'EdDSA');
+        const publicKey = (await jose.importJWK(parsed.publicKey, 'EdDSA')) as CryptoKey;
+        const privateKey = (await jose.importJWK(parsed.privateKey, 'EdDSA')) as CryptoKey;
         setIdentity({
           did: parsed.did,
           publicKey,
@@ -51,7 +52,10 @@ export function useIdentity() {
     setLoading(true);
     try {
       // Generate EdDSA key pair using Web Crypto
-      const { publicKey, privateKey } = await jose.generateKeyPair('EdDSA');
+      const { publicKey, privateKey } = (await jose.generateKeyPair('EdDSA')) as {
+        publicKey: CryptoKey;
+        privateKey: CryptoKey;
+      };
 
       // Export to JWK for storage
       const pubJwk = await jose.exportJWK(publicKey);

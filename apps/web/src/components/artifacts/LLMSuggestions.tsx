@@ -5,7 +5,7 @@ import { Sparkles } from 'lucide-react';
 
 interface LLMSuggestionsProps {
   artifact: Artifact;
-  onAcceptSuggestion?: (field: string, value: any) => void;
+  onAcceptSuggestion?: (field: string, value: string) => void;
 }
 
 export function LLMSuggestions({

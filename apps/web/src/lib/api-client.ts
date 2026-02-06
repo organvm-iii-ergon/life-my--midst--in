@@ -28,6 +28,7 @@ export type Subscription = {
   billingInterval: 'monthly' | 'yearly' | null;
   currentPeriodEnd: string | null;
   cancelAt: string | null;
+  cancelAtPeriodEnd?: boolean;
   plan: {
     name: string;
     features: Record<string, unknown>;

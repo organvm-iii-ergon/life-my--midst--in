@@ -70,12 +70,15 @@ export default function FeedbackForm({ profileId, userId, onSubmitSuccess }: Fee
     }));
   }, []);
 
-  const handleInputChange = useCallback((field: keyof FeedbackFormData, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  }, []);
+  const handleInputChange = useCallback(
+    (field: keyof FeedbackFormData, value: FeedbackFormData[keyof FeedbackFormData]) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [],
+  );
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

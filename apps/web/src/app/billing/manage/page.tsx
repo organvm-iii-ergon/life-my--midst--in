@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getSubscription, cancelSubscription } from '@/lib/api-client';
+import { getSubscription, cancelSubscription, Subscription } from '@/lib/api-client';
 import { NeoCard } from '@in-midst-my-life/design-system';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function ManageSubscriptionPage() {
   const router = useRouter();
-  const [subscription, setSubscription] = useState<any>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function ManageSubscriptionPage() {
       if (!response.ok) {
         throw new Error(response.message || 'Failed to fetch subscription');
       }
-      setSubscription(response.data);
+      setSubscription(response.data ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -147,7 +147,7 @@ export default function ManageSubscriptionPage() {
                       ? 'Cancellation Scheduled'
                       : 'Cancel Subscription'}
                 </button>
-                {subscription?.cancelAtPeriodEnd && (
+                {subscription?.cancelAtPeriodEnd && subscription.currentPeriodEnd && (
                   <p className="mt-4 text-xs text-yellow-500 font-mono">
                     Access ends on {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
                   </p>
@@ -171,32 +171,29 @@ export default function ManageSubscriptionPage() {
                 Plan Entitlements
               </h3>
               <ul className="space-y-4">
-                {Object.entries(subscription?.plan?.features || {}).map(
-                  ([key, feature]: [string, any]) => (
+                {Object.entries(subscription?.plan?.features || {}).map(([key, feature]) => {
+                  const f = feature as { name?: string; limit: number; used?: number };
+                  return (
                     <li key={key} className="border-b border-gray-800 pb-4 last:border-0">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-white capitalize">{key.replace(/_/g, ' ')}</span>
                         <span className="text-cyan-400 font-mono">
-                          {feature.limit === -1
-                            ? 'Unlimited'
-                            : feature.limit === 0
-                              ? 'Locked'
-                              : feature.limit}
+                          {f.limit === -1 ? 'Unlimited' : f.limit === 0 ? 'Locked' : f.limit}
                         </span>
                       </div>
-                      {feature.limit > 0 && (
+                      {f.limit > 0 && (
                         <div className="w-full bg-gray-900 h-1 rounded-full overflow-hidden mt-2">
                           <div
                             className="bg-cyan-600 h-full transition-all"
                             style={{
-                              width: `${Math.min(100, (feature.used / feature.limit) * 100)}%`,
+                              width: `${Math.min(100, ((f.used ?? 0) / f.limit) * 100)}%`,
                             }}
                           ></div>
                         </div>
                       )}
                     </li>
-                  ),
-                )}
+                  );
+                })}
               </ul>
             </NeoCard>
           </div>

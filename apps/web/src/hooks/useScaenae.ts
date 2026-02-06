@@ -9,6 +9,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Scaena } from '@in-midst-my-life/schema';
 
+/** API response includes convenience fields not in the canonical schema */
+interface ScaenaResponse extends Scaena {
+  canonical?: boolean;
+  immutable?: boolean;
+  emoji?: string;
+  nomen?: string;
+}
+
 interface UseScaenaeReturn {
   scaenae: Scaena[];
   canonicalScaenae: Scaena[];
@@ -44,18 +52,20 @@ export function useScaenae(): UseScaenaeReturn {
       const res = await fetch(`${apiBase}/taxonomy/scaenae`);
       if (!res.ok) throw new Error('Failed to fetch scaenae');
 
-      const data = await res.json();
+      const data: {
+        scaenae?: ScaenaResponse[];
+        data?: { scaenae?: ScaenaResponse[] };
+      } = await res.json();
       // Handle both response formats: { scaenae: [...] } or { data: { scaenae: [...] } }
-      const allScaenae = data.scaenae ?? data.data?.scaenae ?? [];
+      const allScaenae: ScaenaResponse[] = data.scaenae ?? data.data?.scaenae ?? [];
 
       setScaenae(allScaenae);
       // Canonical scaenae: have canonical=true or metadata.canonical=true, and are immutable
       const canonical = allScaenae.filter(
-        (s: any) => s.canonical === true || s.metadata?.canonical === true || s.immutable === true,
+        (s) => s.canonical === true || s.metadata?.canonical === true || s.immutable === true,
       );
       const custom = allScaenae.filter(
-        (s: any) =>
-          !(s.canonical === true || s.metadata?.canonical === true || s.immutable === true),
+        (s) => !(s.canonical === true || s.metadata?.canonical === true || s.immutable === true),
       );
       setCanonicalScaenae(canonical);
       setCustomScaenae(custom);
@@ -73,11 +83,11 @@ export function useScaenae(): UseScaenaeReturn {
   // Check if a scaena can be deleted (only custom ones can be deleted)
   const canDeleteScaena = useCallback(
     (id: string): boolean => {
-      const scaena = scaenae.find((s) => s.id === id);
+      const scaena = scaenae.find((s) => s.id === id) as ScaenaResponse | undefined;
       if (!scaena) return false;
       // Cannot delete if canonical or immutable
-      const isCanonical = (scaena as any).canonical === true || scaena.metadata?.canonical === true;
-      const isImmutable = (scaena as any).immutable === true;
+      const isCanonical = scaena.canonical === true || scaena.metadata?.canonical === true;
+      const isImmutable = scaena.immutable === true;
       return !isCanonical && !isImmutable;
     },
     [scaenae],
@@ -86,9 +96,9 @@ export function useScaenae(): UseScaenaeReturn {
   // Get emoji for a scaena
   const getScaenaEmoji = useCallback(
     (id: string): string => {
-      const scaena = scaenae.find((s) => s.id === id);
+      const scaena = scaenae.find((s) => s.id === id) as ScaenaResponse | undefined;
       if (!scaena) return '';
-      return (scaena as any).emoji ?? scaena.metadata?.icon ?? '';
+      return scaena.emoji ?? scaena.metadata?.icon ?? '';
     },
     [scaenae],
   );
@@ -96,9 +106,9 @@ export function useScaenae(): UseScaenaeReturn {
   // Get label/name for a scaena
   const getScaenaLabel = useCallback(
     (id: string): string => {
-      const scaena = scaenae.find((s) => s.id === id);
+      const scaena = scaenae.find((s) => s.id === id) as ScaenaResponse | undefined;
       if (!scaena) return '';
-      return (scaena as any).nomen ?? scaena.name ?? scaena.latin_name ?? '';
+      return scaena.nomen ?? scaena.name ?? scaena.latin_name ?? '';
     },
     [scaenae],
   );
@@ -123,9 +133,9 @@ export function useScaenae(): UseScaenaeReturn {
         });
         if (!res.ok) throw new Error('Failed to create scaena');
 
-        const result = await res.json();
+        const result: { data?: Scaena; scaena?: Scaena } & Partial<Scaena> = await res.json();
         void fetchScaenae();
-        return result.data ?? result.scaena ?? result;
+        return result.data ?? result.scaena ?? (result.id ? (result as Scaena) : null);
       } catch (err) {
         setError((err as Error).message);
         return null;
@@ -138,11 +148,11 @@ export function useScaenae(): UseScaenaeReturn {
   const deleteCustomScaena = useCallback(
     async (id: string): Promise<boolean> => {
       // Check if this is a known canonical scaena - if so, prevent deletion
-      const knownScaena = scaenae.find((s) => s.id === id);
+      const knownScaena = scaenae.find((s) => s.id === id) as ScaenaResponse | undefined;
       if (knownScaena) {
         const isCanonical =
-          (knownScaena as any).canonical === true || knownScaena.metadata?.canonical === true;
-        const isImmutable = (knownScaena as any).immutable === true;
+          knownScaena.canonical === true || knownScaena.metadata?.canonical === true;
+        const isImmutable = knownScaena.immutable === true;
         if (isCanonical || isImmutable) return false;
       }
       // If scaena is unknown locally, try to delete anyway (let server decide)

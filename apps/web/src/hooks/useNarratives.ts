@@ -10,6 +10,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { NarrativeBlock } from '@in-midst-my-life/schema';
 
+/** API-persisted narrative blocks include id, content (alias for body), and type */
+export type PersistedNarrativeBlock = NarrativeBlock & {
+  id: string;
+  content: string;
+  type?: string;
+};
+
 interface NarrativeResponse {
   ok?: boolean;
   mask?: { id: string; everyday_name: string };
@@ -17,13 +24,13 @@ interface NarrativeResponse {
   authentic_disclaimer?: string;
   preamble?: string; // Alternative key
   disclaimer?: string; // Alternative key
-  blocks?: NarrativeBlock[];
+  blocks?: PersistedNarrativeBlock[];
   block_count?: number;
 }
 
 interface UseNarrativesReturn {
-  blocks: NarrativeBlock[];
-  narrativeBlocks: NarrativeBlock[];
+  blocks: PersistedNarrativeBlock[];
+  narrativeBlocks: PersistedNarrativeBlock[];
   mask: { id: string; everyday_name: string } | null;
   theatricalPreamble: string | null;
   authenticDisclaimer: string | null;
@@ -33,13 +40,13 @@ interface UseNarrativesReturn {
   generateNarratives: () => Promise<NarrativeResponse | undefined>;
   updateBlock: (
     blockId: string,
-    patch: Partial<NarrativeBlock>,
-  ) => Promise<NarrativeBlock | undefined>;
+    patch: Partial<PersistedNarrativeBlock>,
+  ) => Promise<PersistedNarrativeBlock | undefined>;
   deleteBlock: (blockId: string) => Promise<boolean>;
-  getBlock: (blockId: string) => NarrativeBlock | undefined;
-  reorderBlocks: (blockIds: string[]) => NarrativeBlock[];
+  getBlock: (blockId: string) => PersistedNarrativeBlock | undefined;
+  reorderBlocks: (blockIds: string[]) => PersistedNarrativeBlock[];
   saveNarratives: (
-    updatedBlocks: NarrativeBlock[],
+    updatedBlocks: PersistedNarrativeBlock[],
     preamble?: string,
     disclaimer?: string,
   ) => Promise<NarrativeResponse | undefined>;
@@ -49,7 +56,7 @@ interface UseNarrativesReturn {
 const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
 export function useNarratives(profileId: string, personaId?: string): UseNarrativesReturn {
-  const [blocks, setBlocks] = useState<NarrativeBlock[]>([]);
+  const [blocks, setBlocks] = useState<PersistedNarrativeBlock[]>([]);
   const [mask, setMask] = useState<{ id: string; everyday_name: string } | null>(null);
   const [theatricalPreamble, setTheatricalPreamble] = useState<string | null>(null);
   const [authenticDisclaimer, setAuthenticDisclaimer] = useState<string | null>(null);
@@ -129,8 +136,8 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
   const updateBlock = useCallback(
     async (
       blockId: string,
-      patch: Partial<NarrativeBlock>,
-    ): Promise<NarrativeBlock | undefined> => {
+      patch: Partial<PersistedNarrativeBlock>,
+    ): Promise<PersistedNarrativeBlock | undefined> => {
       if (!profileId || !personaId) return undefined;
       try {
         const res = await fetch(
@@ -143,12 +150,16 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
         );
         if (!res.ok) throw new Error('Failed to update block');
 
-        const data = await res.json();
-        const updatedBlock = data.block ?? data.data ?? data;
+        const data: {
+          block?: PersistedNarrativeBlock;
+          data?: PersistedNarrativeBlock;
+        } & Partial<PersistedNarrativeBlock> = await res.json();
+        const updatedBlock =
+          data.block ?? data.data ?? (data.id ? (data as PersistedNarrativeBlock) : undefined);
 
         // Update local state
-        setBlocks((prev: any) =>
-          (prev as any[]).map((block: any) =>
+        setBlocks((prev) =>
+          prev.map((block) =>
             block.id === blockId
               ? {
                   ...block,
@@ -185,7 +196,7 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
         if (!res.ok) throw new Error('Failed to delete block');
 
         // Update local state
-        setBlocks((prev: any) => (prev as any[]).filter((block: any) => block.id !== blockId));
+        setBlocks((prev) => prev.filter((block) => block.id !== blockId));
         return true;
       } catch (err) {
         setError((err as Error).message);
@@ -197,18 +208,18 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
 
   // Get a block by ID
   const getBlock = useCallback(
-    (blockId: string): NarrativeBlock | undefined => {
-      return (blocks as any[]).find((block: any) => block.id === blockId);
+    (blockId: string): PersistedNarrativeBlock | undefined => {
+      return blocks.find((block) => block.id === blockId);
     },
     [blocks],
   );
 
   // Reorder blocks by ID list
   const reorderBlocks = useCallback(
-    (blockIds: string[]): NarrativeBlock[] => {
+    (blockIds: string[]): PersistedNarrativeBlock[] => {
       const reordered = blockIds
-        .map((id) => (blocks as any[]).find((block: any) => block.id === id))
-        .filter((block): block is NarrativeBlock => block !== undefined);
+        .map((id) => blocks.find((block) => block.id === id))
+        .filter((block): block is PersistedNarrativeBlock => block !== undefined);
       setBlocks(reordered);
       return reordered;
     },
@@ -218,7 +229,7 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
   // Save all narratives
   const saveNarratives = useCallback(
     async (
-      updatedBlocks: NarrativeBlock[],
+      updatedBlocks: PersistedNarrativeBlock[],
       preamble?: string,
       disclaimer?: string,
     ): Promise<NarrativeResponse | undefined> => {
@@ -237,7 +248,7 @@ export function useNarratives(profileId: string, personaId?: string): UseNarrati
         });
         if (!res.ok) throw new Error('Failed to save narrative');
 
-        const data = await res.json();
+        const data: NarrativeResponse = await res.json();
 
         // Update local state
         setBlocks(updatedBlocks);

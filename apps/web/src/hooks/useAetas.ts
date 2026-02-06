@@ -10,6 +10,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Aetas } from '@in-midst-my-life/schema';
 
+/** API returns canonical Aetas augmented with progression data */
+interface ProfileAetas extends Aetas {
+  endDate?: string;
+  duration_years?: number;
+}
+
 interface UseAetasReturn {
   canonicalAetas: Aetas[];
   profileAetas: Aetas[];
@@ -53,8 +59,12 @@ export function useAetas(profileId: string | null): UseAetasReturn {
         throw new Error('Failed to fetch aetas');
       }
 
-      const canonicalData = await canonicalRes.json();
-      const profileData = await profileRes.json();
+      const canonicalData: { aetas?: Aetas[] } = await canonicalRes.json();
+      const profileData: {
+        profileAetas?: ProfileAetas[];
+        aetas?: ProfileAetas[];
+        current_aetas?: string;
+      } = await profileRes.json();
 
       setCanonicalAetas(canonicalData.aetas ?? []);
       // Handle both response formats: { profileAetas: [...] } or { aetas: [...] }
@@ -63,7 +73,7 @@ export function useAetas(profileId: string | null): UseAetasReturn {
 
       // Determine current aetas - find the one without endDate (ongoing stage)
       // Profile aetas response format uses startDate/endDate for progression tracking
-      const currentAeta = pAetas.find((a: any) => !a.endDate);
+      const currentAeta = pAetas.find((a) => !a.endDate);
       if (currentAeta) {
         setCurrentAetasId(currentAeta.id ?? null);
       } else if (profileData.current_aetas) {
@@ -96,7 +106,7 @@ export function useAetas(profileId: string | null): UseAetasReturn {
         });
         if (!res.ok) throw new Error('Failed to add aetas');
 
-        const data = await res.json();
+        const data: { aetas?: Aetas } = await res.json();
         void fetchAetas();
         return data.aetas ?? null;
       } catch (err) {
@@ -118,7 +128,7 @@ export function useAetas(profileId: string | null): UseAetasReturn {
         });
         if (!res.ok) throw new Error('Failed to update aetas');
 
-        const data = await res.json();
+        const data: { aetas?: Aetas } = await res.json();
         void fetchAetas();
         return data.aetas ?? null;
       } catch (err) {
@@ -163,14 +173,14 @@ export function useAetas(profileId: string | null): UseAetasReturn {
     updateAetas: updateProfileAetas,
     deleteAetas: deleteProfileAetas,
     // Completed aetas are those WITH an endDate (finished stages)
-    completedAetasIds: profileAetas
-      .filter((a: any) => a.endDate)
+    completedAetasIds: (profileAetas as ProfileAetas[])
+      .filter((a) => a.endDate)
       .map((a) => a.id)
       .filter(Boolean),
     getAetasDuration: (id: string) => {
-      const aeta = canonicalAetas.find((a) => a.id === id);
+      const aeta = canonicalAetas.find((a) => a.id === id) as ProfileAetas | undefined;
       // Handle both duration_years and duration_months fields
-      const years = (aeta as any)?.duration_years;
+      const years = aeta?.duration_years;
       if (years !== undefined) return years;
       return (aeta?.duration_months ?? 0) / 12;
     },

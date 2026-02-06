@@ -8,6 +8,7 @@ import { PersonaeSelector } from '@/components/PersonaeSelector';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePersonae } from '@/hooks/usePersonae';
 import { useNarratives } from '@/hooks/useNarratives';
+import type { PersistedNarrativeBlock } from '@/hooks/useNarratives';
 
 /**
  * Narrative Page
@@ -59,7 +60,7 @@ export default function NarrativePage() {
   };
 
   const handleSaveNarrative = async (
-    updatedBlocks: any[],
+    updatedBlocks: PersistedNarrativeBlock[],
     preamble?: string,
     disclaimer?: string,
   ) => {

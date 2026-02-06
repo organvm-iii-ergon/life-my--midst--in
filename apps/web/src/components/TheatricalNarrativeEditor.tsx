@@ -1,14 +1,15 @@
 'use client';
-// @ts-nocheck
+
 import { useState } from 'react';
-import type { NarrativeBlock, TabulaPersonarumEntry } from '@in-midst-my-life/schema';
+import type { TabulaPersonarumEntry } from '@in-midst-my-life/schema';
+import type { PersistedNarrativeBlock } from '@/hooks/useNarratives';
 
 interface TheatricalNarrativeEditorProps {
   persona: TabulaPersonarumEntry | null;
-  blocks: NarrativeBlock[];
+  blocks: PersistedNarrativeBlock[];
   theatricalPreamble?: string;
   authenticDisclaimer?: string;
-  onSave?: (blocks: NarrativeBlock[], preamble?: string, disclaimer?: string) => void;
+  onSave?: (blocks: PersistedNarrativeBlock[], preamble?: string, disclaimer?: string) => void;
   onGenerate?: () => void;
   loading?: boolean;
 }
@@ -33,7 +34,7 @@ export function TheatricalNarrativeEditor({
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [editPreamble, setEditPreamble] = useState(theatricalPreamble || '');
   const [editDisclaimer, setEditDisclaimer] = useState(authenticDisclaimer || '');
-  const [editBlocks, setEditBlocks] = useState<any[]>(blocks as any[]);
+  const [editBlocks, setEditBlocks] = useState<PersistedNarrativeBlock[]>(blocks);
 
   if (loading) {
     return (
@@ -55,10 +56,10 @@ export function TheatricalNarrativeEditor({
     );
   }
 
-  const handleUpdateBlock = (blockId: string, updates: any) => {
+  const handleUpdateBlock = (blockId: string, updates: Partial<PersistedNarrativeBlock>) => {
     setEditBlocks((prev) =>
-      (prev as any[]).map((block) =>
-        (block as any).id === blockId
+      prev.map((block) =>
+        block.id === blockId
           ? {
               ...block,
               ...updates,
@@ -73,7 +74,7 @@ export function TheatricalNarrativeEditor({
   };
 
   const handleDeleteBlock = (blockId: string) => {
-    setEditBlocks((prev) => (prev as any[]).filter((block) => (block as any).id !== blockId));
+    setEditBlocks((prev) => prev.filter((block) => block.id !== blockId));
   };
 
   return (
@@ -147,7 +148,7 @@ export function TheatricalNarrativeEditor({
           </div>
         ) : (
           <div className="stack" style={{ gap: '0.75rem' }}>
-            {editBlocks.map((block: any) => {
+            {editBlocks.map((block) => {
               const isEditing = editingBlockId === block.id;
 
               return (

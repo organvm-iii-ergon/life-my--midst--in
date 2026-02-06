@@ -54,7 +54,7 @@ export default function MessageThread({ threadId, participantName, onBack }: Mes
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     if (!newMessage.trim() || isSending) return;
@@ -236,7 +236,7 @@ export default function MessageThread({ threadId, participantName, onBack }: Mes
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                void handleSendMessage(e as any);
+                void handleSendMessage(e);
               }
             }}
           />

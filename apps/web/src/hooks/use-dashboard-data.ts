@@ -1,5 +1,19 @@
 import { useState, useCallback } from 'react';
-import type { Profile, ContentEdge, Mask, Stage, Epoch } from '@in-midst-my-life/schema';
+import type {
+  Profile,
+  ContentEdge,
+  Mask,
+  Stage,
+  Epoch,
+  Experience,
+  Education,
+  Project,
+  Skill,
+  Publication,
+  Award,
+  Certification,
+  SocialLink,
+} from '@in-midst-my-life/schema';
 import type { CvData } from '../app/ui/graph-utils';
 
 const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
@@ -132,20 +146,24 @@ export function useDashboardData() {
           edgesRes,
         ] = await Promise.all([
           getJson<Envelope<Profile>>(`${apiBase}/profiles/${selected}`),
-          getJson<Envelope<any[]>>(
+          getJson<Envelope<Experience[]>>(
             `${apiBase}/profiles/${selected}/experiences?offset=0&limit=200`,
           ),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/educations?offset=0&limit=200`),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/projects?offset=0&limit=200`),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/skills?offset=0&limit=200`),
-          getJson<Envelope<any[]>>(
+          getJson<Envelope<Education[]>>(
+            `${apiBase}/profiles/${selected}/educations?offset=0&limit=200`,
+          ),
+          getJson<Envelope<Project[]>>(
+            `${apiBase}/profiles/${selected}/projects?offset=0&limit=200`,
+          ),
+          getJson<Envelope<Skill[]>>(`${apiBase}/profiles/${selected}/skills?offset=0&limit=200`),
+          getJson<Envelope<Publication[]>>(
             `${apiBase}/profiles/${selected}/publications?offset=0&limit=200`,
           ),
-          getJson<Envelope<any[]>>(`${apiBase}/profiles/${selected}/awards?offset=0&limit=200`),
-          getJson<Envelope<any[]>>(
+          getJson<Envelope<Award[]>>(`${apiBase}/profiles/${selected}/awards?offset=0&limit=200`),
+          getJson<Envelope<Certification[]>>(
             `${apiBase}/profiles/${selected}/certifications?offset=0&limit=200`,
           ),
-          getJson<Envelope<any[]>>(
+          getJson<Envelope<SocialLink[]>>(
             `${apiBase}/profiles/${selected}/social-links?offset=0&limit=200`,
           ),
           getJson<Envelope<ContentEdge[]>>(

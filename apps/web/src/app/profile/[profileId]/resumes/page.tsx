@@ -53,8 +53,14 @@ export default function ResumesPage() {
       );
       if (!res.ok) throw new Error('Failed to generate resumes');
 
-      const data = await res.json();
-      const resumeList = (data.resumes || []).map((resume: any) => ({
+      interface ResumeResponse {
+        persona: TabulaPersonarumEntry;
+        entries: CVEntry[];
+        theatrical_preamble: string;
+        entry_count: number;
+      }
+      const data: { resumes?: ResumeResponse[] } = await res.json();
+      const resumeList = (data.resumes || []).map((resume) => ({
         persona: resume.persona,
         entries: resume.entries,
         theatricalPreamble: resume.theatrical_preamble,
