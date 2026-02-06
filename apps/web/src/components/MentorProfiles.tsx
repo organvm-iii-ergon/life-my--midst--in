@@ -27,6 +27,7 @@ export default function MentorProfiles({
   userId: _userId,
   onRequestMentorship,
 }: MentorProfilesProps) {
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
   const [mentors, setMentors] = useState<MentorProfile[]>([]);
   const [filteredMentors, setFilteredMentors] = useState<MentorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,7 +76,6 @@ export default function MentorProfiles({
   }, [filterMentors]);
 
   const loadMentors = async () => {
-    const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
     try {
       setIsLoading(true);
       const res = await fetch(`${apiBase}/community/mentors`);
@@ -111,7 +111,7 @@ export default function MentorProfiles({
 
   const handleRequestMentorship = async (mentor: MentorProfile) => {
     try {
-      const response = await fetch('/api/collaboration/mentorship-requests', {
+      const response = await fetch(`${apiBase}/collaboration/mentorship-requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

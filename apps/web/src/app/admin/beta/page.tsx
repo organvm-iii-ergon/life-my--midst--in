@@ -32,7 +32,11 @@ interface BetaMetrics {
   newUsersThisWeek: number;
   profileCompletionRate: number;
   hunterAdoptionRate: number;
+  invertedInterviewRate: number;
+  personaCreationRate: number;
   feedbackSubmissionRate: number;
+  retentionRate: number;
+  feedbackResponseRate: number;
   churnRate: number;
   nps: number;
 }
@@ -70,7 +74,11 @@ export default function BetaDashboard() {
           newUsersThisWeek: 0,
           profileCompletionRate: 0,
           hunterAdoptionRate: 0,
+          invertedInterviewRate: 0,
+          personaCreationRate: 0,
           feedbackSubmissionRate: 0,
+          retentionRate: 0,
+          feedbackResponseRate: 0,
           churnRate: 0,
           nps: 0,
         });
@@ -181,7 +189,10 @@ export default function BetaDashboard() {
                 <div>
                   <p className="text-gray-600 text-sm">Active Users</p>
                   <p className="text-3xl font-bold text-gray-900">
-                    {Math.round((metrics.activeUsers / metrics.totalUsers) * 100)}%
+                    {metrics.totalUsers > 0
+                      ? Math.round((metrics.activeUsers / metrics.totalUsers) * 100)
+                      : 0}
+                    %
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
                     {metrics.activeUsers} of {metrics.totalUsers}
@@ -209,7 +220,15 @@ export default function BetaDashboard() {
                 <div>
                   <p className="text-gray-600 text-sm">Net Promoter Score</p>
                   <p className="text-3xl font-bold text-gray-900">{metrics.nps}</p>
-                  <p className="text-xs text-green-600 mt-1">Excellent</p>
+                  <p
+                    className={`text-xs mt-1 ${metrics.nps >= 50 ? 'text-green-600' : metrics.nps >= 0 ? 'text-yellow-600' : 'text-red-600'}`}
+                  >
+                    {metrics.nps >= 50
+                      ? 'Excellent'
+                      : metrics.nps >= 0
+                        ? 'Good'
+                        : 'Needs Improvement'}
+                  </p>
                 </div>
                 <MessageSquare className="w-8 h-8 text-orange-500 opacity-20" />
               </div>
@@ -225,9 +244,9 @@ export default function BetaDashboard() {
               <div className="space-y-4">
                 {[
                   { name: 'Hunter Protocol', rate: metrics.hunterAdoptionRate },
-                  { name: 'Inverted Interview', rate: 38 },
+                  { name: 'Inverted Interview', rate: metrics.invertedInterviewRate },
                   { name: 'Feedback Submission', rate: metrics.feedbackSubmissionRate },
-                  { name: 'Persona Creation', rate: 72 },
+                  { name: 'Persona Creation', rate: metrics.personaCreationRate },
                 ].map((feature) => (
                   <div key={feature.name}>
                     <div className="flex justify-between mb-1">
@@ -249,14 +268,26 @@ export default function BetaDashboard() {
               <h2 className="text-lg font-bold text-gray-900 mb-4">Health Indicators</h2>
               <div className="space-y-4">
                 {[
-                  { label: 'Churn Rate', value: `${metrics.churnRate}%`, status: 'good' },
-                  { label: 'Retention (30-day)', value: '94.8%', status: 'good' },
+                  {
+                    label: 'Churn Rate',
+                    value: `${metrics.churnRate}%`,
+                    status: metrics.churnRate < 5 ? 'good' : 'ok',
+                  },
+                  {
+                    label: 'Retention (30-day)',
+                    value: `${metrics.retentionRate}%`,
+                    status: metrics.retentionRate >= 90 ? 'good' : 'ok',
+                  },
                   {
                     label: 'Avg Profile Completeness',
                     value: `${metrics.profileCompletionRate}%`,
-                    status: 'good',
+                    status: metrics.profileCompletionRate >= 70 ? 'good' : 'ok',
                   },
-                  { label: 'Feedback Response Rate', value: '46%', status: 'ok' },
+                  {
+                    label: 'Feedback Response Rate',
+                    value: `${metrics.feedbackResponseRate}%`,
+                    status: metrics.feedbackResponseRate >= 50 ? 'good' : 'ok',
+                  },
                 ].map((indicator) => (
                   <div key={indicator.label} className="flex justify-between items-center">
                     <span className="text-sm text-gray-700">{indicator.label}</span>
@@ -412,27 +443,54 @@ export default function BetaDashboard() {
         </div>
 
         {/* Insights Section */}
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-blue-900 mb-3">🎯 Key Insights</h3>
-            <ul className="text-sm text-blue-800 space-y-2">
-              <li>✓ Hunter Protocol adoption is strong (64%)</li>
-              <li>✓ Profile completion rate is healthy (78%)</li>
-              <li>⚠️ Inverted Interview adoption needs improvement (38%)</li>
-              <li>⚠️ Churn is within expected range but monitor closely</li>
-            </ul>
-          </div>
+        {metrics && (
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6">
+              <h3 className="font-semibold text-blue-900 mb-3">Key Insights</h3>
+              <ul className="text-sm text-blue-800 space-y-2">
+                {metrics.hunterAdoptionRate >= 50 && (
+                  <li>Hunter Protocol adoption is strong ({metrics.hunterAdoptionRate}%)</li>
+                )}
+                {metrics.profileCompletionRate >= 60 && (
+                  <li>Profile completion rate is healthy ({metrics.profileCompletionRate}%)</li>
+                )}
+                {metrics.invertedInterviewRate < 50 && (
+                  <li>
+                    Inverted Interview adoption needs improvement ({metrics.invertedInterviewRate}%)
+                  </li>
+                )}
+                {metrics.churnRate > 0 && (
+                  <li>
+                    Churn rate is {metrics.churnRate < 5 ? 'within expected range' : 'elevated'} (
+                    {metrics.churnRate}%)
+                  </li>
+                )}
+                {metrics.totalUsers === 0 && (
+                  <li>No beta users yet — share the invite link to get started</li>
+                )}
+              </ul>
+            </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6">
-            <h3 className="font-semibold text-green-900 mb-3">📊 Recommended Actions</h3>
-            <ul className="text-sm text-green-800 space-y-2">
-              <li>1. Email inactive users (7+ days) with encouragement</li>
-              <li>2. Add tutorial for Inverted Interview feature</li>
-              <li>3. Create onboarding email sequence for new users</li>
-              <li>4. Follow up with churned users to understand why</li>
-            </ul>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6">
+              <h3 className="font-semibold text-green-900 mb-3">Recommended Actions</h3>
+              <ul className="text-sm text-green-800 space-y-2">
+                {metrics.activeUsers < metrics.totalUsers * 0.7 && (
+                  <li>Email inactive users (7+ days) with encouragement</li>
+                )}
+                {metrics.invertedInterviewRate < 50 && (
+                  <li>Add tutorial for Inverted Interview feature</li>
+                )}
+                {metrics.newUsersThisWeek > 0 && (
+                  <li>Create onboarding email sequence for new users</li>
+                )}
+                {metrics.churnRate > 3 && <li>Follow up with churned users to understand why</li>}
+                {metrics.feedbackResponseRate < 50 && (
+                  <li>Incentivize feedback responses to improve engagement</li>
+                )}
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

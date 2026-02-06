@@ -46,6 +46,7 @@ export function InvertedInterviewInterface({
   onCalculateCompatibility,
   loading = false,
 }: InvertedInterviewInterfaceProps) {
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
   const defaultQuestions: InterviewQuestion[] = [
     {
       id: 'q1',
@@ -130,11 +131,26 @@ export function InvertedInterviewInterface({
         setCurrentRating(3);
       } else {
         // All questions answered, calculate compatibility
+        let result: PersonaResonance | undefined;
         if (onCalculateCompatibility) {
-          const result = onCalculateCompatibility(profilePersona, newResponses);
+          result = onCalculateCompatibility(profilePersona, newResponses);
           setCompatibility(result);
         }
         setShowResults(true);
+
+        // Persist interview results to API
+        void fetch(`${apiBase}/interviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            personaId: profilePersona.nomen,
+            responses: newResponses,
+            compatibility: result ?? null,
+            completedAt: new Date().toISOString(),
+          }),
+        }).catch((err: unknown) => {
+          console.error('Failed to persist interview results:', err);
+        });
       }
     }
   };

@@ -53,71 +53,12 @@ export default function CommunityLeaderboard() {
     } catch (error) {
       console.error('Failed to load leaderboard:', error);
     }
-    // Fallback to generated data when API is unavailable
-    setLeaderboard(generateMockLeaderboard());
-    setMetrics(generateMockMetrics());
     setIsLoading(false);
   }, [timeframe, filterBy, apiBase]);
 
   useEffect(() => {
     void loadLeaderboard();
   }, [loadLeaderboard]);
-
-  const generateMockLeaderboard = (): LeaderboardUser[] => [
-    {
-      rank: 1,
-      userId: '1',
-      name: 'Alice Chen',
-      score: 2850,
-      contributions: {
-        feedbackGiven: 45,
-        mentoringSessions: 12,
-        profilesCreated: 5,
-        connectionsFormed: 32,
-        contentCreated: 8,
-      },
-      badges: 8,
-      profileViews: 245,
-    },
-    {
-      rank: 2,
-      userId: '2',
-      name: 'Marcus Johnson',
-      score: 2650,
-      contributions: {
-        feedbackGiven: 38,
-        mentoringSessions: 15,
-        profilesCreated: 4,
-        connectionsFormed: 28,
-        contentCreated: 6,
-      },
-      badges: 7,
-      profileViews: 189,
-    },
-    {
-      rank: 3,
-      userId: '3',
-      name: 'Aisha Patel',
-      score: 2420,
-      contributions: {
-        feedbackGiven: 32,
-        mentoringSessions: 10,
-        profilesCreated: 5,
-        connectionsFormed: 25,
-        contentCreated: 7,
-      },
-      badges: 7,
-      profileViews: 156,
-    },
-  ];
-
-  const generateMockMetrics = (): CommunityMetrics => ({
-    totalUsers: 2847,
-    activeContributors: 342,
-    avgContributionsPerUser: 3.2,
-    totalMentorshipSessions: 1203,
-    mostPopularSkills: ['Leadership', 'Python', 'Product Management', 'Design', 'DevOps'],
-  });
 
   if (isLoading) {
     return (
@@ -221,75 +162,87 @@ export default function CommunityLeaderboard() {
           </h2>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Rank</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">User</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Score</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
-                  Contributions
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Badges</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Views</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {leaderboard.map((user) => (
-                <tr key={user.userId} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      {user.rank === 1 && <Medal className="w-5 h-5 text-yellow-500" />}
-                      {user.rank === 2 && <Medal className="w-5 h-5 text-gray-400" />}
-                      {user.rank === 3 && <Medal className="w-5 h-5 text-orange-600" />}
-                      <span className="font-bold text-gray-900">{user.rank}</span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <Link
-                      href={`/profile/${user.userId}`}
-                      className="text-blue-600 hover:text-blue-700 font-semibold"
-                    >
-                      {user.name}
-                    </Link>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <span className="text-lg font-bold text-gray-900">
-                      {user.score.toLocaleString()}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div>Feedback: {user.contributions.feedbackGiven}</div>
-                      <div>Mentoring: {user.contributions.mentoringSessions}</div>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1">
-                      {Array(Math.min(user.badges, 5))
-                        .fill(0)
-                        .map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      {user.badges > 5 && (
-                        <span className="text-xs text-gray-600">+{user.badges - 5}</span>
-                      )}
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <span className="text-gray-700 font-medium">{user.profileViews}</span>
-                  </td>
+        {leaderboard.length === 0 ? (
+          <div className="p-12 text-center">
+            <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-600 font-medium">No leaderboard data yet</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Be the first to climb the ranks by contributing to the community!
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Rank</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">User</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Score</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Contributions
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">
+                    Badges
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700">Views</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {leaderboard.map((user) => (
+                  <tr key={user.userId} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        {user.rank === 1 && <Medal className="w-5 h-5 text-yellow-500" />}
+                        {user.rank === 2 && <Medal className="w-5 h-5 text-gray-400" />}
+                        {user.rank === 3 && <Medal className="w-5 h-5 text-orange-600" />}
+                        <span className="font-bold text-gray-900">{user.rank}</span>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <Link
+                        href={`/profile/${user.userId}`}
+                        className="text-blue-600 hover:text-blue-700 font-semibold"
+                      >
+                        {user.name}
+                      </Link>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span className="text-lg font-bold text-gray-900">
+                        {user.score.toLocaleString()}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <div>Feedback: {user.contributions.feedbackGiven}</div>
+                        <div>Mentoring: {user.contributions.mentoringSessions}</div>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1">
+                        {Array(Math.min(user.badges, 5))
+                          .fill(0)
+                          .map((_, i) => (
+                            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        {user.badges > 5 && (
+                          <span className="text-xs text-gray-600">+{user.badges - 5}</span>
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span className="text-gray-700 font-medium">{user.profileViews}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Top Skills */}
