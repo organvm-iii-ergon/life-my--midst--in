@@ -19,3 +19,4 @@ storybook-static/
 *.env.op.sh
 .pnpm-store/
 *.tsbuildinfo
+next-env.d.ts
