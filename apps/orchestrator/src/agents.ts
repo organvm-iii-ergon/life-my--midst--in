@@ -1,19 +1,25 @@
-import { CrawlerAgent } from "./agents/crawler";
-import { IngestorAgent } from "./agents/ingestor";
-import { HunterAgent } from "./agents/hunter";
-import { CatcherAgent } from "./agents/catcher";
+import { ArchitectAgent } from './agents/architect';
+import { CatcherAgent } from './agents/catcher';
+import { CrawlerAgent } from './agents/crawler';
+import { HunterAgent } from './agents/hunter';
+import { ImplementerAgent } from './agents/implementer';
+import { IngestorAgent } from './agents/ingestor';
+import { MaintainerAgent } from './agents/maintainer';
+import { NarratorAgent } from './agents/narrator';
+import { ReviewerAgent } from './agents/reviewer';
+import { TesterAgent } from './agents/tester';
 
 export type AgentRole =
-  | "architect"
-  | "implementer"
-  | "reviewer"
-  | "tester"
-  | "maintainer"
-  | "narrator"
-  | "ingestor"
-  | "crawler"
-  | "hunter"
-  | "catcher";
+  | 'architect'
+  | 'implementer'
+  | 'reviewer'
+  | 'tester'
+  | 'maintainer'
+  | 'narrator'
+  | 'ingestor'
+  | 'crawler'
+  | 'hunter'
+  | 'catcher';
 
 export interface AgentTask {
   id: string;
@@ -30,7 +36,7 @@ export interface Agent {
 
 export interface AgentResult {
   taskId: string;
-  status: "completed" | "failed";
+  status: 'completed' | 'failed';
   notes?: string;
   output?: Record<string, unknown>;
   llm?: Record<string, unknown>;
@@ -45,8 +51,8 @@ class StubExecutor implements AgentExecutor {
     await new Promise((resolve) => setTimeout(resolve, 20));
     return {
       taskId: task.id,
-      status: "completed",
-      notes: `Stub executor handled: ${task.description}`
+      status: 'completed',
+      notes: `Stub executor handled: ${task.description}`,
     };
   }
 }
@@ -69,31 +75,36 @@ export class RoutedAgentExecutor implements AgentExecutor {
   }
 }
 
-export function createStubAgent(role: AgentRole, executor: AgentExecutor = new StubExecutor()): Agent {
+export function createStubAgent(
+  role: AgentRole,
+  executor: AgentExecutor = new StubExecutor(),
+): Agent {
   return {
     role,
     async execute(task: AgentTask): Promise<AgentResult> {
       return executor.invoke(task);
-    }
+    },
   };
 }
 
-export function defaultAgents(executor?: AgentExecutor | Partial<Record<AgentRole, AgentExecutor>>): Agent[] {
+export function defaultAgents(
+  executor?: AgentExecutor | Partial<Record<AgentRole, AgentExecutor>>,
+): Agent[] {
   const pickExecutor = (role: AgentRole) => {
     if (!executor) return new StubExecutor();
-    if ("invoke" in executor) return executor as AgentExecutor;
-    return (executor as Partial<Record<AgentRole, AgentExecutor>>)[role] ?? new StubExecutor();
+    if ('invoke' in executor) return executor;
+    return executor[role] ?? new StubExecutor();
   };
   return [
-    createStubAgent("architect", pickExecutor("architect")),
-    createStubAgent("implementer", pickExecutor("implementer")),
-    createStubAgent("reviewer", pickExecutor("reviewer")),
-    createStubAgent("tester", pickExecutor("tester")),
-    createStubAgent("maintainer", pickExecutor("maintainer")),
-    createStubAgent("narrator", pickExecutor("narrator")),
-    new IngestorAgent(pickExecutor("ingestor")),
+    new ArchitectAgent(pickExecutor('architect')),
+    new ImplementerAgent(pickExecutor('implementer')),
+    new ReviewerAgent(pickExecutor('reviewer')),
+    new TesterAgent(pickExecutor('tester')),
+    new MaintainerAgent(pickExecutor('maintainer')),
+    new NarratorAgent(pickExecutor('narrator')),
+    new IngestorAgent(pickExecutor('ingestor')),
     new CrawlerAgent(),
-    new HunterAgent({ executor: pickExecutor("hunter") }),
-    new CatcherAgent()
+    new HunterAgent({ executor: pickExecutor('hunter') }),
+    new CatcherAgent(),
   ];
 }
