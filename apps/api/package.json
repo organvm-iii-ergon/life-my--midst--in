@@ -17,7 +17,7 @@
     "test:integration": "vitest run test/postgres.integration.test.ts"
   },
   "dependencies": {
-    "@fastify/cors": "^8.4.2",
+    "@fastify/cors": "^11.2.0",
     "@in-midst-my-life/content-model": "workspace:*",
     "@in-midst-my-life/core": "workspace:*",
     "@in-midst-my-life/schema": "workspace:*",
