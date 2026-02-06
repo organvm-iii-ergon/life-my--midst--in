@@ -5,6 +5,7 @@ export * from './vc';
 export * from './did/registry';
 export * from './did/resolver-registry';
 export * from './did/resolvers/web';
+export * from './did/resolvers/key';
 export * from './errors';
 export * from './jobs';
 export * from './search';

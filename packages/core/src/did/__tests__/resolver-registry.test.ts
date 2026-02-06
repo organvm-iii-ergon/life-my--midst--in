@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { DIDResolverRegistry, parseDID, resetResolverRegistry } from '../resolver-registry';
 import { MemoryDIDRegistry } from '../registry';
+import * as jose from 'jose';
 
 describe('parseDID', () => {
   it('parses a did:key', () => {
@@ -37,22 +38,23 @@ describe('DIDResolverRegistry', () => {
     expect(methods).toContain('web');
   });
 
-  it('resolves did:key through local registry', async () => {
-    const did = 'did:key:z6MkTest';
-    await localRegistry.register(did, {
-      '@context': 'https://www.w3.org/ns/did/v1',
-      id: did,
-    });
+  it('resolves did:key with valid multibase-encoded key', async () => {
+    const { publicKey } = await jose.generateKeyPair('EdDSA', { extractable: true });
+    const jwk = await jose.exportJWK(publicKey);
+    const rawBytes = Buffer.from(jwk['x'] as string, 'base64url');
+    const { base58btc } = await import('multiformats/bases/base58');
+    const encoded = base58btc.encode(new Uint8Array([0xed, 0x01, ...rawBytes]));
+    const did = `did:key:${encoded}`;
 
     const result = await resolverRegistry.resolve(did);
     expect(result.didDocument?.id).toBe(did);
     expect(result.didResolutionMetadata.error).toBeUndefined();
   });
 
-  it('returns notFound for unregistered did:key', async () => {
+  it('returns invalidDid for improperly encoded did:key', async () => {
     const result = await resolverRegistry.resolve('did:key:z6MkUnknown');
     expect(result.didDocument).toBeNull();
-    expect(result.didResolutionMetadata.error).toBe('notFound');
+    expect(result.didResolutionMetadata.error).toBe('invalidDid');
   });
 
   it('returns error for malformed DID', async () => {

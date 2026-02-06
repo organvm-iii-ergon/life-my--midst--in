@@ -8,6 +8,7 @@
 import type { DIDResolutionResult, IDIDRegistry } from './registry';
 import { getRegistry } from './registry';
 import { DidWebResolver, type DidWebResolverOptions } from './resolvers/web';
+import { DidKeyResolver } from './resolvers/key';
 
 export interface DIDResolver {
   resolve(did: string): Promise<DIDResolutionResult>;
@@ -26,18 +27,6 @@ export function parseDID(did: string): { method: string; id: string } | null {
   return { method, id: parts.slice(2).join(':') };
 }
 
-/**
- * Wraps the IDIDRegistry as a DIDResolver so it can be used
- * as a method resolver for did:key.
- */
-class RegistryResolver implements DIDResolver {
-  constructor(private registry: IDIDRegistry) {}
-
-  resolve(did: string): Promise<DIDResolutionResult> {
-    return this.registry.resolve(did);
-  }
-}
-
 export interface ResolverRegistryOptions {
   /** The local DID registry for did:key and locally-registered DIDs. */
   localRegistry?: IDIDRegistry;
@@ -53,7 +42,7 @@ export class DIDResolverRegistry implements DIDResolver {
     this.localRegistry = options.localRegistry ?? getRegistry();
 
     // Register built-in resolvers
-    this.resolvers.set('key', new RegistryResolver(this.localRegistry));
+    this.resolvers.set('key', new DidKeyResolver());
     this.resolvers.set('web', new DidWebResolver(options.webResolverOptions));
   }
 
