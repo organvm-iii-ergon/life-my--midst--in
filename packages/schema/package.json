@@ -53,6 +53,7 @@
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "COVERAGE=true vitest run",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

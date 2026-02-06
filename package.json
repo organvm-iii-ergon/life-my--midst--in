@@ -10,7 +10,9 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "turbo run test",
+    "test:coverage": "COVERAGE=true turbo run test",
     "integration": "turbo run integration",
+    "e2e": "turbo run e2e",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "prepare": "husky"

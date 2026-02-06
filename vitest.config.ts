@@ -1,20 +1,23 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
-const isCI = process.env.CI === "true";
+const isCI = process.env.CI === 'true';
+const isCoverage = process.env.COVERAGE === 'true';
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call -- vitest/config defineConfig type resolves at runtime
 export default defineConfig({
   test: {
     globals: true,
     coverage: {
-      enabled: isCI,
-      provider: "v8",
-      reports: ["text", "lcov"],
+      enabled: isCI || isCoverage,
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'html'],
+      reportsDirectory: './coverage',
       thresholds: {
         statements: 75,
-        branches: 65,
+        branches: 75,
         functions: 75,
-        lines: 75
-      }
-    }
-  }
+        lines: 75,
+      },
+    },
+  },
 });

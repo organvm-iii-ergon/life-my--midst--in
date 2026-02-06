@@ -24,6 +24,12 @@
       "outputs": ["coverage/**", "test-results/**"],
       "cache": false,
       "env": ["INTEGRATION_POSTGRES_URL", "INTEGRATION_REDIS_URL"]
+    },
+    "e2e": {
+      "dependsOn": ["^build"],
+      "outputs": ["test-results/**", "playwright-report/**"],
+      "cache": false,
+      "env": ["E2E_BASE_URL", "E2E_API_URL"]
     }
   }
 }

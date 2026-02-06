@@ -11,6 +11,7 @@
     "build": "tsc -p .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "COVERAGE=true vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

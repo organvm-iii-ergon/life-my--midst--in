@@ -18,11 +18,12 @@ import { createOwnershipMiddleware } from '../middleware/auth';
 
 export function registerBillingRoutes(
   fastify: FastifyInstance,
-  deps?: {
+  deps: {
     billingService?: BillingService;
     subscriptionRepo?: SubscriptionRepo;
     licensingService?: LicensingService;
   },
+  done: (err?: Error) => void,
 ): void {
   const repo = deps?.subscriptionRepo ?? subscriptionRepo;
   const ownershipMiddleware = createOwnershipMiddleware();
@@ -423,6 +424,8 @@ export function registerBillingRoutes(
       }
     },
   );
+
+  done();
 }
 
 /**

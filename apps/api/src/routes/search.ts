@@ -23,12 +23,12 @@ export function registerSearchRoutes(
   const embeddingsService = new EmbeddingsService(embeddingsConfig);
 
   /**
-   * POST /search/jobs
+   * POST /jobs
    * Semantic search over job postings using text query
    */
   fastify.post<{
     Body: { query: string; limit?: number; profileId?: string };
-  }>('/search/jobs', async (request, reply) => {
+  }>('/jobs', async (request, reply) => {
     const { query, limit = 10, profileId } = request.body;
 
     if (!query || typeof query !== 'string') {
@@ -42,12 +42,12 @@ export function registerSearchRoutes(
   });
 
   /**
-   * POST /search/profiles
+   * POST /profiles
    * Semantic search over profile embeddings
    */
   fastify.post<{
     Body: { query: string; limit?: number };
-  }>('/search/profiles', async (request, reply) => {
+  }>('/profiles', async (request, reply) => {
     const { query, limit = 10 } = request.body;
 
     if (!query || typeof query !== 'string') {
@@ -61,12 +61,12 @@ export function registerSearchRoutes(
   });
 
   /**
-   * POST /search/embed
+   * POST /embed
    * Generate and store an embedding for a profile's content
    */
   fastify.post<{
     Body: { profileId: string; contentType: string; text: string };
-  }>('/search/embed', async (request, reply) => {
+  }>('/embed', async (request, reply) => {
     const { profileId, contentType, text } = request.body;
 
     if (!profileId || !contentType || !text) {
