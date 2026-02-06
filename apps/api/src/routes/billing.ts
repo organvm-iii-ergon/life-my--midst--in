@@ -9,25 +9,21 @@
  * GET /billing/plans - Get all subscription plans
  */
 
-import { FastifyInstance } from "fastify";
-import { z } from "zod";
-import {
-  BillingService,
-  LicensingService,
-  PLAN_DEFINITIONS,
-} from "@in-midst-my-life/core";
-import type { SubscriptionTier } from "@in-midst-my-life/schema";
-import { subscriptionRepo, type SubscriptionRepo } from "../repositories/subscriptions";
-import { createOwnershipMiddleware } from "../middleware/auth";
+import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
+import { BillingService, LicensingService, PLAN_DEFINITIONS } from '@in-midst-my-life/core';
+import type { SubscriptionTier } from '@in-midst-my-life/schema';
+import { subscriptionRepo, type SubscriptionRepo } from '../repositories/subscriptions';
+import { createOwnershipMiddleware } from '../middleware/auth';
 
-export async function registerBillingRoutes(
+export function registerBillingRoutes(
   fastify: FastifyInstance,
   deps?: {
     billingService?: BillingService;
     subscriptionRepo?: SubscriptionRepo;
     licensingService?: LicensingService;
-  }
-) {
+  },
+): void {
   const repo = deps?.subscriptionRepo ?? subscriptionRepo;
   const ownershipMiddleware = createOwnershipMiddleware();
 
@@ -36,19 +32,19 @@ export async function registerBillingRoutes(
   if (!billingService) {
     // Use mock service for development
     billingService = new BillingService({
-      stripeSecretKey: process.env['STRIPE_SECRET_KEY'] || "sk_test_mock",
+      stripeSecretKey: process.env['STRIPE_SECRET_KEY'] || 'sk_test_mock',
       stripePriceIds: {
-        FREE: { monthly: "free", yearly: "free" },
+        FREE: { monthly: 'free', yearly: 'free' },
         PRO: {
-          monthly: process.env['STRIPE_PRO_MONTHLY'] || "price_pro_monthly",
-          yearly: process.env['STRIPE_PRO_YEARLY'] || "price_pro_yearly",
+          monthly: process.env['STRIPE_PRO_MONTHLY'] || 'price_pro_monthly',
+          yearly: process.env['STRIPE_PRO_YEARLY'] || 'price_pro_yearly',
         },
         ENTERPRISE: {
-          monthly: process.env['STRIPE_ENTERPRISE_MONTHLY'] || "price_enterprise_custom",
-          yearly: process.env['STRIPE_ENTERPRISE_YEARLY'] || "price_enterprise_custom",
+          monthly: process.env['STRIPE_ENTERPRISE_MONTHLY'] || 'price_enterprise_custom',
+          yearly: process.env['STRIPE_ENTERPRISE_YEARLY'] || 'price_enterprise_custom',
         },
       },
-      webhookSecret: process.env['STRIPE_WEBHOOK_SECRET'] || "whsec_test_mock",
+      webhookSecret: process.env['STRIPE_WEBHOOK_SECRET'] || 'whsec_test_mock',
     });
   }
 
@@ -56,12 +52,8 @@ export async function registerBillingRoutes(
    * GET /billing/plans
    * Get all subscription plan definitions
    */
-  fastify.get("/plans", async (_request, reply) => {
-    const plans = [
-      PLAN_DEFINITIONS.FREE,
-      PLAN_DEFINITIONS.PRO,
-      PLAN_DEFINITIONS.ENTERPRISE,
-    ];
+  fastify.get('/plans', async (_request, reply) => {
+    const plans = [PLAN_DEFINITIONS.FREE, PLAN_DEFINITIONS.PRO, PLAN_DEFINITIONS.ENTERPRISE];
 
     return reply.code(200).send({
       ok: true,
@@ -82,24 +74,26 @@ export async function registerBillingRoutes(
    * }
    */
   fastify.post<{ Params: { profileId: string } }>(
-    "/checkout/:profileId",
+    '/checkout/:profileId',
     {
       onRequest: [ownershipMiddleware],
     },
     async (request, reply) => {
       const { profileId } = request.params;
-      
-      const bodyParsed = z.object({
-        tier: z.enum(["FREE", "PRO", "ENTERPRISE"]),
-        billingInterval: z.enum(["monthly", "yearly"]),
-        successUrl: z.string().url(),
-        cancelUrl: z.string().url(),
-      }).safeParse(request.body);
+
+      const bodyParsed = z
+        .object({
+          tier: z.enum(['FREE', 'PRO', 'ENTERPRISE']),
+          billingInterval: z.enum(['monthly', 'yearly']),
+          successUrl: z.string().url(),
+          cancelUrl: z.string().url(),
+        })
+        .safeParse(request.body);
 
       if (!bodyParsed.success) {
         return reply.code(400).send({
           ok: false,
-          error: "invalid_request",
+          error: 'invalid_request',
           errors: bodyParsed.error.flatten(),
         });
       }
@@ -108,11 +102,11 @@ export async function registerBillingRoutes(
 
       try {
         // Prevent checkout for free tier (no payment needed)
-        if (tier === "FREE") {
+        if (tier === 'FREE') {
           return reply.code(400).send({
             ok: false,
-            error: "invalid_tier",
-            message: "Free tier does not require a checkout session",
+            error: 'invalid_tier',
+            message: 'Free tier does not require a checkout session',
           });
         }
 
@@ -126,15 +120,15 @@ export async function registerBillingRoutes(
         }
 
         // Get price ID for tier/interval
-        const priceId = billingService!.getPriceId(tier as SubscriptionTier, billingInterval);
+        const priceId = billingService.getPriceId(tier as SubscriptionTier, billingInterval);
 
         // Create checkout session
-        const session = await billingService!.createCheckoutSession({
+        const session = await billingService.createCheckoutSession({
           profileId,
           priceId,
           successUrl,
           cancelUrl,
-          email: request.user?.email,
+          email: (request as unknown as { user?: { email?: string } }).user?.email,
         });
 
         // Update subscription with Stripe customer ID
@@ -150,11 +144,11 @@ export async function registerBillingRoutes(
         fastify.log.error(error);
         return reply.code(500).send({
           ok: false,
-          error: "internal_server_error",
-          message: error instanceof Error ? error.message : "Unknown error",
+          error: 'internal_server_error',
+          message: error instanceof Error ? error.message : 'Unknown error',
         });
       }
-    }
+    },
   );
 
   /**
@@ -162,7 +156,7 @@ export async function registerBillingRoutes(
    * Get current subscription details for a user
    */
   fastify.get<{ Params: { profileId: string } }>(
-    "/subscription/:profileId",
+    '/subscription/:profileId',
     {
       onRequest: [ownershipMiddleware],
     },
@@ -175,7 +169,7 @@ export async function registerBillingRoutes(
         if (!subscription) {
           return reply.code(404).send({
             ok: false,
-            error: "subscription_not_found",
+            error: 'subscription_not_found',
             message: `No subscription found for profile ${profileId}`,
           });
         }
@@ -193,11 +187,11 @@ export async function registerBillingRoutes(
         fastify.log.error(error);
         return reply.code(500).send({
           ok: false,
-          error: "internal_server_error",
-          message: error instanceof Error ? error.message : "Unknown error",
+          error: 'internal_server_error',
+          message: error instanceof Error ? error.message : 'Unknown error',
         });
       }
-    }
+    },
   );
 
   /**
@@ -205,21 +199,23 @@ export async function registerBillingRoutes(
    * Request subscription cancellation
    */
   fastify.post<{ Params: { profileId: string } }>(
-    "/subscription/:profileId/cancel",
+    '/subscription/:profileId/cancel',
     {
       onRequest: [ownershipMiddleware],
     },
     async (request, reply) => {
       const { profileId } = request.params;
-      
-      const bodyParsed = z.object({
-        atPeriodEnd: z.boolean().optional(),
-      }).safeParse(request.body);
+
+      const bodyParsed = z
+        .object({
+          atPeriodEnd: z.boolean().optional(),
+        })
+        .safeParse(request.body);
 
       if (!bodyParsed.success) {
         return reply.code(400).send({
           ok: false,
-          error: "invalid_request",
+          error: 'invalid_request',
           errors: bodyParsed.error.flatten(),
         });
       }
@@ -232,7 +228,7 @@ export async function registerBillingRoutes(
         if (!subscription) {
           return reply.code(404).send({
             ok: false,
-            error: "subscription_not_found",
+            error: 'subscription_not_found',
             message: `No subscription found for profile ${profileId}`,
           });
         }
@@ -247,9 +243,9 @@ export async function registerBillingRoutes(
         // Call Stripe API to cancel subscription
         let stripeResult;
         if (subscription.stripeSubscriptionId) {
-          stripeResult = await billingService!.cancelSubscription(
+          stripeResult = await billingService.cancelSubscription(
             subscription.stripeSubscriptionId,
-            atPeriodEnd
+            atPeriodEnd,
           );
 
           // Update cancel date from Stripe response
@@ -263,8 +259,8 @@ export async function registerBillingRoutes(
         return reply.code(200).send({
           ok: true,
           message: atPeriodEnd
-            ? "Subscription will be canceled at the end of the billing period"
-            : "Subscription canceled immediately",
+            ? 'Subscription will be canceled at the end of the billing period'
+            : 'Subscription canceled immediately',
           data: {
             cancelAt,
             atPeriodEnd,
@@ -275,11 +271,11 @@ export async function registerBillingRoutes(
         fastify.log.error(error);
         return reply.code(500).send({
           ok: false,
-          error: "internal_server_error",
-          message: error instanceof Error ? error.message : "Unknown error",
+          error: 'internal_server_error',
+          message: error instanceof Error ? error.message : 'Unknown error',
         });
       }
-    }
+    },
   );
 
   /**
@@ -287,67 +283,169 @@ export async function registerBillingRoutes(
    * Handle Stripe webhook events
    * Requires X-Stripe-Signature header for verification
    */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- Fastify raw body plugin options
   fastify.post(
-    "/webhooks/stripe",
+    '/webhooks/stripe',
     {
       config: { rawBody: true },
       schema: {
-        description: "Stripe webhook endpoint",
-        consumes: ["application/json"],
+        description: 'Stripe webhook endpoint',
+        consumes: ['application/json'],
       },
-    } as any,
+    } as unknown as Parameters<typeof fastify.post>[1],
     async (request, reply) => {
       try {
-        const signature = request.headers["stripe-signature"] as string;
+        const signature = request.headers['stripe-signature'] as string;
         if (!signature) {
           return reply.code(401).send({
             ok: false,
-            error: "missing_signature",
-            message: "Missing Stripe signature header",
+            error: 'missing_signature',
+            message: 'Missing Stripe signature header',
           });
         }
 
         // Verify webhook signature
         // fastify-raw-body adds rawBody to the request
-        const rawBody = (request as any).rawBody;
+        const rawBody = (request as unknown as { rawBody?: string }).rawBody;
         if (!rawBody) {
-             return reply.code(400).send({
+          return reply.code(400).send({
             ok: false,
-            error: "missing_body",
-            message: "Missing request body",
+            error: 'missing_body',
+            message: 'Missing request body',
           });
         }
-        
-        const verification = billingService!.verifyWebhookSignature(rawBody, signature);
+
+        const verification = billingService.verifyWebhookSignature(rawBody, signature);
 
         if (!verification.valid) {
           return reply.code(401).send({
             ok: false,
-            error: "invalid_signature",
-            message: "Invalid Stripe signature",
+            error: 'invalid_signature',
+            message: 'Invalid Stripe signature',
           });
         }
 
-        // Handle the event
-        const result = await billingService!.handleWebhookEvent(verification.payload!);
+        // Dispatch to BillingService for logging/tracking
+        const result = await billingService.handleWebhookEvent(verification.payload!);
 
         if (!result.processed) {
-          fastify.log.warn({ err: result.error }, "Webhook processing failed:");
-          // Still return 200 to prevent Stripe retries
+          fastify.log.warn({ err: result.error }, 'Webhook processing failed:');
+        }
+
+        // Sync subscription state to database based on event type
+        const event = verification.payload!;
+        const obj = event.data.object as Record<string, unknown>;
+
+        try {
+          switch (event.type) {
+            case 'customer.subscription.created':
+            case 'customer.subscription.updated': {
+              const customerId = obj['customer'] as string;
+              const stripeSubId = obj['id'] as string;
+              const status = obj['status'] as string;
+              const cancelAtPeriodEnd = obj['cancel_at_period_end'] as boolean;
+              const cancelAt = obj['cancel_at'] as number | null;
+              const currentPeriodEnd = obj['current_period_end'] as number | null;
+              const currentPeriodStart = obj['current_period_start'] as number | null;
+
+              // Derive tier from price metadata or plan
+              const items = obj['items'] as
+                | { data?: Array<{ price?: { id?: string } }> }
+                | undefined;
+              const priceId = items?.data?.[0]?.price?.id;
+              const tier = deriveTierFromPriceId(priceId, billingService);
+
+              const sub = await repo.getByStripeCustomerId(customerId);
+              if (sub) {
+                await repo.update(sub.profileId, {
+                  stripeSubscriptionId: stripeSubId,
+                  status: status as
+                    | 'active'
+                    | 'canceled'
+                    | 'past_due'
+                    | 'incomplete'
+                    | 'trialing'
+                    | 'unpaid'
+                    | 'paused',
+                  tier,
+                  currentPeriodStart: currentPeriodStart
+                    ? new Date(currentPeriodStart * 1000)
+                    : undefined,
+                  currentPeriodEnd: currentPeriodEnd
+                    ? new Date(currentPeriodEnd * 1000)
+                    : undefined,
+                });
+                if (cancelAtPeriodEnd && cancelAt) {
+                  await repo.setCancelation(sub.profileId, new Date(cancelAt * 1000), true);
+                }
+              }
+              break;
+            }
+
+            case 'customer.subscription.deleted': {
+              const customerId = obj['customer'] as string;
+              const sub = await repo.getByStripeCustomerId(customerId);
+              if (sub) {
+                await repo.updateStatus(sub.profileId, 'canceled', 'FREE');
+              }
+              break;
+            }
+
+            case 'invoice.payment_failed': {
+              const customerId = obj['customer'] as string;
+              const sub = await repo.getByStripeCustomerId(customerId);
+              if (sub) {
+                await repo.update(sub.profileId, { status: 'past_due' });
+              }
+              break;
+            }
+
+            default:
+              // No DB action needed for other event types
+              break;
+          }
+        } catch (syncError) {
+          fastify.log.error({ err: syncError }, 'Failed to sync webhook to DB:');
+          // Still return 200 — Stripe will retry, and we logged the error
         }
 
         return reply.code(200).send({
           ok: true,
-          message: "Webhook processed",
+          message: 'Webhook processed',
         });
       } catch (error) {
-        fastify.log.error({ err: error }, "Webhook error:");
+        fastify.log.error({ err: error }, 'Webhook error:');
         // Return 200 to prevent Stripe retries on our error
         return reply.code(200).send({
           ok: false,
-          message: "Webhook processing error (Stripe will retry)",
+          message: 'Webhook processing error (Stripe will retry)',
         });
       }
-    }
+    },
   );
+}
+
+/**
+ * Derive subscription tier from a Stripe price ID.
+ * Reverse-maps the price ID to our internal tier using BillingService config.
+ */
+function deriveTierFromPriceId(
+  priceId: string | undefined,
+  billing: BillingService,
+): SubscriptionTier {
+  if (!priceId) return 'FREE';
+
+  // Check each tier's price IDs
+  const tiers: SubscriptionTier[] = ['PRO', 'ENTERPRISE'];
+  for (const tier of tiers) {
+    try {
+      const monthly = billing.getPriceId(tier, 'monthly');
+      const yearly = billing.getPriceId(tier, 'yearly');
+      if (priceId === monthly || priceId === yearly) return tier;
+    } catch {
+      // Skip tiers without configured prices
+    }
+  }
+
+  return 'FREE';
 }
