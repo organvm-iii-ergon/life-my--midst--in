@@ -182,6 +182,10 @@ When a decision is no longer recommended but still in use:
 - ADR 007: REST API with Hybrid Versioning
 - ADR 008: Hunter Protocol Architecture
 
+### Real-Time & Verification
+- ADR 011: GraphQL WebSocket Subscriptions
+- ADR 012: DID Resolver Architecture
+
 ### Deployment & Security
 - ADR 009: Deployment Strategy (Docker + K8s)
 - ADR 010: Authentication & Authorization (JWT + RBAC)
@@ -207,3 +211,15 @@ When a decision is no longer recommended but still in use:
   - JWT bearer tokens with role + permission claims
   - Three-tier middleware (required, optional, permission-gated)
   - Ownership guard for GDPR-aligned resource access
+
+### Real-Time & Verification
+
+- [ADR 011: GraphQL WebSocket Subscriptions](./011-graphql-websocket-subscriptions.md)
+  - `@fastify/websocket` + `graphql-ws` for subscription transport
+  - Custom `onSubscribe` handler to avoid graphql dual-instance CJS/ESM issue
+  - PubSub event bus for profile updates and narrative generation events
+
+- [ADR 012: DID Resolver Architecture](./012-did-resolver-architecture.md)
+  - Plugin-based `DIDResolverRegistry` with method-specific resolvers
+  - Supports `did:key`, `did:web`, `did:jwk`, and `did:pkh` methods
+  - Lazy resolution with caching for DID Document lookups
