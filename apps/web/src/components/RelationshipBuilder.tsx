@@ -17,6 +17,7 @@ interface RelationshipBuilderProps {
   relationType: string;
   setRelationType: (type: string) => void;
   onDropToStack: (event: DragEvent<HTMLDivElement>, index?: number) => void;
+  onRemoveFromStack?: (index: number) => void;
   onClear: () => void;
   onSave: () => void;
   edges: ContentEdge[];
@@ -28,6 +29,7 @@ export function RelationshipBuilder({
   relationType,
   setRelationType,
   onDropToStack,
+  onRemoveFromStack,
   onClear,
   onSave,
   edges,
@@ -54,8 +56,30 @@ export function RelationshipBuilder({
               onDragStart={(event) => event.dataTransfer.setData('text/plain', node.id)}
               onDrop={(event) => onDropToStack(event, index)}
               onDragOver={(event) => event.preventDefault()}
+              style={{ display: 'flex', alignItems: 'center' }}
             >
               {node.label} <small>({node.type})</small>
+              {onRemoveFromStack && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveFromStack(index);
+                  }}
+                  style={{
+                    marginLeft: 'auto',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--stone, #8f8376)',
+                    fontSize: '1.1rem',
+                    lineHeight: 1,
+                    padding: '0 0.25rem',
+                  }}
+                  title="Remove from stack"
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))
         )}

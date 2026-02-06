@@ -36,26 +36,28 @@ export default function CommunityLeaderboard() {
   const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('month');
   const [filterBy, setFilterBy] = useState<'overall' | 'feedback' | 'mentoring'>('overall');
 
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
+
   const loadLeaderboard = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await fetch(
-        `/api/community/leaderboard?timeframe=${timeframe}&filterBy=${filterBy}`,
+        `${apiBase}/community/leaderboard?timeframe=${timeframe}&filterBy=${filterBy}`,
       );
       if (response.ok) {
         const data = await response.json();
         setLeaderboard(data.leaderboard || []);
         setMetrics(data.metrics);
+        return;
       }
     } catch (error) {
       console.error('Failed to load leaderboard:', error);
-      // Mock data for demo
-      setLeaderboard(generateMockLeaderboard());
-      setMetrics(generateMockMetrics());
-    } finally {
-      setIsLoading(false);
     }
-  }, [timeframe, filterBy]);
+    // Fallback to generated data when API is unavailable
+    setLeaderboard(generateMockLeaderboard());
+    setMetrics(generateMockMetrics());
+    setIsLoading(false);
+  }, [timeframe, filterBy, apiBase]);
 
   useEffect(() => {
     void loadLeaderboard();

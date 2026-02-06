@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Mask } from '@in-midst-my-life/schema';
 
 interface MaskEditorProps {
@@ -185,6 +185,40 @@ export function MaskEditor({
       setIsLoading(false);
     }
   }, [state, initialMask, apiBaseUrl, onSave, onError]);
+
+  // Keyboard shortcuts for undo/redo/save
+  useEffect(() => {
+    const handleKeyboard = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        handleUndo();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        void handleSave();
+      }
+    };
+    window.addEventListener('keydown', handleKeyboard);
+    return () => window.removeEventListener('keydown', handleKeyboard);
+  }, [handleUndo, handleRedo, handleSave]);
+
+  const defaultState: EditorState = {
+    name: '',
+    ontology: 'cognitive',
+    functionalScope: '',
+    tone: 'neutral',
+    rhetoricalMode: 'deductive',
+    compressionRatio: 0.6,
+    contextsTriggers: '',
+    includeTags: '',
+    excludeTags: '',
+    privateTagsToRedact: '',
+    obfuscateDates: false,
+  };
 
   const ontologyColor =
     {
@@ -513,7 +547,27 @@ export function MaskEditor({
       {/* Action Buttons */}
       <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
         <button
-          onClick={() => setState(initialMask ? state : { ...state })}
+          onClick={() => {
+            const resetState = initialMask
+              ? {
+                  name: initialMask.name,
+                  ontology: initialMask.ontology,
+                  functionalScope: initialMask.functional_scope,
+                  tone: initialMask.stylistic_parameters.tone,
+                  rhetoricalMode: initialMask.stylistic_parameters.rhetorical_mode,
+                  compressionRatio: initialMask.stylistic_parameters.compression_ratio,
+                  contextsTriggers: [
+                    ...initialMask.activation_rules.contexts,
+                    ...initialMask.activation_rules.triggers,
+                  ].join(', '),
+                  includeTags: initialMask.filters.include_tags.join(', '),
+                  excludeTags: initialMask.filters.exclude_tags.join(', '),
+                  privateTagsToRedact: (initialMask.redaction?.private_tags ?? []).join(', '),
+                  obfuscateDates: initialMask.redaction?.obfuscate_dates ?? false,
+                }
+              : defaultState;
+            handleStateChange(resetState);
+          }}
           disabled={isLoading}
           style={{ padding: '0.75rem 1.5rem' }}
           className="button secondary"

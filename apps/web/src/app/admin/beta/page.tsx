@@ -45,57 +45,41 @@ export default function BetaDashboard() {
   const [sortBy, setSortBy] = useState<string>('lastActive');
 
   useEffect(() => {
-    loadDashboardData();
+    void loadDashboardData();
   }, []);
 
-  const loadDashboardData = () => {
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
+
+  const loadDashboardData = async () => {
     try {
       setIsLoading(true);
 
-      // In production, fetch from actual API
-      const mockMetrics: BetaMetrics = {
-        totalUsers: 247,
-        activeUsers: 189,
-        newUsersThisWeek: 23,
-        profileCompletionRate: 78,
-        hunterAdoptionRate: 64,
-        feedbackSubmissionRate: 43,
-        churnRate: 5.2,
-        nps: 72,
-      };
+      const [metricsRes, usersRes] = await Promise.allSettled([
+        fetch(`${apiBase}/admin/beta/metrics`),
+        fetch(`${apiBase}/admin/beta/users`),
+      ]);
 
-      const mockUsers: BetaUser[] = [
-        {
-          id: '1',
-          email: 'alice@example.com',
-          name: 'Alice Chen',
-          joinedAt: '2024-01-15',
-          profileCompletion: 95,
-          personasCreated: 3,
-          jobsApplied: 8,
-          feedbackSubmitted: 2,
-          lastActive: '2024-01-20',
-          status: 'active',
-          tier: 'pro',
-        },
-        {
-          id: '2',
-          email: 'bob@example.com',
-          name: 'Bob Smith',
-          joinedAt: '2024-01-10',
-          profileCompletion: 45,
-          personasCreated: 1,
-          jobsApplied: 0,
-          feedbackSubmitted: 0,
-          lastActive: '2024-01-14',
-          status: 'inactive',
-          tier: 'free',
-        },
-        // Add more mock users as needed
-      ];
+      if (metricsRes.status === 'fulfilled' && metricsRes.value.ok) {
+        const data: BetaMetrics = await metricsRes.value.json();
+        setMetrics(data);
+      } else {
+        // Fallback metrics when API unavailable
+        setMetrics({
+          totalUsers: 0,
+          activeUsers: 0,
+          newUsersThisWeek: 0,
+          profileCompletionRate: 0,
+          hunterAdoptionRate: 0,
+          feedbackSubmissionRate: 0,
+          churnRate: 0,
+          nps: 0,
+        });
+      }
 
-      setMetrics(mockMetrics);
-      setBetaUsers(mockUsers);
+      if (usersRes.status === 'fulfilled' && usersRes.value.ok) {
+        const data: { users?: BetaUser[] } = await usersRes.value.json();
+        setBetaUsers(data.users || []);
+      }
     } catch (error) {
       console.error('Failed to load beta dashboard data:', error);
     } finally {

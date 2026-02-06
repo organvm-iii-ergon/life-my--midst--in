@@ -321,7 +321,26 @@ export function InvertedInterviewInterface({
           >
             Restart Interview
           </button>
-          <button className="button ghost" onClick={() => alert('Download feature coming soon')}>
+          <button
+            className="button ghost"
+            onClick={() => {
+              const report = {
+                persona: profilePersona,
+                responses,
+                compatibility,
+                timestamp: new Date().toISOString(),
+              };
+              const blob = new Blob([JSON.stringify(report, null, 2)], {
+                type: 'application/json',
+              });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `interview-${profilePersona.everyday_name}-${Date.now()}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
             Download Report
           </button>
         </div>

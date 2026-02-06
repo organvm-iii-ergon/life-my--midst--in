@@ -158,8 +158,47 @@ export default function ResumesPage() {
             theatricalPreamble={currentResume.theatricalPreamble}
             loading={loadingResumes}
             onExport={(format) => {
-              console.log(`Export as ${format}`);
-              // TODO: Implement export functionality
+              if (!currentResume) return;
+              const personaName = currentResume.persona.everyday_name || 'resume';
+              if (format === 'pdf') {
+                window.open(`${apiBase}/profiles/${profileId}/export/pdf?download=true`, '_blank');
+              } else if (format === 'json') {
+                void fetch(`${apiBase}/profiles/${profileId}/export/jsonld`)
+                  .then((res) => res.json())
+                  .then((data: unknown) => {
+                    const blob = new Blob([JSON.stringify(data, null, 2)], {
+                      type: 'application/json',
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${personaName}-resume.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  });
+              } else if (format === 'markdown') {
+                const lines = [
+                  `# ${currentResume.persona.everyday_name}`,
+                  '',
+                  `> ${currentResume.theatricalPreamble}`,
+                  '',
+                  ...currentResume.entries.map((entry) => {
+                    const title = ((entry as Record<string, unknown>)['title'] as string) || '';
+                    const org =
+                      ((entry as Record<string, unknown>)['organization'] as string) || '';
+                    const desc =
+                      ((entry as Record<string, unknown>)['descriptionMarkdown'] as string) || '';
+                    return `## ${title}${org ? ` — ${org}` : ''}\n\n${desc}`;
+                  }),
+                ];
+                const blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${personaName}-resume.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }
             }}
             onGenerateForMask={(maskId) => {
               console.log(`Generate for mask: ${maskId}`);
@@ -225,17 +264,26 @@ export default function ResumesPage() {
               <button
                 className="button secondary"
                 onClick={() => {
-                  console.log('Downloading all resumes as ZIP');
-                  // TODO: Implement zip download
+                  // Download each resume as a separate PDF
+                  resumes.forEach((resume) => {
+                    const personaName = resume.persona.everyday_name || 'resume';
+                    window.open(
+                      `${apiBase}/profiles/${profileId}/export/pdf?download=true&template=standard`,
+                      `_blank_${personaName}`,
+                    );
+                  });
                 }}
               >
-                Download All (ZIP)
+                Download All (PDF)
               </button>
               <button
                 className="button ghost"
                 onClick={() => {
-                  console.log('Opening share dialog');
-                  // TODO: Implement share dialog
+                  const maskId = currentResume?.persona.id || 'default';
+                  const shareUrl = `${window.location.origin}/share/${profileId}/${maskId}`;
+                  void navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert(`Share link copied to clipboard!\n${shareUrl}`);
+                  });
                 }}
               >
                 Share

@@ -21,8 +21,6 @@
  * - Configure stage-specific narratives
  */
 
-import { useState } from 'react';
-
 export interface Stage {
   id: string;
   name: string;
@@ -85,8 +83,6 @@ export function ScaenaeFilter({
   allStages = DEFAULT_STAGES,
   visibilityMatrix,
 }: ScaenaeFilterProps) {
-  const [_expandedStage, _setExpandedStage] = useState<string | null>(null);
-
   const toggleStage = (stageId: string) => {
     if (selectedStages.includes(stageId)) {
       onStagesChange(selectedStages.filter((s) => s !== stageId));

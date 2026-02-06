@@ -67,60 +67,23 @@ export default function MentorProfiles({
   }, [mentors, selectedExpertise, availabilityFilter]);
 
   useEffect(() => {
-    loadMentors();
+    void loadMentors();
   }, []);
 
   useEffect(() => {
     filterMentors();
   }, [filterMentors]);
 
-  const loadMentors = () => {
+  const loadMentors = async () => {
+    const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
     try {
       setIsLoading(true);
-      // Mock data - in production, fetch from API
-      const mockMentors: MentorProfile[] = [
-        {
-          id: '1',
-          userId: 'user-1',
-          name: 'Sarah Chen',
-          areasOfExpertise: ['Software Engineering', 'Leadership'],
-          yearsOfExperience: 12,
-          bio: 'Senior engineer turned tech lead. Passionate about helping engineers grow into leadership roles.',
-          availability: 'moderate',
-          commitmentLevel: 'committed',
-          rating: 4.8,
-          reviewCount: 24,
-          matchScore: 95,
-        },
-        {
-          id: '2',
-          userId: 'user-2',
-          name: 'Marcus Johnson',
-          areasOfExpertise: ['Entrepreneurship', 'Product Management'],
-          yearsOfExperience: 15,
-          bio: 'Founded 2 startups, now advising early-stage founders. Love helping people navigate the startup journey.',
-          availability: 'limited',
-          commitmentLevel: 'intensive',
-          rating: 4.9,
-          reviewCount: 31,
-          matchScore: 87,
-        },
-        {
-          id: '3',
-          userId: 'user-3',
-          name: 'Aisha Patel',
-          areasOfExpertise: ['Design', 'Product Management', 'Leadership'],
-          yearsOfExperience: 10,
-          bio: 'Design leader helping teams build human-centered products. Experience at Google and Figma.',
-          availability: 'available',
-          commitmentLevel: 'committed',
-          rating: 4.7,
-          reviewCount: 18,
-          matchScore: 92,
-        },
-      ];
-
-      setMentors(mockMentors);
+      const res = await fetch(`${apiBase}/community/mentors`);
+      if (res.ok) {
+        const data: { mentors?: MentorProfile[] } = await res.json();
+        setMentors(data.mentors || []);
+        return;
+      }
     } catch (error) {
       console.error('Failed to load mentors:', error);
     } finally {

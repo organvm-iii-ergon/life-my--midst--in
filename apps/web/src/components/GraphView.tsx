@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import type { ContentEdge } from '@in-midst-my-life/schema';
 import type { GraphNode } from '../app/ui/graph-utils';
 
@@ -39,6 +39,23 @@ export function GraphView({
 
   onNodeClick,
 }: GraphViewProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 360, height: 360 });
+
+  const updateDimensions = useCallback(() => {
+    if (containerRef.current) {
+      const { width } = containerRef.current.getBoundingClientRect();
+      const size = Math.max(width, 200);
+      setDimensions({ width: size, height: size });
+    }
+  }, []);
+
+  useEffect(() => {
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, [updateDimensions]);
+
   const filteredNodes = useMemo(() => {
     if (filter.length === 0) return nodes;
 
@@ -76,11 +93,16 @@ export function GraphView({
         </button>
       </div>
 
-      <div className="graph-canvas">
+      <div className="graph-canvas" ref={containerRef}>
         {filteredNodes.length === 0 ? (
           <span>Load nodes to render graph.</span>
         ) : (
-          <svg width="360" height="360">
+          <svg
+            width={dimensions.width}
+            height={dimensions.height}
+            viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+            style={{ maxWidth: '100%' }}
+          >
             {filteredEdges.map((edge) => {
               const from = nodePositionMap.get(edge.fromId);
 

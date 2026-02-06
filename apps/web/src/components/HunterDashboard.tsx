@@ -40,6 +40,7 @@ export interface HunterDashboardProps {
 
 export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboardProps) {
   const router = useRouter();
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
   const [activeTab, setActiveTab] = useState<'search' | 'schedule'>('search');
 
   // Persona management
@@ -60,10 +61,10 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
   // Filter State
   const [keywords, setKeywords] = useState<string>('');
   const [locations, setLocations] = useState<string>('');
-  const [minSalary, _setMinSalary] = useState<number | undefined>();
-  const [maxSalary, _setMaxSalary] = useState<number | undefined>();
+  const [minSalary, setMinSalary] = useState<number | undefined>();
+  const [maxSalary, setMaxSalary] = useState<number | undefined>();
   const [remoteType, setRemoteType] = useState<string>('any');
-  const [technologies, _setTechnologies] = useState<string>('');
+  const [technologies, setTechnologies] = useState<string>('');
 
   // Scheduler State
   const [scheduledHunts, setScheduledHunts] = useState<JobHuntConfig[]>([]);
@@ -93,7 +94,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
   const fetchScheduledHunts = useCallback(async () => {
     try {
       setScheduleLoading(true);
-      const res = await fetch('/api/scheduler/job-hunts');
+      const res = await fetch(`${apiBase}/scheduler/job-hunts`);
       const data = await res.json();
       if (data.ok) {
         setScheduledHunts(data.data.filter((h: JobHuntConfig) => h.profileId === profileId));
@@ -114,7 +115,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
 
   const handleCreateSchedule = async () => {
     try {
-      const res = await fetch('/api/scheduler/job-hunts', {
+      const res = await fetch(`${apiBase}/scheduler/job-hunts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -151,7 +152,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
 
   const handleDeleteSchedule = async () => {
     try {
-      await fetch(`/api/scheduler/job-hunts/${profileId}`, { method: 'DELETE' });
+      await fetch(`${apiBase}/scheduler/job-hunts/${profileId}`, { method: 'DELETE' });
       void fetchScheduledHunts();
     } catch {
       alert('Failed to delete schedule');
@@ -179,7 +180,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
           .filter(Boolean),
       };
 
-      const response = await fetch(`/api/profiles/${profileId}/hunter/search`, {
+      const response = await fetch(`${apiBase}/profiles/${profileId}/hunter/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(filter),
@@ -218,7 +219,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/profiles/${profileId}/hunter/analyze/${job.id}`, {
+      const response = await fetch(`${apiBase}/profiles/${profileId}/hunter/analyze/${job.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ job, personaId: selectedPersonaId }),
@@ -431,6 +432,26 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
                 <option value="hybrid">Hybrid</option>
                 <option value="onsite">Onsite</option>
               </select>
+              <input
+                className="bg-gray-800 border-gray-700 rounded p-2 text-white"
+                placeholder="Min salary (e.g. 100000)"
+                type="number"
+                value={minSalary ?? ''}
+                onChange={(e) => setMinSalary(e.target.value ? Number(e.target.value) : undefined)}
+              />
+              <input
+                className="bg-gray-800 border-gray-700 rounded p-2 text-white"
+                placeholder="Max salary (e.g. 250000)"
+                type="number"
+                value={maxSalary ?? ''}
+                onChange={(e) => setMaxSalary(e.target.value ? Number(e.target.value) : undefined)}
+              />
+              <input
+                className="bg-gray-800 border-gray-700 rounded p-2 text-white"
+                placeholder="Technologies (e.g. React, Node)"
+                value={technologies}
+                onChange={(e) => setTechnologies(e.target.value)}
+              />
               <button
                 onClick={handleSearch}
                 disabled={searching}

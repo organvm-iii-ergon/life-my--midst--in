@@ -36,9 +36,10 @@ interface BatchApplicationsProps {
 
 export default function BatchApplications({
   profileId,
-  personaId: _personaId,
+  personaId,
   minCompatibilityScore = 70,
 }: BatchApplicationsProps) {
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
   const [jobs, setJobs] = useState<ApplicationJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -52,104 +53,26 @@ export default function BatchApplications({
 
   // Load jobs and compatibility data
   useEffect(() => {
-    const loadJobs = () => {
+    const loadJobs = async () => {
       try {
         setLoading(true);
-
-        // Mock data for demonstration
-        const mockJobs: ApplicationJob[] = [
-          {
-            id: 'job-1',
-            title: 'Senior Software Engineer',
-            company: 'TechCorp',
-            location: 'San Francisco, CA',
-            remote: 'hybrid',
-            salary_min: 180000,
-            salary_max: 240000,
-            compatibility: {
-              overall_score: 85,
-              recommendation: 'apply_now',
-              skill_match: 88,
-              cultural_match: 82,
-            },
-            status: 'pending',
-          },
-          {
-            id: 'job-2',
-            title: 'Staff Engineer',
-            company: 'CloudScale',
-            location: 'New York, NY',
-            remote: 'fully',
-            salary_min: 200000,
-            salary_max: 260000,
-            compatibility: {
-              overall_score: 82,
-              recommendation: 'apply_now',
-              skill_match: 80,
-              cultural_match: 78,
-            },
-            status: 'pending',
-          },
-          {
-            id: 'job-3',
-            title: 'Engineering Manager',
-            company: 'StartupXYZ',
-            location: 'Remote',
-            remote: 'fully',
-            salary_min: 170000,
-            salary_max: 220000,
-            compatibility: {
-              overall_score: 75,
-              recommendation: 'strong_candidate',
-              skill_match: 72,
-              cultural_match: 80,
-            },
-            status: 'pending',
-          },
-          {
-            id: 'job-4',
-            title: 'Full Stack Engineer',
-            company: 'WebDev Inc',
-            location: 'Austin, TX',
-            remote: 'hybrid',
-            salary_min: 140000,
-            salary_max: 180000,
-            compatibility: {
-              overall_score: 68,
-              recommendation: 'moderate_fit',
-              skill_match: 70,
-              cultural_match: 65,
-            },
-            status: 'pending',
-          },
-          {
-            id: 'job-5',
-            title: 'Principal Architect',
-            company: 'EnterpriseGlobal',
-            location: 'San Francisco, CA',
-            remote: 'onsite',
-            salary_min: 220000,
-            salary_max: 300000,
-            compatibility: {
-              overall_score: 78,
-              recommendation: 'strong_candidate',
-              skill_match: 76,
-              cultural_match: 75,
-            },
-            status: 'pending',
-          },
-        ];
-
-        setJobs(mockJobs);
+        const res = await fetch(
+          `${apiBase}/profiles/${profileId}/hunter/batch-jobs?personaId=${personaId}`,
+        );
+        if (res.ok) {
+          const data: { jobs?: ApplicationJob[] } = await res.json();
+          setJobs((data.jobs || []).map((j) => ({ ...j, status: 'pending' as const })));
+          return;
+        }
       } catch (error) {
-        console.error('Failed to load jobs:', error);
+        console.error('Failed to load jobs from API, using empty state:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadJobs();
-  }, [profileId]);
+    void loadJobs();
+  }, [profileId, personaId, apiBase]);
 
   const handleSelectJob = (jobId: string) => {
     const newSelected = new Set(selectedJobs);
@@ -184,10 +107,13 @@ export default function BatchApplications({
       setCurrentJob(job.id);
 
       try {
-        // Simulate API call to submit application
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const res = await fetch(`${apiBase}/profiles/${profileId}/hunter/apply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: job.id, personaId }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        // Update job status
         setJobs((prev) =>
           prev.map((j) =>
             j.id === job.id ? { ...j, status: 'submitted' as const, submittedAt: new Date() } : j,
@@ -229,7 +155,12 @@ export default function BatchApplications({
       setCurrentJob(job.id);
 
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const res = await fetch(`${apiBase}/profiles/${profileId}/hunter/apply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: job.id, personaId }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         setJobs((prev) =>
           prev.map((j) =>

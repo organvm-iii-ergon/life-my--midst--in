@@ -16,9 +16,19 @@ interface Badge {
   isEarned: boolean;
 }
 
+interface UserStats {
+  personaCount?: number;
+  connectionCount?: number;
+  feedbackRequestCount?: number;
+  mentorshipCount?: number;
+  profileViews?: number;
+  githubSynced?: boolean;
+}
+
 interface CommunityBadgesProps {
   userId: string;
   userBadges?: string[];
+  userStats?: UserStats;
   onBadgeEarned?: (badgeId: string) => void;
 }
 
@@ -119,6 +129,7 @@ const rarityColors = {
 export default function CommunityBadges({
   userId: _userId,
   userBadges = [],
+  userStats = {},
   onBadgeEarned: _onBadgeEarned,
 }: CommunityBadgesProps) {
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -128,15 +139,29 @@ export default function CommunityBadges({
   useEffect(() => {
     // Map definitions to user data
     const userBadgeSet = new Set(userBadges);
-    const mappedBadges = BADGE_DEFINITIONS.map((def) => ({
-      ...def,
-      isEarned: userBadgeSet.has(def.id),
-      progress: undefined,
-      maxProgress: undefined,
-    }));
+    const progressMap: Record<string, { progress: number; maxProgress: number }> = {
+      'first-persona': { progress: userStats.personaCount ?? 0, maxProgress: 1 },
+      'well-rounded': { progress: userStats.personaCount ?? 0, maxProgress: 5 },
+      'network-builder': { progress: userStats.connectionCount ?? 0, maxProgress: 10 },
+      'feedback-collector': { progress: userStats.feedbackRequestCount ?? 0, maxProgress: 3 },
+      'mentor-seeker': { progress: userStats.mentorshipCount ?? 0, maxProgress: 1 },
+      'mentor-master': { progress: userStats.mentorshipCount ?? 0, maxProgress: 5 },
+      'open-source-hero': { progress: userStats.githubSynced ? 1 : 0, maxProgress: 1 },
+      'community-pillar': { progress: userStats.profileViews ?? 0, maxProgress: 100 },
+    };
+
+    const mappedBadges = BADGE_DEFINITIONS.map((def) => {
+      const prog = progressMap[def.id];
+      return {
+        ...def,
+        isEarned: userBadgeSet.has(def.id),
+        progress: prog?.progress,
+        maxProgress: prog?.maxProgress,
+      };
+    });
 
     setBadges(mappedBadges);
-  }, [userBadges]);
+  }, [userBadges, userStats]);
 
   const earnedBadges = badges.filter((b) => b.isEarned);
   const displayedBadges = showAll ? badges : badges.slice(0, 6);
@@ -193,11 +218,25 @@ export default function CommunityBadges({
                 {badge.name}
               </h4>
               {!badge.isEarned && (
-                <p className="text-xs text-gray-500 mt-1 text-center">
-                  <span className={`inline-block px-2 py-0.5 rounded text-xs ${colors.badge}`}>
-                    {badge.rarity}
-                  </span>
-                </p>
+                <>
+                  <p className="text-xs text-gray-500 mt-1 text-center">
+                    <span className={`inline-block px-2 py-0.5 rounded text-xs ${colors.badge}`}>
+                      {badge.rarity}
+                    </span>
+                  </p>
+                  {badge.progress !== undefined &&
+                    badge.maxProgress !== undefined &&
+                    badge.maxProgress > 0 && (
+                      <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-blue-400 h-1.5 rounded-full transition-all"
+                          style={{
+                            width: `${Math.min((badge.progress / badge.maxProgress) * 100, 100)}%`,
+                          }}
+                        />
+                      </div>
+                    )}
+                </>
               )}
             </button>
           );

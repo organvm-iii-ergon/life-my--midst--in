@@ -24,6 +24,41 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+const mockJobs = [
+  {
+    id: 'job-1',
+    title: 'Senior Software Engineer',
+    company: 'TechCorp',
+    location: 'San Francisco, CA',
+    remote: 'hybrid' as const,
+    salary_min: 180000,
+    salary_max: 240000,
+    compatibility: {
+      overall_score: 85,
+      recommendation: 'apply_now' as const,
+      skill_match: 90,
+      cultural_match: 80,
+    },
+    status: 'pending' as const,
+  },
+  {
+    id: 'job-2',
+    title: 'Staff Platform Engineer',
+    company: 'CloudScale Inc',
+    location: 'San Francisco, CA',
+    remote: 'fully' as const,
+    salary_min: 200000,
+    salary_max: 280000,
+    compatibility: {
+      overall_score: 78,
+      recommendation: 'strong_candidate' as const,
+      skill_match: 82,
+      cultural_match: 74,
+    },
+    status: 'pending' as const,
+  },
+];
+
 describe('BatchApplications', () => {
   const defaultProps = {
     profileId: 'profile-123',
@@ -33,6 +68,11 @@ describe('BatchApplications', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock fetch to return job data
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ jobs: mockJobs }),
+    } as Response);
   });
 
   it('renders loading state initially', () => {

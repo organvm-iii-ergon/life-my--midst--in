@@ -38,156 +38,39 @@ export default function TailorResumeViewer({ params }: PageProps) {
   const [coverLetter, setCoverLetter] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
+
   // Load job details, compatibility analysis, and tailored resume
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // In a real implementation, these would be separate API calls
-        // For now, we'll simulate the data structure
-        const mockJob: Job = {
-          id: jobId,
-          profileId: profileId,
-          title: 'Senior Software Engineer',
-          company: 'TechCorp',
-          location: 'San Francisco, CA',
-          remote: 'hybrid',
-          descriptionMarkdown:
-            'Join our growing engineering team building next-generation infrastructure...',
-          url: 'https://example.com/jobs/senior-engineer',
-          salaryRange: '$180,000 - $240,000',
-          status: 'active',
-          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+        // Fetch job details
+        const jobRes = await fetch(`${apiBase}/jobs/${jobId}`);
+        if (jobRes.ok) {
+          const jobData: Job = await jobRes.json();
+          setJob(jobData);
+        }
 
-        const mockCompatibility: CompatibilityResult = {
-          job_id: jobId,
-          profile_id: profileId,
-          persona_id: 'architect-mask',
-          skill_match: 85,
-          cultural_match: 78,
-          growth_potential: 82,
-          compensation_fit: 90,
-          location_suitability: 75,
-          overall_score: 82,
-          recommendation: 'apply_now',
-          skill_gaps: [
-            {
-              skill: 'Kubernetes',
-              required_level: 'intermediate',
-              candidate_level: 'junior',
-              gap_severity: 'medium',
-              explanation:
-                'Job emphasizes container orchestration; you have basic exposure but need production experience',
-              learnable: true,
-            },
-          ],
-          strengths: [
-            'Strong TypeScript and React expertise matches role requirements',
-            'Proven system design capabilities',
-            'PostgreSQL experience aligns with tech stack',
-          ],
-          concerns: [
-            'Limited Kubernetes experience (job emphasizes container orchestration)',
-            'No Docker Compose production experience mentioned',
-          ],
-          negotiation_points: [
-            'Competitive salary range - could negotiate for equity component',
-            'Hybrid work already matches your preference',
-            'Professional development budget negotiable for Kubernetes training',
-          ],
-          suggested_mask: 'Architect',
-          key_points_to_emphasize: ['system design', 'scalability', 'mentorship'],
-          areas_to_de_emphasize: ['junior projects', 'legacy systems'],
-          analysis_date: new Date(),
-          effort_estimate_minutes: 45,
-        };
+        // Fetch compatibility analysis
+        const compatRes = await fetch(`${apiBase}/profiles/${profileId}/hunter/analyze/${jobId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        });
+        if (compatRes.ok) {
+          const compatData: { compatibility: CompatibilityResult } = await compatRes.json();
+          setCompatibility(compatData.compatibility);
+        }
 
-        const mockResume: TailoredResume = {
-          resume: `# Jane Doe
-jane@example.com | (555) 123-4567 | linkedin.com/in/janedoe
-
-## Professional Summary
-Architect and systems engineer with 8+ years building scalable, production-grade infrastructure. 
-Proven ability to design and execute large-scale systems supporting millions of users. 
-Strong technical leadership with focus on code quality, testing, and team mentorship.
-
-## Core Expertise
-**Architecture & Systems**: Distributed systems design, microservices architecture, database optimization, 
-infrastructure as code, system reliability engineering
-
-**Frontend**: React 18, TypeScript, state management (Redux/Context), component design patterns, 
-performance optimization
-
-**Backend**: Node.js, TypeScript, API design, PostgreSQL optimization, Redis caching, 
-message queues (RabbitMQ, Bull)
-
-**DevOps & Infrastructure**: Docker containerization, AWS (EC2, RDS, S3, Lambda), monitoring 
-and observability (DataDog, Prometheus), automated testing
-
-## Professional Experience
-
-### Senior Engineer - CloudScale Inc.
-**May 2022 - Present**
-- Architected microservices infrastructure supporting 2M+ daily active users
-- Reduced database query latency by 60% through strategic indexing and query optimization
-- Led technical RFC process for system design decisions; mentored 4 junior engineers
-- Implemented comprehensive observability stack (monitoring, logging, tracing)
-- Drove adoption of TypeScript across backend codebase
-
-### Lead Engineer - DataFlow Systems
-**Jan 2021 - Apr 2022**
-- Designed and implemented event-driven architecture processing 100K+ events/second
-- Took ownership of PostgreSQL performance bottlenecks; optimized critical queries by 70%
-- Established patterns for testing, deployment, and infrastructure management
-- Built automated deployment pipeline reducing deployment time from 45min to 8min
-
-### Software Engineer - StartupXYZ
-**Jul 2018 - Dec 2020**
-- Full-stack development on core platform using React and Node.js
-- Implemented caching strategy reducing API response times by 40%
-- Participated in system design discussions and technical decision-making
-
-## Education
-**Bachelor of Science in Computer Science** - State University, 2018
-
-## Certifications & Achievements
-- AWS Solutions Architect Associate
-- Multiple technical talks on system design and scalability
-- Open source contributions (100+ stars)`,
-          emphasize: [
-            'System design experience',
-            'Architectural leadership',
-            'Scalability achievements',
-            'Team mentorship',
-            'Database optimization',
-          ],
-          deEmphasize: [
-            'Early career junior projects',
-            'Kubernetes limitations (note training opportunity)',
-            'Unrelated side projects',
-          ],
-          personaName: 'Architect',
-          effort_estimate_minutes: 30,
-          key_points: [
-            'You have 8+ years experience vs. 5+ requirement - strong fit',
-            'Your system design background directly matches their architecture needs',
-            'PostgreSQL optimization expertise is directly applicable',
-            'Mentorship experience valuable for growing team',
-          ],
-          areas_to_improve: [
-            'Highlight Kubernetes learning initiative or training plan',
-            'Include Docker production examples if available',
-            'Emphasize experience with similar company sizes/scales',
-          ],
-        };
-
-        setJob(mockJob);
-        setCompatibility(mockCompatibility);
-        setTailoredResume(mockResume);
+        // Fetch tailored resume
+        const resumeRes = await fetch(`${apiBase}/profiles/${profileId}/hunter/resume/${jobId}`);
+        if (resumeRes.ok) {
+          const resumeData: TailoredResume = await resumeRes.json();
+          setTailoredResume(resumeData);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load job details');
       } finally {
@@ -195,8 +78,8 @@ and observability (DataDog, Prometheus), automated testing
       }
     };
 
-    loadData();
-  }, [profileId, jobId]);
+    void loadData();
+  }, [profileId, jobId, apiBase]);
 
   const handleCopyResume = () => {
     if (tailoredResume) {
@@ -218,36 +101,22 @@ and observability (DataDog, Prometheus), automated testing
     }
   };
 
-  const handleGenerateCoverLetter = () => {
+  const handleGenerateCoverLetter = async () => {
     try {
-      // In real implementation, call API endpoint
-      const mockLetter = `Dear Hiring Manager,
-
-I am writing to express my strong interest in the Senior Software Engineer position at ${job?.company}.
-
-With ${tailoredResume?.personaName} expertise spanning 8+ years of building scalable systems, I am confident 
-I can make immediate contributions to your engineering team. Your emphasis on system architecture and 
-distributed systems design particularly resonates with my experience architecting microservices 
-infrastructure for high-traffic platforms.
-
-Your tech stack of TypeScript, React, and PostgreSQL aligns perfectly with my core competencies. 
-Most notably, my recent work optimizing PostgreSQL queries by 70% and implementing event-driven 
-architectures handling 100K+ events/second directly addresses the technical challenges your team faces.
-
-I am particularly excited about the growth opportunity this role presents. The emphasis on mentorship 
-and code quality in your job description suggests a team that values not just shipping features, but 
-building sustainable, maintainable systems - something I've championed throughout my career.
-
-While I have limited Kubernetes experience, I am actively pursuing this knowledge and view it as 
-an excellent professional development opportunity within this role.
-
-I would welcome the opportunity to discuss how my experience building scalable, reliable systems 
-can contribute to ${job?.company}'s engineering goals.
-
-Best regards,
-Jane Doe`;
-
-      setCoverLetter(mockLetter);
+      const res = await fetch(`${apiBase}/profiles/${profileId}/hunter/cover-letter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId, personaId: tailoredResume?.personaName }),
+      });
+      if (res.ok) {
+        const data: { coverLetter: string } = await res.json();
+        setCoverLetter(data.coverLetter);
+      } else {
+        // Fallback: generate a simple template
+        setCoverLetter(
+          `Dear Hiring Manager,\n\nI am writing to express my interest in the ${job?.title || 'position'} at ${job?.company || 'your company'}.\n\nWith experience in ${tailoredResume?.emphasize?.join(', ') || 'relevant areas'}, I believe I can make meaningful contributions to your team.\n\nI look forward to discussing this opportunity.\n\nBest regards`,
+        );
+      }
       setShowCoverLetter(true);
     } catch {
       setError('Failed to generate cover letter');
@@ -257,15 +126,20 @@ Jane Doe`;
   const handleApply = async () => {
     try {
       setSubmitting(true);
-      // In real implementation, submit application to API
-      console.log('Submitting application:', { jobId, profileId, resume: tailoredResume?.resume });
+      const res = await fetch(`${apiBase}/profiles/${profileId}/hunter/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId,
+          resume: tailoredResume?.resume,
+          coverLetter,
+        }),
+      });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!res.ok) throw new Error(`Application failed: ${res.statusText}`);
 
-      // Show success and redirect
-      alert('Application submitted successfully!');
-      // Redirect to applications list
+      // Show success indication
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit application');
     } finally {

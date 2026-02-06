@@ -114,7 +114,7 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
         ),
         action: {
           label: 'Start Building Profile',
-          href: `/dashboard/${profileId}/profile/edit`,
+          href: `/profile/${profileId}`,
         },
       },
       {
@@ -168,7 +168,7 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
         ),
         action: {
           label: 'Create Personas',
-          href: `/dashboard/${profileId}/personas`,
+          href: `/profile/${profileId}/narrative`,
         },
       },
       {
@@ -220,7 +220,7 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
         ),
         action: {
           label: 'Start Hunter Protocol',
-          href: `/dashboard/${profileId}/hunter`,
+          href: `/profiles/${profileId}/hunter`,
         },
       },
       {
@@ -268,7 +268,7 @@ export default function OnboardingWizard({ profileId, onComplete }: OnboardingWi
         ),
         action: {
           label: 'Learn More',
-          href: `/dashboard/${profileId}/interviews`,
+          href: `/interview/${profileId}`,
         },
       },
       {
