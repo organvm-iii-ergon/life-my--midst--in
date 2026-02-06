@@ -17,3 +17,10 @@ inmidst
 {{- define "inmidst.webName" -}}
 {{ include "inmidst.name" . }}-web
 {{- end }}
+
+{{- define "inmidst.labels" -}}
+app: {{ include "inmidst.name" . }}
+app.kubernetes.io/name: {{ include "inmidst.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}

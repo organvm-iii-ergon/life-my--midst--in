@@ -122,10 +122,21 @@ orchestrator:
     ORCH_WORKER_ENABLED: "true"
     ORCH_SCHEDULER_ENABLED: "true"
 
+# --- Migrations ---
+migrations:
+  enabled: true
+  env:
+    DATABASE_URL: postgresql://inmidst:changeme@inmidst-postgres:5432/midst_prod
+    REDIS_URL: redis://inmidst-redis:6379
+
 # --- PostgreSQL ---
 postgres:
   enabled: true
   image: pgvector/pgvector:pg15
+  port: 5432
+  username: inmidst
+  password: changeme
+  database: midst_prod
   storage: 10Gi
   resources:
     requests:
@@ -139,6 +150,7 @@ postgres:
 redis:
   enabled: true
   image: redis:7-alpine
+  port: 6379
   storage: 2Gi
   resources:
     requests:
