@@ -34,7 +34,6 @@ export default function PricingPage() {
       }
 
       if (response.data?.url) {
-        // Redirect to Stripe Checkout
         window.location.href = response.data.url;
       } else {
         throw new Error('No checkout URL returned');
@@ -46,90 +45,136 @@ export default function PricingPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Background Grid */}
-      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
-
-      <div className="relative max-w-7xl mx-auto px-6 py-24 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center mb-16">
-          <h1 className="text-base font-semibold leading-7 text-cyan-400">Monetization Phase</h1>
-          <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Invest in your{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
-              Automated Future
-            </span>
-          </p>
-          <p className="mt-6 text-lg leading-8 text-gray-300">
-            Stop manually applying to jobs. Let the Hunter Protocol work for you 24/7. Gate the
-            automation, not your data.
-          </p>
+    <div className="page">
+      <div
+        className="section"
+        style={{ textAlign: 'center', maxWidth: '48rem', margin: '0 auto 3rem' }}
+      >
+        <div className="label" style={{ marginBottom: '0.5rem' }}>
+          Plans &amp; Pricing
         </div>
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            margin: '0 0 1rem',
+          }}
+        >
+          Invest in your professional identity
+        </h1>
+        <p className="section-subtitle" style={{ fontSize: '1.1rem' }}>
+          Gate the automation, not your data. Choose the plan that fits how you want to present
+          yourself to the world.
+        </p>
+      </div>
 
-        {error && (
-          <div className="mx-auto max-w-md mb-8 bg-red-900/50 border border-red-500 text-red-200 p-4 rounded-lg flex justify-between items-center">
-            <p>Error: {error}</p>
-            <button onClick={() => setError(null)} className="text-red-200 hover:text-white">
-              ✕
-            </button>
-          </div>
-        )}
+      {error && (
+        <div
+          style={{
+            maxWidth: '28rem',
+            margin: '0 auto 2rem',
+            background: 'rgba(220, 60, 60, 0.1)',
+            border: '1px solid rgba(220, 60, 60, 0.3)',
+            color: '#b91c1c',
+            padding: '1rem 1.25rem',
+            borderRadius: 'var(--radius-sm)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <p style={{ margin: 0, fontSize: '0.9rem' }}>{error}</p>
+          <button
+            onClick={() => setError(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'inherit',
+              fontSize: '1.1rem',
+            }}
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
-        <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-          <PricingCard
-            tier="FREE"
-            name="The Explorer"
-            price="$0"
-            description="Perfect for casual browsing and organizing your identity."
-            features={[
-              '5 AI Job Searches / month',
-              '3 Identity Masks',
-              'Basic Resume Builder',
-              'Manual Applications',
-              '7-day Data Retention',
-            ]}
-            isCurrent={true} // TODO: Check actual entitlement
-            onSelect={() => console.log('Current plan is Free')}
-            loading={loading === 'FREE-monthly'}
-          />
+      <div
+        className="grid three"
+        style={{ maxWidth: '72rem', margin: '0 auto', alignItems: 'stretch' }}
+      >
+        <PricingCard
+          tier="FREE"
+          name="The Explorer"
+          price="$0"
+          description="Perfect for casual browsing and organising your identity."
+          features={[
+            '5 AI Job Searches / month',
+            '3 Identity Masks',
+            'Basic Resume Builder',
+            'Manual Applications',
+            '7-day Data Retention',
+          ]}
+          isCurrent={true}
+          onSelect={() => {}}
+          loading={loading === 'FREE-monthly'}
+        />
 
-          <PricingCard
-            tier="PRO"
-            name="The Hunter"
-            price="$29"
-            description="For serious job seekers who value their time."
-            features={[
-              'Unlimited AI Job Searches',
-              '16 Identity Masks',
-              '1 Autonomous Auto-Apply Agent',
-              'Advanced Resume Tailoring',
-              'Priority Processing',
-              'Unlimited Data Retention',
-            ]}
-            isCurrent={false}
-            isPopular={true}
-            loading={loading === 'PRO-monthly'}
-            onSelect={() => handleUpgrade('PRO', 'monthly')}
-          />
+        <PricingCard
+          tier="PRO"
+          name="The Hunter"
+          price="$29"
+          description="For serious job seekers who value their time."
+          features={[
+            'Unlimited AI Job Searches',
+            '16 Identity Masks',
+            '1 Autonomous Auto-Apply Agent',
+            'Advanced Resume Tailoring',
+            'Priority Processing',
+            'Unlimited Data Retention',
+          ]}
+          isCurrent={false}
+          isPopular={true}
+          loading={loading === 'PRO-monthly'}
+          onSelect={() => handleUpgrade('PRO', 'monthly')}
+        />
 
-          <PricingCard
-            tier="ENTERPRISE"
-            name="The Architect"
-            price="Custom"
-            description="For agencies and power users managing multiple profiles."
-            features={[
-              'Multiple Autonomous Agents',
-              'Unlimited Masks',
-              'API Access',
-              'White-label Reports',
-              'Dedicated Account Manager',
-              'SLA Support',
-            ]}
-            isCurrent={false}
-            loading={loading === 'ENTERPRISE-monthly'}
-            onSelect={() => (window.location.href = 'mailto:sales@in-midst.com')}
-          />
+        <PricingCard
+          tier="ENTERPRISE"
+          name="The Architect"
+          price="Custom"
+          description="For agencies and power users managing multiple profiles."
+          features={[
+            'Multiple Autonomous Agents',
+            'Unlimited Masks',
+            'API Access',
+            'White-label Reports',
+            'Dedicated Account Manager',
+            'SLA Support',
+          ]}
+          isCurrent={false}
+          loading={loading === 'ENTERPRISE-monthly'}
+          onSelect={() => (window.location.href = 'mailto:sales@in-midst.com')}
+        />
+      </div>
+
+      {/* FAQ-style info */}
+      <div style={{ maxWidth: '40rem', margin: '3rem auto 0' }}>
+        <div
+          style={{
+            background: 'rgba(47, 94, 100, 0.08)',
+            border: '1px solid rgba(47, 94, 100, 0.2)',
+            padding: '1.25rem',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '0.9rem',
+            color: 'var(--ink)',
+          }}
+        >
+          <strong>Your data is always yours.</strong> Every plan includes full data export (JSON-LD,
+          Verifiable Credentials). We gate automation features, never your identity data.
         </div>
       </div>
-    </main>
+    </div>
   );
 }

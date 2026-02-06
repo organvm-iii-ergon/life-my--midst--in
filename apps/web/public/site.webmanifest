@@ -1,0 +1,16 @@
+{
+  "name": "in midst my life",
+  "short_name": "in midst",
+  "description": "Theatrical Identity Operating System — transform your static resume into a dynamic, multi-perspective profile.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4efe6",
+  "theme_color": "#d36b3c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { NeoCard } from '@in-midst-my-life/design-system';
 
 export interface PricingCardProps {
   tier: 'FREE' | 'PRO' | 'ENTERPRISE';
@@ -30,56 +29,124 @@ export function PricingCard({
 }: PricingCardProps) {
   const isEnterprise = tier === 'ENTERPRISE';
 
-  // Visual styles based on tier
-  const variant = isPopular ? 'cyber' : isEnterprise ? 'obsidian' : 'obsidian';
-  const buttonStyle = isCurrent
-    ? 'bg-gray-700 text-gray-300 cursor-default'
-    : isPopular
-      ? 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_10px_rgba(6,182,212,0.5)]'
-      : 'bg-gray-100 hover:bg-gray-200 text-gray-900';
-
   return (
-    <NeoCard
-      variant={variant}
-      className={`flex flex-col h-full relative ${isPopular ? 'border-cyan-500 transform scale-105 z-10' : 'border-gray-800'}`}
+    <div
+      className="stat-card"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        position: 'relative',
+        border: isPopular ? '2px solid var(--accent)' : undefined,
+        transform: isPopular ? 'scale(1.03)' : undefined,
+        zIndex: isPopular ? 1 : undefined,
+      }}
     >
       {isPopular && (
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-cyan-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'var(--accent)',
+            color: 'var(--paper)',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            padding: '0.25rem 0.75rem',
+            borderRadius: '999px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}
+        >
           Recommended
         </div>
       )}
 
-      <div className="p-6 flex-grow">
-        <h3 className={`text-lg font-bold mb-2 ${isPopular ? 'text-cyan-400' : 'text-white'}`}>
+      <div style={{ padding: '1.5rem', flexGrow: 1 }}>
+        <h3
+          style={{
+            fontSize: '1.15rem',
+            fontWeight: 700,
+            marginBottom: '0.5rem',
+            color: isPopular ? 'var(--accent)' : 'var(--ink)',
+          }}
+        >
           {name}
         </h3>
-        <p className="text-gray-400 text-sm mb-6 min-h-[40px]">{description}</p>
+        <p className="section-subtitle" style={{ marginBottom: '1.5rem', minHeight: '2.5rem' }}>
+          {description}
+        </p>
 
-        <div className="mb-6">
-          <span className="text-3xl font-bold text-white">{price}</span>
-          {price !== 'Custom' && <span className="text-gray-500 text-sm">{period}</span>}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span
+            style={{
+              fontSize: '2rem',
+              fontWeight: 700,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--ink)',
+            }}
+          >
+            {price}
+          </span>
+          {price !== 'Custom' && (
+            <span style={{ color: 'var(--stone)', fontSize: '0.9rem' }}>{period}</span>
+          )}
         </div>
 
-        <ul className="space-y-3 mb-8">
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {features.map((feature, idx) => (
-            <li key={idx} className="flex items-start text-sm">
-              <span className={`mr-2 ${isPopular ? 'text-cyan-500' : 'text-green-500'}`}>✓</span>
-              <span className="text-gray-300">{feature}</span>
+            <li
+              key={idx}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                fontSize: '0.9rem',
+                marginBottom: '0.6rem',
+                color: 'var(--ink)',
+              }}
+            >
+              <span
+                style={{
+                  marginRight: '0.5rem',
+                  color: isPopular ? 'var(--accent)' : 'var(--accent-cool)',
+                  fontWeight: 700,
+                }}
+              >
+                ✓
+              </span>
+              <span>{feature}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="p-6 pt-0 mt-auto">
+      <div style={{ padding: '0 1.5rem 1.5rem', marginTop: 'auto' }}>
         <button
           onClick={onSelect}
           disabled={isCurrent || loading || disabled}
-          className={`w-full py-3 px-4 rounded-lg font-bold transition-all duration-200 flex items-center justify-center gap-2 ${buttonStyle} ${
-            loading ? 'opacity-70 cursor-wait' : ''
-          } ${(isCurrent || disabled) && !loading ? 'opacity-50 grayscale' : ''}`}
+          className={isPopular ? 'button' : 'button secondary'}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            opacity: loading || isCurrent || disabled ? 0.5 : 1,
+            cursor: isCurrent || disabled ? 'default' : loading ? 'wait' : 'pointer',
+          }}
         >
           {loading && (
-            <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+            <div
+              style={{
+                width: '1rem',
+                height: '1rem',
+                border: '2px solid currentColor',
+                borderTopColor: 'transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
           )}
           {loading
             ? 'Redirecting...'
@@ -90,6 +157,6 @@ export function PricingCard({
                 : 'Upgrade'}
         </button>
       </div>
-    </NeoCard>
+    </div>
   );
 }
