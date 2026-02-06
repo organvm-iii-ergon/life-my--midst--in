@@ -7,6 +7,7 @@ export * from './did/resolver-registry';
 export * from './did/resolvers/web';
 export * from './did/resolvers/key';
 export * from './did/resolvers/jwk';
+export * from './did/resolvers/pkh';
 export * from './errors';
 export * from './jobs';
 export * from './search';

@@ -38,6 +38,7 @@ export interface VerificationMethod {
   controller: string;
   publicKeyJwk?: Record<string, unknown>;
   publicKeyMultibase?: string;
+  blockchainAccountId?: string;
 }
 
 export interface ServiceEndpoint {

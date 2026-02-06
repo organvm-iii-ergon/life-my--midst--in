@@ -10,6 +10,7 @@ import { getRegistry } from './registry';
 import { DidWebResolver, type DidWebResolverOptions } from './resolvers/web';
 import { DidKeyResolver } from './resolvers/key';
 import { DidJwkResolver } from './resolvers/jwk';
+import { DidPkhResolver } from './resolvers/pkh';
 
 export interface DIDResolver {
   resolve(did: string): Promise<DIDResolutionResult>;
@@ -45,6 +46,7 @@ export class DIDResolverRegistry implements DIDResolver {
     // Register built-in resolvers
     this.resolvers.set('key', new DidKeyResolver());
     this.resolvers.set('jwk', new DidJwkResolver());
+    this.resolvers.set('pkh', new DidPkhResolver());
     this.resolvers.set('web', new DidWebResolver(options.webResolverOptions));
   }
 

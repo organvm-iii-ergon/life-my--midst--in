@@ -121,10 +121,8 @@ export const signIntegrity = async (
   const hash = await hashPayload(payload);
   const timestamp = new Date().toISOString();
   const message = JSON.stringify({ hash, did: keyPair.did, timestamp });
-  // @ts-expect-error -- jose KeyLike type mismatch
   const signature = await new jose.CompactSign(new TextEncoder().encode(message))
     .setProtectedHeader({ alg: 'EdDSA' })
-    // @ts-expect-error -- jose KeyLike type mismatch
     .sign(keyPair.privateKey);
 
   return {
