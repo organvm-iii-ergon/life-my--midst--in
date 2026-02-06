@@ -1,4 +1,4 @@
-name: Test & Lint
+name: CI
 
 on:
   push:
@@ -6,16 +6,18 @@ on:
   pull_request:
     branches: [main, develop]
 
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10'
+
 jobs:
   test:
+    name: Lint, Typecheck & Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x]  # Project requires Node 22+ (see seed.yaml)
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
@@ -29,7 +31,7 @@ jobs:
           - 5432:5432
 
       redis:
-        image: redis:7
+        image: redis:7-alpine
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -41,16 +43,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -63,15 +65,18 @@ jobs:
 
       - name: Run unit tests
         run: pnpm test
+        env:
+          CI: true
 
       - name: Run integration tests
         env:
           INTEGRATION_POSTGRES_URL: postgresql://test:test@localhost:5432/midst_test
           INTEGRATION_REDIS_URL: redis://localhost:6379/1
+          CI: true
         run: pnpm integration
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage/coverage-final.json
           flags: unittests
@@ -79,22 +84,23 @@ jobs:
           fail_ci_if_error: false
 
   build:
+    name: Build
     needs: test
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x  # Project requires Node 22+
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -103,7 +109,7 @@ jobs:
         run: pnpm build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |

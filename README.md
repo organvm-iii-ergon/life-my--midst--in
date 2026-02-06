@@ -2,7 +2,8 @@
 
 > **Theatrical Identity Operating System**: A blockchain-inspired CV system with mask-based professional identity, autonomous job search, and philosophical depth
 
-[![Implementation Status](https://img.shields.io/badge/implementation-90%25-blue)]()
+[![CI](https://github.com/4444J99/life-my--midst--in/actions/workflows/test.yml/badge.svg)](https://github.com/4444J99/life-my--midst--in/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/4444J99/life-my--midst--in/branch/main/graph/badge.svg)](https://codecov.io/gh/4444J99/life-my--midst--in)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Architecture](https://img.shields.io/badge/architecture-hexagonal-purple)]()
 
