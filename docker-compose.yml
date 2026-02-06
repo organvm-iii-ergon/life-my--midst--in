@@ -205,7 +205,7 @@ services:
       - init
 
   jaeger:
-    image: jaegertracing/all-in-one:1.52
+    image: jaegertracing/all-in-one:1.76.0
     container_name: inmidst-jaeger
     restart: unless-stopped
     ports:
