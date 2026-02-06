@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { MessageSchema, MessageThreadSchema, NotificationSchema } from '@in-midst-my-life/schema';
 
 // Request schemas
 const SendMessageSchema = z.object({
@@ -13,12 +12,6 @@ const SendMessageSchema = z.object({
 const CreateThreadSchema = z.object({
   participantIds: z.array(z.string().uuid()).min(2),
   subject: z.string().max(200).optional(),
-});
-
-const GetThreadMessagesSchema = z.object({
-  threadId: z.string().uuid(),
-  limit: z.number().min(1).max(100).default(50),
-  offset: z.number().min(0).default(0),
 });
 
 type SendMessageRequest = z.infer<typeof SendMessageSchema>;

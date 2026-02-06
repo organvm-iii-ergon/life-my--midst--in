@@ -7,12 +7,10 @@ import Fastify, { type FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import rawBody from "fastify-raw-body";
 import { Pool } from "pg";
-import { 
-  register, 
-  httpRequestsTotal, 
+import {
+  register,
+  httpRequestsTotal,
   httpRequestDuration,
-  dbQueriesTotal,
-  dbQueryDuration,
   activeConnections
 } from './metrics';
 import { registerProfileRoutes } from "./routes/profiles";
@@ -44,7 +42,7 @@ import { registerAdminLicensingRoutes } from "./routes/admin-licensing";
 import { subscriptionRepo as defaultSubscriptionRepo, type SubscriptionRepo } from "./repositories/subscriptions";
 import { PostgresRateLimitStore, InMemoryRateLimitStore as LocalInMemoryRateLimitStore } from "./repositories/rate-limits";
 import { BillingService, LicensingService, type RateLimitStore } from "@in-midst-my-life/core";
-import { registerVersioningMiddleware, versionPrefix } from "./middleware/versioning";
+import { versionPrefix } from "./middleware/versioning";
 
 initializeTracing();
 initializeSentry();
@@ -108,13 +106,13 @@ export function buildServer(options: ApiServerOptions = {}) {
     webhookSecret: process.env["STRIPE_WEBHOOK_SECRET"] || "whsec_test_mock",
   });
 
-  fastify.register(rawBody, {
+  fastify.register(rawBody as any, {
     global: false, // Only for specific routes
     runFirst: true,
   });
 
-  fastify.register(cors, {
-    origin: (origin, cb) => {
+  fastify.register(cors as any, {
+    origin: (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => {
       // Development: allow localhost
       const allowed = [
         'http://localhost:3000',

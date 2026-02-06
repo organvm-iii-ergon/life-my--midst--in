@@ -3,8 +3,6 @@ import {
   createCVMultiplexRepo,
 } from "../curriculum-vitae";
 import type {
-  CurriculumVitaeMultiplex,
-  CVEntry,
   CVFilter,
 } from "@in-midst-my-life/schema";
 import { getPool, migrate } from "../../db";
@@ -254,8 +252,8 @@ describe("Curriculum Vitae Multiplex Repository - Integration Tests", () => {
         expect(page2.data).toHaveLength(5);
 
         // Verify no overlap
-        const ids1 = page1.data.map((e) => e.id);
-        const ids2 = page2.data.map((e) => e.id);
+        const ids1 = page1.data.map((e: { id: string }) => e.id);
+        const ids2 = page2.data.map((e: { id: string }) => e.id);
         expect(new Set([...ids1, ...ids2]).size).toBe(10);
       });
     });
@@ -391,7 +389,7 @@ describe("Curriculum Vitae Multiplex Repository - Integration Tests", () => {
 
         const filter: CVFilter = { minPriority: 60 };
         const result = await repo.filterByMultipleDimensions(profileId, filter);
-        expect(result.data.every((e) => (e.priority || 0) >= 60)).toBe(true);
+        expect(result.data.every((e: { priority?: number }) => (e.priority || 0) >= 60)).toBe(true);
       });
 
       it(`[${repoName}] filters by custom tags`, async () => {
@@ -436,7 +434,7 @@ describe("Curriculum Vitae Multiplex Repository - Integration Tests", () => {
         }
 
         const result = await repo.listEntries(profileId);
-        const returnedPriorities = result.data.map((e) => e.priority);
+        const returnedPriorities = result.data.map((e: { priority?: number }) => e.priority);
 
         // Should be sorted highest to lowest
         for (let i = 0; i < returnedPriorities.length - 1; i++) {

@@ -8,7 +8,7 @@ import {
   jsonLdToScriptTag,
   addBreadcrumbContext
 } from "../services/jsonld-export";
-import { generatePdfResume, generateMinimalPdfResume } from "../services/pdf-export";
+import { generatePdfResume, generateMinimalPdfResume, type PdfExportRequest } from "../services/pdf-export";
 import type { ProfileRepo } from "../repositories/profiles";
 import type { CvRepos } from "../repositories/cv";
 import { profileRepo as defaultProfileRepo } from "../repositories/profiles";
@@ -397,12 +397,12 @@ export async function registerExportRoutes(fastify: FastifyInstance, deps?: Expo
         result = await generateMinimalPdfResume({
           profile: profile as Profile,
           ...rest
-        });
+        } as PdfExportRequest);
       } else {
         result = await generatePdfResume({
           profile: profile as Profile,
           ...rest
-        });
+        } as PdfExportRequest);
       }
 
       const download = (request.query as { download?: string }).download === "true";

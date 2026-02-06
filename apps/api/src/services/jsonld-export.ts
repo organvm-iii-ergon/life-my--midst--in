@@ -112,7 +112,7 @@ export function generateProfileJsonLd(request: JsonLdExportRequest): JsonLdPerso
   const { profile, mask, experiences = [], educations = [], skills = [], maskContext = false } = request;
 
   const jsonLd: JsonLdPerson = {
-    "@context": ["https://schema.org", maskContext ? "https://in-midst-my-life.schema/" : undefined].filter(Boolean),
+    "@context": ["https://schema.org", maskContext ? "https://in-midst-my-life.schema/" : undefined].filter((v): v is string => Boolean(v)),
     "@type": "Person",
     name: profile.displayName,
     description: profile.summaryMarkdown,

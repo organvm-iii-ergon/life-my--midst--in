@@ -435,7 +435,7 @@ export function createCacheMiddleware(
   cache: MemoryCache,
   options: { ttl?: number } = {}
 ) {
-  return async (request: any, reply: any) => {
+  return async (request: any, reply: any): Promise<unknown> => {
     // Extract cache key from request
     const cacheKey = generateCacheKey(request);
 
@@ -458,6 +458,7 @@ export function createCacheMiddleware(
       }
       return originalSend(payload);
     };
+    return undefined;
   };
 }
 

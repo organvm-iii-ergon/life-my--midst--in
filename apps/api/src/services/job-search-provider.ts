@@ -35,7 +35,7 @@ export class JobSearchProvider {
 
     try {
       // Use core provider (real Serper or mock based on environment)
-      const results = await this.provider.search(filter);
+      const results = await this.provider.search(filter) as JobPosting[];
 
       // Limit results if specified
       if (criteria.maxResults) {

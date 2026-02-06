@@ -30,13 +30,6 @@ interface OAuthApp {
   revokedAt?: Date;
 }
 
-interface OAuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-  tokenType: 'Bearer';
-}
-
 // Mock storage
 const oauthApps = new Map<string, OAuthApp>();
 const authorizationCodes = new Map<string, { userId: string; clientId: string; expiresAt: Date }>();
@@ -195,7 +188,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { client_id, redirect_uri, scope, state } = request.query as {
+      const { client_id, redirect_uri, scope: _scope, state } = request.query as {
         client_id?: string;
         redirect_uri?: string;
         scope?: string;
@@ -225,7 +218,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
 
       authorizationCodes.set(authCode, {
         userId,
-        clientId: client_id,
+        clientId: client_id!,
         expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
       });
 
@@ -266,7 +259,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { grant_type, client_id, client_secret, code, refresh_token } = request.body as {
+      const { grant_type, client_id, client_secret, code, refresh_token: _refresh_token } = request.body as {
         grant_type?: string;
         client_id?: string;
         client_secret?: string;

@@ -170,9 +170,9 @@ export async function registerMaskRoutes(fastify: FastifyInstance, deps?: MaskRo
     }
 
     // Fetch all masks, epochs, and stages for context
-    const allMasks = await repos.masks.list(0, 100);
-    const allEpochs = await repos.epochs.list();
-    const allStages = await repos.stages.list(undefined, 0, 100);
+    await repos.masks.list(0, 100);
+    await repos.epochs.list();
+    await repos.stages.list(undefined, 0, 100);
 
     // Simulate narrative generation using mask taxonomy
     // This is a lightweight implementation; production would call @in-midst-my-life/content-model

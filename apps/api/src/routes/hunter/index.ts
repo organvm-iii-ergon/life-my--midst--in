@@ -24,7 +24,7 @@ import type { FastifyInstance } from "fastify";
 import type { LicensingService } from "@in-midst-my-life/core";
 import type { ProfileRepo } from "../../repositories/profiles";
 import type { JobRepo } from "../../repositories/jobs";
-import { createHunterContext, type HunterDeps } from "./types";
+import { createHunterContext } from "./types";
 import { registerSearchAnalyzeRoutes } from "./search-analyze";
 import { registerTailorRoutes } from "./tailor";
 import { registerLetterRoutes } from "./letter";

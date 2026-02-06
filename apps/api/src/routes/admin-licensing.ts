@@ -10,7 +10,6 @@
  */
 
 import { FastifyInstance } from "fastify";
-import { z } from "zod";
 import type { LicensingService } from "@in-midst-my-life/core";
 import { createPermissionMiddleware } from "../middleware/auth";
 import { Permission } from "../services/auth";
@@ -129,7 +128,7 @@ export async function registerAdminLicensingRoutes(
       try {
         const allowed = await licensingService.canUse(profileId, feature as any);
         const entitlements = await licensingService.getEntitlements(profileId);
-        const featureInfo = entitlements.features[feature as any];
+        const featureInfo = entitlements.features[feature as keyof typeof entitlements.features];
 
         return reply.code(200).send({
           ok: true,

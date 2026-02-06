@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Pool } from "pg";
 import { buildServer } from "../../index";
 import { runMigrations } from "../../repositories/migrations";
-import type { CVEntry } from "@in-midst-my-life/schema";
 
 const connectionString =
   process.env["INTEGRATION_POSTGRES_URL"] ?? process.env["DATABASE_URL"] ?? process.env["POSTGRES_URL"];

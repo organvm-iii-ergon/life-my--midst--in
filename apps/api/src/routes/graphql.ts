@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { buildSchema, graphql } from "graphql";
 import { graphqlSchema } from "../services/graphql-schema";
-import { queryResolvers, mutationResolvers, typeResolvers, type GraphQLContext } from "../services/graphql-resolvers";
+import { queryResolvers, mutationResolvers, type GraphQLContext } from "../services/graphql-resolvers";
 
 /**
  * GraphQL route handler

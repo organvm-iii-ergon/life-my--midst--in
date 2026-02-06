@@ -1,4 +1,4 @@
-import type { ScaenaeTaxonomy, Scaena, CanonicalScaenaType } from "@in-midst-my-life/schema";
+import type { ScaenaeTaxonomy, Scaena } from "@in-midst-my-life/schema";
 import { Pool } from "pg";
 import { randomUUID } from "node:crypto";
 
@@ -315,7 +315,7 @@ class PostgresScaenaeRepo implements ScaenaeRepo {
 
     return {
       ...taxonomy,
-      scaenae: scaenaeResult.rows.map((r) => ({
+      scaenae: scaenaeResult.rows.map((r: any) => ({
         id: r.id,
         name: r.name,
         latin_name: r.latin_name,
@@ -365,7 +365,7 @@ class PostgresScaenaeRepo implements ScaenaeRepo {
          FROM scaenae ORDER BY canonical DESC, name`;
 
     const result = await this.pool.query<any>(query);
-    return result.rows.map((r) => ({
+    return result.rows.map((r: any) => ({
       id: r.id,
       name: r.name,
       latin_name: r.latin_name,

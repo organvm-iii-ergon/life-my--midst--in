@@ -65,7 +65,7 @@ export const CURRENT_VERSION = 1;
 export function extractVersionFromUrl(url: string): number | null {
   const match = url.match(/^\/v(\d+)\//);
   if (match) {
-    return parseInt(match[1], 10);
+    return parseInt(match[1]!, 10);
   }
   return null;
 }
@@ -92,7 +92,7 @@ export function extractVersionFromHeader(
   // Parse major version (ignore minor)
   const majorMatch = cleaned.match(/^(\d+)/);
   if (majorMatch) {
-    return parseInt(majorMatch[1], 10);
+    return parseInt(majorMatch[1]!, 10);
   }
 
   return null;
@@ -214,7 +214,7 @@ export async function registerVersioningMiddleware(
       const header = request.headers["accept-version"] as string;
       if (!header) return 0;
       const match = header.match(/^\d+\.(\d+)/);
-      return match ? parseInt(match[1], 10) : 0;
+      return match ? parseInt(match[1]!, 10) : 0;
     })();
 
     // Determine source and version
@@ -236,7 +236,7 @@ export async function registerVersioningMiddleware(
       explicit = false;
     }
 
-    const config = VERSION_REGISTRY[version];
+    const config = VERSION_REGISTRY[version]!;
 
     // Attach version context to request
     request.apiVersion = {

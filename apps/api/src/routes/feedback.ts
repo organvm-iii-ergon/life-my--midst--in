@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { FeedbackEventSchema } from '@in-midst-my-life/core';
 import { getAnalyticsService } from '@in-midst-my-life/core';
 
 // Request schema extends feedback event

@@ -119,7 +119,7 @@ export async function registerLetterRoutes(
         });
       }
 
-      const { job, jobId: bodyJobId, personaId, tailoredResume } =
+      const { job, jobId: bodyJobId, personaId, tailoredResume: _tailoredResume } =
         bodyParsed.data;
       const jobId = job?.id || bodyJobId;
 
@@ -138,7 +138,7 @@ export async function registerLetterRoutes(
         });
 
         // Extract personalized elements from notes (split comma-separated string)
-        const personalizedElements = result.personalizationNotes
+        const personalizedElements = (result.personalizationNotes ?? "")
           .split(", ")
           .filter((note) => note.trim().length > 0);
 

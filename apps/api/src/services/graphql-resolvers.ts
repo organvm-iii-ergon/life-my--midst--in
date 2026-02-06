@@ -3,7 +3,7 @@
  * Implements query and mutation resolvers for unified data access.
  */
 
-import type { Mask, Profile, NarrativeBlock, Epoch, Stage } from "@in-midst-my-life/schema";
+import type { Mask, Profile, Epoch, Stage } from "@in-midst-my-life/schema";
 
 export interface GraphQLContext {
   profileRepo?: any;
@@ -197,7 +197,7 @@ export const queryResolvers = {
    */
   narrativeSnapshot: async (
     _: any,
-    args: { id: string },
+    _args: { id: string },
     _context: GraphQLContext
   ): Promise<any | null> => {
     // In a real implementation, fetch from database
@@ -209,7 +209,7 @@ export const queryResolvers = {
    */
   narrativeSnapshots: async (
     _: any,
-    args: { profileId: string; limit?: number },
+    _args: { profileId: string; limit?: number },
     _context: GraphQLContext
   ): Promise<any[]> => {
     // In a real implementation, fetch from database

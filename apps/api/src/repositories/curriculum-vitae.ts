@@ -92,7 +92,7 @@ class InMemoryCVMultiplexRepo implements CVMultiplexRepo {
     const index = cv.entries.findIndex((e) => e.id === entryId);
     if (index === -1) return undefined;
 
-    const updated: CVEntry = { ...cv.entries[index], ...patch, id: entryId };
+    const updated: CVEntry = { ...cv.entries[index]!, ...patch, id: entryId };
     cv.entries[index] = updated;
     cv.updatedAt = new Date().toISOString();
     cv.version = (cv.version ?? 1) + 1;
@@ -119,7 +119,7 @@ class InMemoryCVMultiplexRepo implements CVMultiplexRepo {
     offset = 0,
     limit = 50
   ): Promise<{ data: CVEntry[]; total: number }> {
-    const cv = await this.getOrCreate(profileId);
+    await this.getOrCreate(profileId);
     const filtered = await this.filterByMultipleDimensions(profileId, filter ?? {});
     const data = filtered.data
       .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))

@@ -29,7 +29,7 @@ export async function registerBackupRoutes(
   fastify.post<{ Params: { id: string } }>(
     "/:id/import/jsonld",
     async (request, reply) => {
-      const { id } = request.params;
+      const { id: _id } = request.params;
 
       const schema = z.object({
         mode: z.enum(["merge", "replace"]).optional().default("merge"),
@@ -62,7 +62,7 @@ export async function registerBackupRoutes(
           await profileRepo.add(importedProfile);
 
           // Import CV data
-          const cv = bundle.cv ?? {};
+          const cv = bundle.cv ?? { experiences: [], educations: [], skills: [] };
           const importedExperiences = (cv.experiences ?? []) as any[];
 
           for (const exp of importedExperiences) {

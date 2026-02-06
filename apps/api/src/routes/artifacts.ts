@@ -16,7 +16,7 @@
 
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
-import { ArtifactSchema, ArtifactStatusSchema, ArtifactTypeSchema } from "@in-midst-my-life/schema";
+import { ArtifactStatusSchema, ArtifactTypeSchema } from "@in-midst-my-life/schema";
 import { artifactService } from "../services/artifact-service";
 import { z } from "zod";
 

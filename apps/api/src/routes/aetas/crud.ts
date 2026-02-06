@@ -87,7 +87,7 @@ export async function registerAetasCrudRoutes(
     const allProfileAetas = profileAetas.get(id) || [];
     const currentAetas =
       allProfileAetas.length > 0
-        ? [...allProfileAetas].sort((a, b) => b.order - a.order)[0].name
+        ? [...allProfileAetas].sort((a, b) => b.order - a.order)[0]!.name
         : undefined;
 
     const sequence = [...(profileAetas.get(id) || [])]
@@ -236,7 +236,7 @@ export async function registerAetasCrudRoutes(
     }
 
     // Update aetas (in-memory for now)
-    const updated = { ...profileAetasList[index], ...payload };
+    const updated: Aetas = { ...profileAetasList[index]!, ...payload };
     profileAetasList[index] = updated;
 
     return reply.send({
@@ -273,7 +273,7 @@ export async function registerAetasCrudRoutes(
       });
     }
 
-    const deleted = profileAetasList[index];
+    const deleted = profileAetasList[index]!;
     profileAetasList.splice(index, 1);
     profileAetas.set(id, profileAetasList);
 

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { buildTestApp } from '../../../test/app-builder';
-import { Profile } from '@in-midst-my-life/schema';
 import type { FastifyInstance } from 'fastify';
 import { InMemorySubscriptionRepo } from '../../repositories/subscriptions';
 

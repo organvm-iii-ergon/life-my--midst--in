@@ -218,7 +218,7 @@ export class DefaultHunterService implements HunterService {
         .checkAndConsume(profileId, 'hunter_job_searches');
 
         if (!allowed) {
-            const entitlements = await this.licensingService.getEntitlements(profileId);
+            await this.licensingService.getEntitlements(profileId);
             const limit = 100;
             const used = limit - remaining;
             throw new QuotaExceededError(
@@ -455,9 +455,9 @@ export class DefaultHunterService implements HunterService {
   }
 
   async completeApplicationPipeline(
-    profileId: string,
-    jobId: string,
-    personaId: string
+    _profileId: string,
+    _jobId: string,
+    _personaId: string
   ) {
     throw new Error("completeApplicationPipeline not fully implemented in service");
   }
@@ -489,7 +489,7 @@ export class DefaultHunterService implements HunterService {
         throw new FeatureNotAvailableError("auto_apply", tier);
       }
 
-      const [autoAllowed, autoRemaining] = await licensing.checkAndConsume(profileId, "auto_apply");
+      const [autoAllowed, _autoRemaining] = await licensing.checkAndConsume(profileId, "auto_apply");
       if (!autoAllowed) {
         const used = await licensing.getUsageForFeature(profileId, "auto_apply");
         const normalizedLimit = limit === -1 ? Number.MAX_SAFE_INTEGER : limit;
@@ -564,14 +564,14 @@ export class DefaultHunterService implements HunterService {
     };
   }
 
-  async getApplications(profileId: string): Promise<any> {
+  async getApplications(_profileId: string): Promise<any> {
     if (this.jobApplicationRepo) {
       return this.jobApplicationRepo.listApplications();
     }
     return { data: [], total: 0 };
   }
 
-  async getApplicationStats(profileId: string): Promise<any> {
+  async getApplicationStats(_profileId: string): Promise<any> {
     if (this.jobApplicationRepo) {
       return {};
     }
@@ -637,7 +637,7 @@ export class DefaultHunterService implements HunterService {
       jobPostingId: job.id,
       status: submission.status,
       coverLetterMarkdown: submission.coverLetter,
-      resumeSnapshotId: null,
+      resumeSnapshotId: undefined,
       appliedAt: now,
       notes: `Submission Type: ${submission.submissionType}`,
       createdAt: now,
@@ -651,7 +651,7 @@ export class DefaultHunterService implements HunterService {
     return `${timestamp}-${random}`;
   }
 
-  private calculateQuotaExpiry(profileId: string): string {
+  private calculateQuotaExpiry(_profileId: string): string {
     const now = new Date();
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     return nextMonth.toISOString();
@@ -660,7 +660,7 @@ export class DefaultHunterService implements HunterService {
   async batchApply(
     profileId: string,
     searchFilter: JobSearchCriteria,
-    personaId: string,
+    _personaId: string,
     autoApplyThreshold: number,
     maxApplications: number = 10
   ): Promise<{

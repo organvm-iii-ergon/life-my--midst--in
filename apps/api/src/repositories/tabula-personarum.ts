@@ -90,10 +90,10 @@ class InMemoryTabulaPersonarumRepo implements TabulaPersonarumRepo {
 
     const now = new Date().toISOString();
     const updated: TabulaPersonarumEntry = {
-      ...index.personas[idx],
+      ...index.personas[idx]!,
       ...patch,
       id: personaId,
-      created_at: index.personas[idx].created_at,
+      created_at: index.personas[idx]!.created_at,
       updated_at: now
     };
     index.personas[idx] = updated;
@@ -150,7 +150,7 @@ class InMemoryTabulaPersonarumRepo implements TabulaPersonarumRepo {
     const idx = resonances.findIndex((r) => (r as any).id === resonanceId);
     if (idx === -1) return undefined;
 
-    const updated = { ...resonances[idx], ...patch };
+    const updated: PersonaResonance = { ...resonances[idx]!, ...patch } as PersonaResonance;
     resonances[idx] = updated;
     this.resonances.set(profileId, resonances);
     return updated;

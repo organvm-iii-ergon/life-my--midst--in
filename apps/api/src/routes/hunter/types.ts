@@ -4,7 +4,6 @@
  * Shared types, service setup, and middleware configuration for Hunter Protocol routes.
  */
 
-import type { FastifyInstance } from "fastify";
 import type { LicensingService } from "@in-midst-my-life/core";
 import { profileRepo, type ProfileRepo } from "../../repositories/profiles";
 import { jobRepo as defaultJobRepo, type JobRepo } from "../../repositories/jobs";

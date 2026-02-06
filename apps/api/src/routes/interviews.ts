@@ -3,14 +3,6 @@ import { z } from "zod";
 import type { Profile } from "@in-midst-my-life/schema";
 import { CompatibilityAnalyzer, type InterviewerProfile } from "@in-midst-my-life/content-model";
 
-const InterviewQuestionSchema = z.object({
-  id: z.string(),
-  category: z.enum(["culture", "growth", "sustainability", "authenticity", "team"]),
-  question: z.string(),
-  followUp: z.string().optional(),
-  expectedDuration: z.number() // seconds
-});
-
 const InterviewAnswerSchema = z.object({
   questionId: z.string(),
   answer: z.string(),
@@ -123,7 +115,7 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
    * Get interview questions for a candidate's profile
    */
   server.get("/interviews/:profileId/questions", async (req, _reply) => {
-    const { profileId } = req.params as { profileId: string };
+    const { profileId: _profileId } = req.params as { profileId: string };
 
     // Could customize questions based on profile/industry
     // For now, return default set

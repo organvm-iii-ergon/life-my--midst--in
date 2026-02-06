@@ -190,7 +190,7 @@ export async function registerCurriculumVitaeMultiplexRoutes(
       return reply.code(400).send({ ok: false, errors: parsed.error.flatten() });
     }
 
-    const persona = await tabulaRepo.addPersona(profileId, parsed.data);
+    const persona = await tabulaRepo.addPersona(profileId, { ...parsed.data, active: parsed.data.active ?? true });
     return { ok: true, data: persona };
   });
 

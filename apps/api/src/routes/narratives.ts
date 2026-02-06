@@ -13,13 +13,11 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type {
   NarrativeBlock,
-  NarrativeSnapshot,
   TabulaPersonarumEntry,
   PersonaResonance,
 } from "@in-midst-my-life/schema";
 import {
   NarrativeBlockSchema,
-  NarrativeSnapshotSchema,
 } from "@in-midst-my-life/schema";
 
 // Validation schemas for narrative endpoints
@@ -176,6 +174,7 @@ export async function registerNarrativeRoutes(
         description: "The research-focused persona",
         active: true,
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       // Generate theatrical preamble dynamically
@@ -431,7 +430,7 @@ function generateTheatricalPreamble(
  */
 function generateAuthenticDisclaimer(
   persona: TabulaPersonarumEntry,
-  filter: z.infer<typeof NarrativeFilterSchema>
+  _filter: z.infer<typeof NarrativeFilterSchema>
 ): string {
   const toneNote =
     `This narrative adopts ${persona.tone_register.toLowerCase()} tone. `;
