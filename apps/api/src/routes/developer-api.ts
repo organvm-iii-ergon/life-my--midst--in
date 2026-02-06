@@ -145,6 +145,12 @@ export function developerApiRoutes(fastify: FastifyInstance, _opts: unknown, don
               apps: { type: 'array' },
             },
           },
+          401: {
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
         },
       },
     },
@@ -196,6 +202,7 @@ export function developerApiRoutes(fastify: FastifyInstance, _opts: unknown, don
         response: {
           302: { description: 'Redirect with authorization code' },
           400: { description: 'Invalid request' },
+          401: { description: 'Unauthorized' },
         },
       },
     },

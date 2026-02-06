@@ -10,7 +10,7 @@
  * GET /billing/plans - Get all subscription plans
  */
 
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { BillingService, LicensingService, PLAN_DEFINITIONS } from '@in-midst-my-life/core';
 import type { SubscriptionTier } from '@in-midst-my-life/schema';
@@ -285,17 +285,12 @@ export function registerBillingRoutes(
    * Handle Stripe webhook events
    * Requires X-Stripe-Signature header for verification
    */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- Fastify raw body plugin options
   fastify.post(
     '/webhooks/stripe',
     {
       config: { rawBody: true },
-      schema: {
-        description: 'Stripe webhook endpoint',
-        consumes: ['application/json'],
-      },
-    } as unknown as Parameters<typeof fastify.post>[1],
-    async (request, reply) => {
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const signature = request.headers['stripe-signature'] as string;
         if (!signature) {
