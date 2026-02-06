@@ -1,8 +1,9 @@
 import type React from 'react';
 import './globals.css';
+import { getServerEnv } from '@/env';
 
-// Use system fonts to avoid network calls during build
-// CSS variables --font-display and --font-sans are set in globals.css
+// Validate server environment on first render
+getServerEnv();
 
 export default function RootLayout({
   children,
