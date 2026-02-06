@@ -69,8 +69,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check for vulnerabilities
-        run: pnpm audit --audit-level=moderate
-        continue-on-error: true
+        run: pnpm audit --audit-level=high
 
   sonarcloud:
     name: SonarCloud Analysis
@@ -164,8 +163,6 @@ jobs:
 
       - name: Check licenses
         run: npx license-checker --json --out licenses.json
-        continue-on-error: true
 
       - name: Verify licenses
         run: test -f licenses.json
-        continue-on-error: true

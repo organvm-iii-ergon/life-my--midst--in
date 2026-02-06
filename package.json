@@ -35,7 +35,12 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "fastify": "^5.7.1"
+    "fastify": "^5.7.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "lodash-es": ">=4.17.23"
+    }
   },
   "lint-staged": {
     "*.{ts,tsx}": [

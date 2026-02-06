@@ -359,6 +359,12 @@ export function publicProfilesRoutes(
               total: { type: 'integer' },
             },
           },
+          400: {
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
         },
       },
     },

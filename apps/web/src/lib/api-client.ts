@@ -30,7 +30,7 @@ export type Subscription = {
   cancelAt: string | null;
   plan: {
     name: string;
-    features: Record<string, any>;
+    features: Record<string, unknown>;
   };
 };
 
@@ -78,16 +78,5 @@ export async function cancelSubscription(
     body: JSON.stringify({ atPeriodEnd }),
   });
 
-  return response.json();
-}
-
-/**
- * Get all subscription plans (FREE, PRO, ENTERPRISE)
- */
-export async function getPlans(): Promise<{
-  ok: boolean;
-  data?: { plans: any[] };
-}> {
-  const response = await fetch('/api/billing/plans');
   return response.json();
 }

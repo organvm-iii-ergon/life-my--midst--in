@@ -248,7 +248,10 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
   const selectedCompat = selectedJob ? compatibilities[selectedJob.id] : null;
 
   // Usage info from subscription
-  const searchUsage = subscription?.plan?.features?.['hunter_job_searches'] || { used: 0, value: 5 };
+  const rawUsage = subscription?.plan?.features?.['hunter_job_searches'] as
+    | { used: number; value: number }
+    | undefined;
+  const searchUsage = rawUsage ?? { used: 0, value: 5 };
 
   return (
     <div className="max-w-7xl mx-auto p-6 text-white min-h-screen relative">
