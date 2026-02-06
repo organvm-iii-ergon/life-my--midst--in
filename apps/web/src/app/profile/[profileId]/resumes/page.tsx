@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { ResumeViewer } from '@/components/ResumeViewer';
 import { useProfileData } from '@/hooks/useProfileData';
@@ -44,7 +44,7 @@ export default function ResumesPage() {
   const apiBase = process.env['NEXT_PUBLIC_API_BASE_URL'] || 'http://localhost:3001';
 
   // Generate batch resumes
-  const generateAllResumes = async () => {
+  const generateAllResumes = useCallback(async () => {
     if (!profileId) return;
     setLoadingResumes(true);
     try {
@@ -75,11 +75,11 @@ export default function ResumesPage() {
     } finally {
       setLoadingResumes(false);
     }
-  };
+  }, [profileId, apiBase]);
 
   useEffect(() => {
     void generateAllResumes();
-  }, [profileId]);
+  }, [generateAllResumes]);
 
   if (!profileId) {
     return (

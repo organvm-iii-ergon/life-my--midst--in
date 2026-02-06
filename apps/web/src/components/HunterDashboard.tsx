@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { HunterSearchFilter, JobListing } from '@in-midst-my-life/schema';
 import { NeoCard } from '@in-midst-my-life/design-system';
 import { UpgradeWall } from '@/components/marketing/UpgradeWall';
@@ -79,14 +79,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
     resetDate: string;
   } | null>(null);
 
-  useEffect(() => {
-    void fetchSubscription();
-    if (activeTab === 'schedule') {
-      void fetchScheduledHunts();
-    }
-  }, [activeTab]);
-
-  const fetchSubscription = async () => {
+  const fetchSubscription = useCallback(async () => {
     try {
       const response = await getSubscription(profileId);
       if (response.ok && response.data) {
@@ -95,9 +88,9 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
     } catch (err) {
       console.error('Failed to fetch subscription:', err);
     }
-  };
+  }, [profileId]);
 
-  const fetchScheduledHunts = async () => {
+  const fetchScheduledHunts = useCallback(async () => {
     try {
       setScheduleLoading(true);
       const res = await fetch('/api/scheduler/job-hunts');
@@ -110,7 +103,14 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
     } finally {
       setScheduleLoading(false);
     }
-  };
+  }, [profileId]);
+
+  useEffect(() => {
+    void fetchSubscription();
+    if (activeTab === 'schedule') {
+      void fetchScheduledHunts();
+    }
+  }, [activeTab, fetchSubscription, fetchScheduledHunts]);
 
   const handleCreateSchedule = async () => {
     try {
@@ -144,7 +144,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
 
       void fetchScheduledHunts();
       alert('Job hunt scheduled!');
-    } catch (err) {
+    } catch {
       alert('Failed to schedule hunt');
     }
   };
@@ -153,7 +153,7 @@ export default function HunterDashboard({ profileId, onApplyJob }: HunterDashboa
     try {
       await fetch(`/api/scheduler/job-hunts/${profileId}`, { method: 'DELETE' });
       void fetchScheduledHunts();
-    } catch (err) {
+    } catch {
       alert('Failed to delete schedule');
     }
   };

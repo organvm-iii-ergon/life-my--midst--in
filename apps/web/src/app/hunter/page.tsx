@@ -1,4 +1,5 @@
 import HunterDashboard from '@/components/HunterDashboard';
+import Link from 'next/link';
 
 async function getProfile() {
   const apiUrl = process.env['API_URL'] || 'http://localhost:3001';
@@ -28,12 +29,12 @@ export default async function HunterPage() {
         <p className="text-gray-600 mb-8">
           No active profile found. Please create a profile to use the Hunter Protocol.
         </p>
-        <a
+        <Link
           href="/"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
         >
           Return Home
-        </a>
+        </Link>
       </div>
     );
   }

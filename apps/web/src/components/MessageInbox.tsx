@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MessageCircle, Send, Search, Archive, Plus, Check } from 'lucide-react';
 import Link from 'next/link';
 
@@ -39,9 +39,29 @@ export default function MessageInbox({ userId }: { userId: string }) {
     void loadNotifications();
   }, [userId]);
 
+  const filterThreads = useCallback(() => {
+    let filtered = threads;
+
+    // Filter by archive status
+    if (!showArchived) {
+      filtered = filtered.filter((t) => !t.isArchived);
+    }
+
+    // Filter by search
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (t) =>
+          t.participantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
+    }
+
+    setFilteredThreads(filtered);
+  }, [threads, searchQuery, showArchived]);
+
   useEffect(() => {
     filterThreads();
-  }, [threads, searchQuery, showArchived]);
+  }, [filterThreads]);
 
   const loadThreads = async () => {
     try {
@@ -69,26 +89,6 @@ export default function MessageInbox({ userId }: { userId: string }) {
     } catch (error) {
       console.error('Failed to load notifications:', error);
     }
-  };
-
-  const filterThreads = () => {
-    let filtered = threads;
-
-    // Filter by archive status
-    if (!showArchived) {
-      filtered = filtered.filter((t) => !t.isArchived);
-    }
-
-    // Filter by search
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (t) =>
-          t.participantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          t.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
-
-    setFilteredThreads(filtered);
   };
 
   const handleArchiveThread = async (threadId: string) => {

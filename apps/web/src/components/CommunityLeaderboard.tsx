@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Trophy, TrendingUp, Medal, Star, Users, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
@@ -36,11 +36,7 @@ export default function CommunityLeaderboard() {
   const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('month');
   const [filterBy, setFilterBy] = useState<'overall' | 'feedback' | 'mentoring'>('overall');
 
-  useEffect(() => {
-    void loadLeaderboard();
-  }, [timeframe, filterBy]);
-
-  const loadLeaderboard = async () => {
+  const loadLeaderboard = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await fetch(
@@ -59,7 +55,11 @@ export default function CommunityLeaderboard() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [timeframe, filterBy]);
+
+  useEffect(() => {
+    void loadLeaderboard();
+  }, [loadLeaderboard]);
 
   const generateMockLeaderboard = (): LeaderboardUser[] => [
     {

@@ -249,7 +249,7 @@ Jane Doe`;
 
       setCoverLetter(mockLetter);
       setShowCoverLetter(true);
-    } catch (err) {
+    } catch {
       setError('Failed to generate cover letter');
     }
   };

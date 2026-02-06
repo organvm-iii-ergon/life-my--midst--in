@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Heart, MessageSquare, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
@@ -51,26 +51,7 @@ export default function DiscoveryFeed() {
     void loadProfiles();
   }, []);
 
-  useEffect(() => {
-    filterProfiles();
-  }, [profiles, searchQuery, filters]);
-
-  const loadProfiles = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/public-profiles');
-      if (response.ok) {
-        const data = await response.json();
-        setProfiles(data.profiles || []);
-      }
-    } catch (error) {
-      console.error('Failed to load profiles:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filterProfiles = () => {
+  const filterProfiles = useCallback(() => {
     let filtered = profiles;
 
     // Search
@@ -104,6 +85,25 @@ export default function DiscoveryFeed() {
     }
 
     setFilteredProfiles(filtered);
+  }, [profiles, searchQuery, filters]);
+
+  useEffect(() => {
+    filterProfiles();
+  }, [filterProfiles]);
+
+  const loadProfiles = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/public-profiles');
+      if (response.ok) {
+        const data = await response.json();
+        setProfiles(data.profiles || []);
+      }
+    } catch (error) {
+      console.error('Failed to load profiles:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleExpertiseToggle = (expertise: string) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import type { Artifact } from '@in-midst-my-life/schema';
+import Image from 'next/image';
 import { FileText, Download } from 'lucide-react';
 
 interface ArtifactPreviewProps {
@@ -43,10 +44,13 @@ export function ArtifactPreview({
 
       {isImage && (
         <div style={{ textAlign: 'center' }}>
-          <img
+          <Image
             src={downloadUrl}
             alt={artifact.title || artifact.name}
-            style={{ maxWidth: '100%', maxHeight: '500px', borderRadius: '8px' }}
+            width={800}
+            height={500}
+            unoptimized
+            style={{ maxWidth: '100%', height: 'auto', maxHeight: '500px', borderRadius: '8px' }}
           />
         </div>
       )}

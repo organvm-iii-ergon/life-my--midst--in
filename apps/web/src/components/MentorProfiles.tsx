@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Star, Briefcase, MessageSquare, Send, Filter, Heart } from 'lucide-react';
 
 interface MentorProfile {
@@ -45,13 +45,34 @@ export default function MentorProfiles({
     'Personal Development',
   ];
 
+  const filterMentors = useCallback(() => {
+    let filtered = mentors;
+
+    // Filter by expertise
+    if (selectedExpertise.length > 0) {
+      filtered = filtered.filter((m) =>
+        m.areasOfExpertise.some((e) => selectedExpertise.includes(e)),
+      );
+    }
+
+    // Filter by availability
+    if (availabilityFilter !== 'any') {
+      filtered = filtered.filter((m) => m.availability === availabilityFilter);
+    }
+
+    // Sort by match score
+    filtered.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+
+    setFilteredMentors(filtered);
+  }, [mentors, selectedExpertise, availabilityFilter]);
+
   useEffect(() => {
     loadMentors();
   }, []);
 
   useEffect(() => {
     filterMentors();
-  }, [mentors, selectedExpertise, availabilityFilter]);
+  }, [filterMentors]);
 
   const loadMentors = () => {
     try {
@@ -105,27 +126,6 @@ export default function MentorProfiles({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const filterMentors = () => {
-    let filtered = mentors;
-
-    // Filter by expertise
-    if (selectedExpertise.length > 0) {
-      filtered = filtered.filter((m) =>
-        m.areasOfExpertise.some((e) => selectedExpertise.includes(e)),
-      );
-    }
-
-    // Filter by availability
-    if (availabilityFilter !== 'any') {
-      filtered = filtered.filter((m) => m.availability === availabilityFilter);
-    }
-
-    // Sort by match score
-    filtered.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
-
-    setFilteredMentors(filtered);
   };
 
   const handleExpertiseToggle = (expertise: string) => {

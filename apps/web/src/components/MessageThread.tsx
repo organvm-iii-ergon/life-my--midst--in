@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Send, MoreVertical, ArrowLeft } from 'lucide-react';
 
 interface Message {
@@ -27,15 +27,7 @@ export default function MessageThread({ threadId, participantName, onBack }: Mes
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    void loadMessages();
-  }, [threadId]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await fetch(`/api/messages/threads/${threadId}`);
@@ -48,7 +40,15 @@ export default function MessageThread({ threadId, participantName, onBack }: Mes
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [threadId]);
+
+  useEffect(() => {
+    void loadMessages();
+  }, [loadMessages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
