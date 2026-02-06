@@ -68,9 +68,9 @@ life-my--midst--in/
 │
 ├── 📁 docs/                          # Documentation
 │   ├── SECURITY.md                   # Security guidelines
-│   ├── PHASE-ROADMAP.md              # Complete roadmap
-│   ├── HUNTER-PROTOCOL.md            # Job search automation
-│   └── [30+ documentation files]
+│   ├── adr/                          # Architecture Decision Records (001-012)
+│   ├── archived/                     # Stale design docs moved from root
+│   └── [operational docs]
 │
 ├── 📁 scripts/                       # Development utilities
 │   ├── dev-up.sh                     # Start Docker services
@@ -95,31 +95,18 @@ life-my--midst--in/
 
 ## Document Classification System
 
-### Category Codes
-- **[FOUND]** - Foundational Concepts & Philosophy (5 files)
-- **[SPEC]** - Core Specifications & Schemas (4 files)
-- **[ARCH]** - Architecture & Technical Design (5 files)
-- **[PLAN]** - Planning, Roadmaps & Strategy (4 files)
-- **[WORK]** - Workflows & Automation (5 files)
-- **[ORCH]** - Integration & Orchestration (5 files)
-- **[META]** - Meta-Organization & Documentation (5 files)
+> **Note**: Design documents (FOUND-*, SPEC-*, ARCH-*, PLAN-*, WORK-*, ORCH-*, META-*) have been
+> archived to `docs/archived/`. They remain accessible for reference but are no longer actively
+> maintained. Architecture decisions are now tracked in `docs/adr/` (ADR 001-012).
 
-### Design Documents Index
-
-| ID | Filename | Topic | Status |
-|----|----------|-------|--------|
-| FOUND-001 | blockchain-cv-analogy.md | Core metaphor | Reference |
-| FOUND-002 | blockchain-cv-vs-resume.md | CV vs Résumé | Reference |
-| FOUND-003 | meta-latin-etymology.md | Theatrical terms | Reference |
-| FOUND-004 | identity-narrative-questions.md | 8 core questions | Active |
-| SPEC-001 | data-schema.md | TypeScript schemas | Implemented |
-| SPEC-002 | system-design.md | Masks, content graph | Implemented |
-| SPEC-003 | mask-taxonomy.md | 16 functional masks | Implemented |
-| ARCH-001 | system-architecture.md | Technical diagram | Partial |
-| ARCH-002 | repository-layout.md | Monorepo structure | Implemented |
-| ARCH-003 | cicd-pipeline.md | GitHub Actions | Not implemented |
-| WORK-005 | autonomous-code-growth.md | Multi-agent system | In progress |
-| META-001 | project-bible.md | Complete overview | Reference |
+### Category Codes (Archived)
+- **[FOUND]** - Foundational Concepts & Philosophy (5 files) → `docs/archived/`
+- **[SPEC]** - Core Specifications & Schemas (4 files) → `docs/archived/`
+- **[ARCH]** - Architecture & Technical Design (5 files) → `docs/archived/`
+- **[PLAN]** - Planning, Roadmaps & Strategy (6 files) → `docs/archived/`
+- **[WORK]** - Workflows & Automation (5 files) → `docs/archived/`
+- **[ORCH]** - Integration & Orchestration (5 files) → `docs/archived/`
+- **[META]** - Meta-Organization & Documentation (4 files) → `docs/archived/`
 
 ---
 
