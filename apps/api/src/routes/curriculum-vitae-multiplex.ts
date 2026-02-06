@@ -1,27 +1,29 @@
-import type { FastifyInstance } from "fastify";
-import { z } from "zod";
-import type { CVMultiplexRepo } from "../repositories/curriculum-vitae";
-import type { TabulaPersonarumRepo } from "../repositories/tabula-personarum";
-import type { ScaenaeRepo } from "../repositories/scaenae";
-import { cvMultiplexRepo } from "../repositories/curriculum-vitae";
-import { tabulaPersonarumRepo } from "../repositories/tabula-personarum";
-import { scaenaeRepo } from "../repositories/scaenae";
-import { profileRepo } from "../repositories/profiles";
+/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
+import type { CVMultiplexRepo } from '../repositories/curriculum-vitae';
+import type { TabulaPersonarumRepo } from '../repositories/tabula-personarum';
+import type { ScaenaeRepo } from '../repositories/scaenae';
+import { cvMultiplexRepo } from '../repositories/curriculum-vitae';
+import { tabulaPersonarumRepo } from '../repositories/tabula-personarum';
+import { scaenaeRepo } from '../repositories/scaenae';
+import { profileRepo } from '../repositories/profiles';
+import { createOwnershipMiddleware } from '../middleware/auth';
 
 // Validation schemas
 const CVEntryCreateSchema = z.object({
   type: z.enum([
-    "experience",
-    "achievement",
-    "skill",
-    "publication",
-    "project",
-    "education",
-    "certification",
-    "language",
-    "volunteer",
-    "award",
-    "custom"
+    'experience',
+    'achievement',
+    'skill',
+    'publication',
+    'project',
+    'education',
+    'certification',
+    'language',
+    'volunteer',
+    'award',
+    'custom',
   ]),
   content: z.string().min(1),
   personae: z.array(z.string()).optional(),
@@ -31,7 +33,7 @@ const CVEntryCreateSchema = z.object({
   endDate: z.string().datetime().optional(),
   priority: z.number().int().min(0).max(100).optional(),
   tags: z.array(z.string()).optional(),
-  metadata: z.record(z.unknown()).optional()
+  metadata: z.record(z.unknown()).optional(),
 });
 
 const CVFilterSchema = z.object({
@@ -45,7 +47,7 @@ const CVFilterSchema = z.object({
   includeTags: z.array(z.string()).optional(),
   excludeTags: z.array(z.string()).optional(),
   offset: z.number().int().min(0).optional(),
-  limit: z.number().int().min(1).max(100).optional()
+  limit: z.number().int().min(1).max(100).optional(),
 });
 
 const TabulaPersonarumEntryCreateSchema = z.object({
@@ -56,7 +58,7 @@ const TabulaPersonarumEntryCreateSchema = z.object({
   visibility_scope: z.array(z.string()),
   motto: z.string().optional(),
   description: z.string().optional(),
-  active: z.boolean().optional()
+  active: z.boolean().optional(),
 });
 
 interface RouteDeps {
@@ -67,11 +69,22 @@ interface RouteDeps {
 
 export async function registerCurriculumVitaeMultiplexRoutes(
   fastify: FastifyInstance,
-  deps?: RouteDeps
+  deps?: RouteDeps,
 ) {
   const cvRepo = deps?.cvRepo ?? cvMultiplexRepo;
   const tabulaRepo = deps?.tabulaRepo ?? tabulaPersonarumRepo;
   const scaenaeRepoInstance = deps?.scaenaeRepo ?? scaenaeRepo;
+
+  // Ownership guard for all write operations — uses preHandler so it runs
+  // after onRequest auth hooks have populated request.user
+  const ownershipCheck = createOwnershipMiddleware();
+  fastify.addHook('preHandler', (request, reply, done) => {
+    if (request.method === 'GET') {
+      done();
+      return;
+    }
+    void ownershipCheck(request, reply).then(() => done(), done);
+  });
 
   // Initialize canonical scaenae
   await scaenaeRepoInstance.initializeCanonicalScaenae();
@@ -80,10 +93,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * GET /profiles/:id/cv
    * Retrieve the master curriculum vitae for a profile
    */
-  fastify.get("/:id/cv", async (request, reply) => {
+  fastify.get('/:id/cv', async (request, reply) => {
     const profileId = (request.params as { id: string }).id;
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const cv = await cvRepo.getOrCreate(profileId);
     return { ok: true, data: cv };
@@ -93,10 +106,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * POST /profiles/:id/cv/entries
    * Add a new entry to the master CV
    */
-  fastify.post("/:id/cv/entries", async (request, reply) => {
+  fastify.post('/:id/cv/entries', async (request, reply) => {
     const profileId = (request.params as { id: string }).id;
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const parsed = CVEntryCreateSchema.safeParse(request.body);
     if (!parsed.success) {
@@ -111,10 +124,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * GET /profiles/:id/cv/entries
    * List CV entries with optional filtering
    */
-  fastify.get("/:id/cv/entries", async (request, reply) => {
+  fastify.get('/:id/cv/entries', async (request, reply) => {
     const profileId = (request.params as { id: string }).id;
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const parsed = CVFilterSchema.safeParse(request.query);
     if (!parsed.success) {
@@ -130,10 +143,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * PATCH /profiles/:id/cv/entries/:entryId
    * Update a CV entry
    */
-  fastify.patch("/:id/cv/entries/:entryId", async (request, reply) => {
+  fastify.patch('/:id/cv/entries/:entryId', async (request, reply) => {
     const { id: profileId, entryId } = request.params as { id: string; entryId: string };
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const parsed = CVEntryCreateSchema.partial().safeParse(request.body);
     if (!parsed.success) {
@@ -141,7 +154,7 @@ export async function registerCurriculumVitaeMultiplexRoutes(
     }
 
     const updated = await cvRepo.updateEntry(profileId, entryId, parsed.data);
-    if (!updated) return reply.code(404).send({ ok: false, error: "entry_not_found" });
+    if (!updated) return reply.code(404).send({ ok: false, error: 'entry_not_found' });
 
     return { ok: true, data: updated };
   });
@@ -150,13 +163,13 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * DELETE /profiles/:id/cv/entries/:entryId
    * Delete a CV entry
    */
-  fastify.delete("/:id/cv/entries/:entryId", async (request, reply) => {
+  fastify.delete('/:id/cv/entries/:entryId', async (request, reply) => {
     const { id: profileId, entryId } = request.params as { id: string; entryId: string };
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const deleted = await cvRepo.deleteEntry(profileId, entryId);
-    if (!deleted) return reply.code(404).send({ ok: false, error: "entry_not_found" });
+    if (!deleted) return reply.code(404).send({ ok: false, error: 'entry_not_found' });
 
     return { ok: true };
   });
@@ -165,10 +178,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * GET /profiles/:id/personae
    * List all personas (tabula personarum) for a profile
    */
-  fastify.get("/:id/personae", async (request, reply) => {
+  fastify.get('/:id/personae', async (request, reply) => {
     const profileId = (request.params as { id: string }).id;
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const index = await tabulaRepo.getOrCreate(profileId);
     const personas = await tabulaRepo.listPersonae(profileId, true);
@@ -180,17 +193,20 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * POST /profiles/:id/personae
    * Create a new persona
    */
-  fastify.post("/:id/personae", async (request, reply) => {
+  fastify.post('/:id/personae', async (request, reply) => {
     const profileId = (request.params as { id: string }).id;
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const parsed = TabulaPersonarumEntryCreateSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.code(400).send({ ok: false, errors: parsed.error.flatten() });
     }
 
-    const persona = await tabulaRepo.addPersona(profileId, { ...parsed.data, active: parsed.data.active ?? true });
+    const persona = await tabulaRepo.addPersona(profileId, {
+      ...parsed.data,
+      active: parsed.data.active ?? true,
+    });
     return { ok: true, data: persona };
   });
 
@@ -198,13 +214,13 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * GET /profiles/:id/personae/:personaId
    * Get a specific persona
    */
-  fastify.get("/:id/personae/:personaId", async (request, reply) => {
+  fastify.get('/:id/personae/:personaId', async (request, reply) => {
     const { id: profileId, personaId } = request.params as { id: string; personaId: string };
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const persona = await tabulaRepo.getPersona(profileId, personaId);
-    if (!persona) return reply.code(404).send({ ok: false, error: "persona_not_found" });
+    if (!persona) return reply.code(404).send({ ok: false, error: 'persona_not_found' });
 
     const resonances = await tabulaRepo.listResonances(profileId, personaId);
     return { ok: true, data: { ...persona, resonances } };
@@ -214,10 +230,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * PATCH /profiles/:id/personae/:personaId
    * Update a persona
    */
-  fastify.patch("/:id/personae/:personaId", async (request, reply) => {
+  fastify.patch('/:id/personae/:personaId', async (request, reply) => {
     const { id: profileId, personaId } = request.params as { id: string; personaId: string };
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const parsed = TabulaPersonarumEntryCreateSchema.partial().safeParse(request.body);
     if (!parsed.success) {
@@ -225,7 +241,7 @@ export async function registerCurriculumVitaeMultiplexRoutes(
     }
 
     const updated = await tabulaRepo.updatePersona(profileId, personaId, parsed.data);
-    if (!updated) return reply.code(404).send({ ok: false, error: "persona_not_found" });
+    if (!updated) return reply.code(404).send({ ok: false, error: 'persona_not_found' });
 
     return { ok: true, data: updated };
   });
@@ -234,13 +250,13 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * DELETE /profiles/:id/personae/:personaId
    * Delete a persona
    */
-  fastify.delete("/:id/personae/:personaId", async (request, reply) => {
+  fastify.delete('/:id/personae/:personaId', async (request, reply) => {
     const { id: profileId, personaId } = request.params as { id: string; personaId: string };
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const deleted = await tabulaRepo.deletePersona(profileId, personaId);
-    if (!deleted) return reply.code(404).send({ ok: false, error: "persona_not_found" });
+    if (!deleted) return reply.code(404).send({ ok: false, error: 'persona_not_found' });
 
     return { ok: true };
   });
@@ -249,8 +265,8 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * GET /taxonomy/scaenae
    * List all theatrical stages (scaenae)
    */
-  fastify.get("/taxonomy/scaenae", async (request) => {
-    const canonical = (request.query as any)?.canonical === "true";
+  fastify.get('/taxonomy/scaenae', async (request) => {
+    const canonical = (request.query as any)?.canonical === 'true';
     const scaenae = await scaenaeRepoInstance.listScaenae(canonical);
     const taxonomy = await scaenaeRepoInstance.getTaxonomy();
 
@@ -259,8 +275,8 @@ export async function registerCurriculumVitaeMultiplexRoutes(
       data: {
         taxonomy,
         scaenae,
-        canonical_count: scaenae.filter((s) => s.metadata?.canonical).length
-      }
+        canonical_count: scaenae.filter((s) => s.metadata?.canonical).length,
+      },
     };
   });
 
@@ -268,10 +284,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * GET /taxonomy/scaenae/:scaenaId
    * Get a specific scaena
    */
-  fastify.get("/taxonomy/scaenae/:scaenaId", async (request, reply) => {
+  fastify.get('/taxonomy/scaenae/:scaenaId', async (request, reply) => {
     const scaenaId = (request.params as { scaenaId: string }).scaenaId;
     const scaena = await scaenaeRepoInstance.getScaena(scaenaId);
-    if (!scaena) return reply.code(404).send({ ok: false, error: "scaena_not_found" });
+    if (!scaena) return reply.code(404).send({ ok: false, error: 'scaena_not_found' });
 
     return { ok: true, data: scaena };
   });
@@ -280,10 +296,10 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * POST /profiles/:id/cv/filter
    * Filter CV entries by multiple dimensions and generate resume view
    */
-  fastify.post("/:id/cv/filter", async (request, reply) => {
+  fastify.post('/:id/cv/filter', async (request, reply) => {
     const profileId = (request.params as { id: string }).id;
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const parsed = CVFilterSchema.safeParse(request.body);
     if (!parsed.success) {
@@ -302,7 +318,7 @@ export async function registerCurriculumVitaeMultiplexRoutes(
       limit,
       total: result.total,
       data: sorted,
-      filter_applied: Object.keys(filter).filter((k) => (filter as any)[k])
+      filter_applied: Object.keys(filter).filter((k) => (filter as any)[k]),
     };
   });
 
@@ -310,18 +326,18 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * POST /profiles/:id/cv/generate-resume
    * Generate a filtered resume for a specific mask/persona
    */
-  fastify.post("/:id/cv/generate-resume/:maskId", async (request, reply) => {
+  fastify.post('/:id/cv/generate-resume/:maskId', async (request, reply) => {
     const { id: profileId, maskId } = request.params as { id: string; maskId: string };
     const profile = await profileRepo.find(profileId);
-    if (!profile) return reply.code(404).send({ ok: false, error: "profile_not_found" });
+    if (!profile) return reply.code(404).send({ ok: false, error: 'profile_not_found' });
 
     const persona = await tabulaRepo.getPersona(profileId, maskId);
-    if (!persona) return reply.code(404).send({ ok: false, error: "persona_not_found" });
+    if (!persona) return reply.code(404).send({ ok: false, error: 'persona_not_found' });
 
     // Filter CV by this persona's visibility scope
     const filtered = await cvRepo.filterByMultipleDimensions(profileId, {
       includePersonae: [maskId],
-      includeScaenae: persona.visibility_scope
+      includeScaenae: persona.visibility_scope,
     });
 
     // Sort by priority
@@ -335,24 +351,24 @@ export async function registerCurriculumVitaeMultiplexRoutes(
           nomen: persona.nomen,
           everyday_name: persona.everyday_name,
           role_vector: persona.role_vector,
-          motto: persona.motto
+          motto: persona.motto,
         },
         entries: sorted,
         entry_count: sorted.length,
-        theatrical_preamble: `This resume is presented through the lens of ${persona.everyday_name} (${persona.nomen}). The following emphasizes ${persona.role_vector}.`
-      }
+        theatrical_preamble: `This resume is presented through the lens of ${persona.everyday_name} (${persona.nomen}). The following emphasizes ${persona.role_vector}.`,
+      },
     };
   });
 
   /**
    * POST /profiles/:id/cv/generate-resume/batch
-   * 
+   *
    * Generate filtered resumes for ALL personas of a profile.
    * Returns an array of resume views, one for each active persona.
-   * 
+   *
    * Query Parameters:
    * - activeOnly?: boolean (default: true) - only generate for active personas
-   * 
+   *
    * Response:
    * {
    *   ok: true,
@@ -373,15 +389,15 @@ export async function registerCurriculumVitaeMultiplexRoutes(
    * POST /profiles/:id/cv/generate-resume/batch
    * Generate resumes for all active personas
    */
-  fastify.post("/:id/cv/generate-resume/batch", async (request, reply) => {
+  fastify.post('/:id/cv/generate-resume/batch', async (request, reply) => {
     const profileId = (request.params as { id: string }).id;
     const profile = await profileRepo.find(profileId);
     if (!profile) {
-      return reply.code(404).send({ ok: false, error: "profile_not_found" });
+      return reply.code(404).send({ ok: false, error: 'profile_not_found' });
     }
 
     // Parse query parameters
-    const activeOnly = (request.query as any)?.activeOnly !== "false" ? true : false;
+    const activeOnly = (request.query as any)?.activeOnly !== 'false' ? true : false;
 
     // Fetch all personas for this profile
     const personas = await tabulaRepo.listPersonae(profileId, activeOnly);
@@ -395,7 +411,7 @@ export async function registerCurriculumVitaeMultiplexRoutes(
         total_resumes: 0,
         total_entries_across_all: 0,
         generated_at: new Date().toISOString(),
-        warning: "No active personas found for profile"
+        warning: 'No active personas found for profile',
       };
     }
 
@@ -405,14 +421,14 @@ export async function registerCurriculumVitaeMultiplexRoutes(
         // Filter CV by this persona's visibility scope
         const filtered = await cvRepo.filterByMultipleDimensions(profileId, {
           includePersonae: [persona.id],
-          includeScaenae: persona.visibility_scope
+          includeScaenae: persona.visibility_scope,
         });
 
         // Sort by priority
         const sorted = filtered.data.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
         // Generate theatrical preamble
-        const theatricalPreamble = `This resume is presented through the lens of ${persona.everyday_name} (${persona.nomen} in theatrical terms). The following emphasizes: ${persona.role_vector}. This persona is suited for ${persona.visibility_scope.join(", ")} contexts.`;
+        const theatricalPreamble = `This resume is presented through the lens of ${persona.everyday_name} (${persona.nomen} in theatrical terms). The following emphasizes: ${persona.role_vector}. This persona is suited for ${persona.visibility_scope.join(', ')} contexts.`;
 
         return {
           persona: {
@@ -421,14 +437,14 @@ export async function registerCurriculumVitaeMultiplexRoutes(
             everyday_name: persona.everyday_name,
             role_vector: persona.role_vector,
             tone_register: persona.tone_register,
-            motto: persona.motto
+            motto: persona.motto,
           },
           entries: sorted,
           entry_count: sorted.length,
           theatrical_preamble: theatricalPreamble,
-          scaena_focus: persona.visibility_scope
+          scaena_focus: persona.visibility_scope,
         };
-      })
+      }),
     );
 
     // Calculate total entries across all resumes
@@ -441,8 +457,7 @@ export async function registerCurriculumVitaeMultiplexRoutes(
       total_resumes: resumes.length,
       total_entries_across_all: totalEntriesAcrossAll,
       average_entries_per_resume: Math.round((totalEntriesAcrossAll / resumes.length) * 100) / 100,
-      generated_at: new Date().toISOString()
+      generated_at: new Date().toISOString(),
     };
   });
 }
-

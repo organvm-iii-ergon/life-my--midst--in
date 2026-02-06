@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call */
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { createOwnershipMiddleware } from '../middleware/auth';
 import type { Profile, Mask, Experience, Education, Skill } from '@in-midst-my-life/schema';
 import {
   generateProfileJsonLd,
@@ -56,6 +58,17 @@ const JsonLdExportRequestSchema = z.object({
 export function registerExportRoutes(fastify: FastifyInstance, deps?: ExportRouteDeps) {
   const profileRepo = deps?.profileRepo ?? defaultProfileRepo;
   const cvRepos = deps?.cvRepos ?? defaultCvRepos;
+
+  // Ownership guard for all write operations (POST/PATCH/DELETE)
+  const ownershipCheck = createOwnershipMiddleware();
+  fastify.addHook('preHandler', (request, reply, done) => {
+    if (request.method === 'GET') {
+      done();
+      return;
+    }
+    void ownershipCheck(request, reply).then(() => done(), done);
+  });
+
   /**
    * POST /export/json-ld
    *

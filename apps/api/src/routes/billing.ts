@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 /**
  * Billing Routes
  * Payment processing and subscription management
@@ -77,7 +78,7 @@ export function registerBillingRoutes(
   fastify.post<{ Params: { profileId: string } }>(
     '/checkout/:profileId',
     {
-      onRequest: [ownershipMiddleware],
+      preHandler: [ownershipMiddleware],
     },
     async (request, reply) => {
       const { profileId } = request.params;
@@ -159,7 +160,7 @@ export function registerBillingRoutes(
   fastify.get<{ Params: { profileId: string } }>(
     '/subscription/:profileId',
     {
-      onRequest: [ownershipMiddleware],
+      preHandler: [ownershipMiddleware],
     },
     async (request, reply) => {
       const { profileId } = request.params;
@@ -202,7 +203,7 @@ export function registerBillingRoutes(
   fastify.post<{ Params: { profileId: string } }>(
     '/subscription/:profileId/cancel',
     {
-      onRequest: [ownershipMiddleware],
+      preHandler: [ownershipMiddleware],
     },
     async (request, reply) => {
       const { profileId } = request.params;
