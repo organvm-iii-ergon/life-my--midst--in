@@ -43,6 +43,13 @@ import type { JobRepo } from './repositories/jobs';
 import { jobRepo as defaultJobRepo } from './repositories/jobs';
 import { registerBillingRoutes } from './routes/billing';
 import { registerAdminLicensingRoutes } from './routes/admin-licensing';
+import { registerAdminServiceStatusRoutes } from './routes/admin-service-status';
+import { registerAdminSettingsRoutes } from './routes/admin-settings';
+import {
+  createSettingsRepo,
+  InMemorySettingsRepo,
+  type SettingsRepo,
+} from './repositories/settings';
 import {
   subscriptionRepo as defaultSubscriptionRepo,
   type SubscriptionRepo,
@@ -85,6 +92,7 @@ export interface ApiServerOptions {
   billingService?: BillingService;
   licensingService?: LicensingService;
   embeddingsRepo?: EmbeddingsRepo;
+  settingsRepo?: SettingsRepo;
   /** When true, skip JWT auth hooks (tests provide their own mock auth) */
   disableAuth?: boolean;
 }
@@ -125,6 +133,17 @@ export function buildServer(options: ApiServerOptions = {}) {
     (process.env['NODE_ENV'] === 'test'
       ? new InMemoryEmbeddingsRepo()
       : new PostgresEmbeddingsRepo(
+          new Pool({
+            connectionString: process.env['DATABASE_URL'] ?? process.env['POSTGRES_URL'],
+          }),
+        ));
+
+  // Initialize settings repository
+  const settingsRepo: SettingsRepo =
+    options.settingsRepo ??
+    (process.env['NODE_ENV'] === 'test'
+      ? new InMemorySettingsRepo()
+      : createSettingsRepo(
           new Pool({
             connectionString: process.env['DATABASE_URL'] ?? process.env['POSTGRES_URL'],
           }),
@@ -301,6 +320,30 @@ export function buildServer(options: ApiServerOptions = {}) {
     }
   });
 
+  // Public runtime config — exposes non-sensitive info for frontend mock-mode indicators
+  fastify.get('/config', async (_request, reply) => {
+    const env = process.env['NODE_ENV'] || 'development';
+    const stripeKey = process.env['STRIPE_SECRET_KEY'] || '';
+    const openaiKey = process.env['OPENAI_API_KEY'] || '';
+    const mockServices: string[] = [];
+    if (!stripeKey || stripeKey === 'sk_test_mock') mockServices.push('stripe');
+    if (!openaiKey || openaiKey === 'sk-test-mock' || openaiKey.includes('test'))
+      mockServices.push('openai');
+    if (!process.env['SENTRY_DSN']) mockServices.push('sentry');
+
+    return reply.send({
+      environment: env,
+      mockMode: env !== 'production' || mockServices.length > 0,
+      mockServices,
+      features: {
+        hunterProtocol: true,
+        invertedInterviews: true,
+        didVerification: true,
+        autonomousAgents: false,
+      },
+    });
+  });
+
   fastify.get('/metrics', async (_request, reply) => {
     reply.header('Content-Type', register.contentType);
     const legacyMetrics = [
@@ -454,6 +497,8 @@ export function buildServer(options: ApiServerOptions = {}) {
       licensingService,
     });
     scope.register(registerAdminLicensingRoutes, licensingService);
+    scope.register(registerAdminServiceStatusRoutes);
+    scope.register(registerAdminSettingsRoutes, { settingsRepo });
     scope.register(registerArtifactRoutes);
     scope.register(registerIntegrationRoutes);
     scope.register(registerSearchRoutes, {
