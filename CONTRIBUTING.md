@@ -16,8 +16,8 @@ Thank you for your interest in contributing! This document provides guidelines f
    ```
 4. **Start development services**:
    ```bash
-   scripts/dev-up.sh  # PostgreSQL + Redis
-   pnpm dev           # All applications
+   scripts/dev-up.sh  # PostgreSQL + Redis via Docker Compose
+   pnpm dev           # All applications in parallel
    ```
 
 ## Development Workflow
@@ -28,12 +28,23 @@ Thank you for your interest in contributing! This document provides guidelines f
 - `fix/` - Bug fixes
 - `docs/` - Documentation updates
 - `refactor/` - Code refactoring
+- `test/` - Test additions or fixes
 
 Example: `feature/hunter-gap-analysis`
 
+### Pre-commit Hooks
+
+This project uses **Husky** + **lint-staged** to enforce quality on every commit.
+When you `git commit`, the following runs automatically on staged `*.{ts,tsx}` files:
+
+1. `eslint --fix` - Fixes auto-fixable lint issues
+2. `prettier --write` - Formats code
+
+If either step fails, the commit is rejected. Fix the issues and re-commit.
+
 ### Commit Messages
 
-Follow conventional commits:
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
 <type>(<scope>): <description>
@@ -49,7 +60,9 @@ Types:
 - `docs` - Documentation
 - `refactor` - Code refactoring
 - `test` - Test updates
+- `ci` - CI/CD changes
 - `chore` - Build/tooling
+- `security` - Security fixes
 
 Example:
 ```
@@ -64,23 +77,30 @@ Closes #42
 
 ### Code Standards
 
-- **TypeScript**: Strict mode, no `any` types
-- **Testing**: 75%+ coverage required
-- **Formatting**: Prettier (auto-format on save)
-- **Linting**: ESLint with TypeScript rules
-- **File size**: Max 1200 LOC per file
+- **TypeScript**: Strict mode enforced across the entire monorepo (`noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature`, `noImplicitAny`, etc.)
+- **Testing**: 75%+ coverage required (statements, branches, functions, lines)
+- **Formatting**: Prettier (enforced via pre-commit hook)
+- **Linting**: ESLint with `@typescript-eslint` strict rules
+- **File size**: Max 1200 LOC per file, max 200 LOC per function
+- **Cyclomatic complexity**: Max 10
 
 ### Running Tests
 
 ```bash
-# Unit tests
+# Unit tests (all packages)
 pnpm test
 
 # Watch mode
 pnpm test:watch
 
+# Coverage report (local)
+pnpm test:coverage
+
 # Integration tests (requires database)
 INTEGRATION_POSTGRES_URL=postgresql://... pnpm integration
+
+# E2E tests (requires Playwright browsers)
+pnpm --filter @in-midst-my-life/web e2e
 
 # Type checking
 pnpm typecheck
@@ -89,73 +109,75 @@ pnpm typecheck
 pnpm lint
 ```
 
+### Single Package Commands
+
+```bash
+pnpm --filter @in-midst-my-life/api test
+pnpm --filter @in-midst-my-life/web typecheck
+pnpm --filter @in-midst-my-life/core test:coverage
+```
+
 ## Pull Request Process
 
-1. **Create a feature branch** from `main`
-2. **Make your changes** with clear commit messages
-3. **Run tests** to ensure nothing breaks
+1. **Create a feature branch** from `master`
+2. **Make your changes** with clear, atomic commit messages
+3. **Run the full verification suite**:
+   ```bash
+   pnpm typecheck && pnpm lint && pnpm test
+   ```
 4. **Push to your fork**
 5. **Open a Pull Request** with:
-   - Clear title and description
-   - Reference to related issues
-   - Screenshots (for UI changes)
+   - Clear title (imperative mood, <72 chars)
+   - Description referencing related issues
+   - Screenshots for UI changes
 6. **Address review feedback**
 
 ### PR Checklist
 
-- [ ] Tests pass locally
-- [ ] Code follows style guidelines
-- [ ] Documentation updated (if needed)
-- [ ] No sensitive data committed
-- [ ] Commit messages follow convention
-
-## Areas for Contribution
-
-### High Priority
-
-- **Hunter Protocol**: Job search automation (Serper integration)
-- **Theatrical UI**: Mask editor, timeline visualization
-- **PDF Export**: Generate formatted resumes
-- **Testing**: Increase coverage, add E2E tests
-
-### Medium Priority
-
-- **Documentation**: Improve guides, add examples
-- **Accessibility**: WCAG compliance
-- **Performance**: Optimize queries, caching
-- **Mobile**: Responsive design improvements
-
-### Good First Issues
-
-Look for issues labeled `good first issue` for beginner-friendly tasks.
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm lint` passes
+- [ ] `pnpm test` passes
+- [ ] Code follows existing patterns and style
+- [ ] Documentation updated if needed
+- [ ] No sensitive data committed (.env, credentials, API keys)
+- [ ] Commit messages follow conventional commits
 
 ## Architecture Overview
 
 ```
 apps/
-├── web/          Next.js 15 frontend
-├── api/          Fastify REST API
-└── orchestrator/ Node.js worker service
+├── web/              Next.js 15 frontend (port 3000)
+├── api/              Fastify REST API (port 3001)
+└── orchestrator/     Node.js worker service (port 3002)
 
 packages/
-├── schema/       Zod schemas (source of truth)
-├── core/         Business logic
-├── content-model/ Narrative generation
-└── design-system/ Shared UI components
+├── schema/           Zod schemas (single source of truth)
+├── core/             Business logic (mask matching, crypto, billing)
+├── content-model/    Narrative generation, JSON-LD transforms
+└── design-system/    Shared UI components
 ```
 
 ### Key Patterns
 
-- **Schema-First**: All types defined in `packages/schema/`
-- **Hexagonal Architecture**: Routes → Services → Repositories
-- **Repository Pattern**: Abstract data access
-- **Functional Core**: Pure functions in packages, side effects in apps
+- **Schema-First**: All data models defined in `packages/schema/` using Zod
+- **Hexagonal Architecture**: Routes -> Services -> Repositories (in `apps/api`)
+- **Repository Pattern**: Abstract data access behind interfaces
+- **Functional Core, Imperative Shell**: Pure functions in packages, side effects at app boundaries
+- **Dependency Injection**: All dependencies explicit; test doubles via constructor injection
+
+### Module Boundaries
+
+- Apps can import from `packages/*`
+- `packages/content-model` and `packages/core` can import from `packages/schema`
+- Apps **cannot** import from each other
+- `packages/schema` cannot import from other packages
+- No direct DB access outside the repository layer
 
 ## Need Help?
 
 - **Questions**: Open a GitHub Issue
-- **Discussions**: Coming soon
-- **Security Issues**: Email privately (see SECURITY.md)
+- **Security Issues**: See [SECURITY.md](docs/SECURITY.md)
+- **Architecture**: See [ADRs](docs/adr/) for decision context
 
 ## Code of Conduct
 

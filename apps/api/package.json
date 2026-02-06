@@ -28,6 +28,7 @@
     "@opentelemetry/sdk-node": "^0.210.0",
     "@opentelemetry/sdk-trace-node": "^2.4.0",
     "@opentelemetry/semantic-conventions": "^1.39.0",
+    "@scalar/fastify-api-reference": "1.44.14",
     "@sentry/node": "^10.34.0",
     "fastify": "^4.25.0",
     "fastify-raw-body": "^4.3.0",

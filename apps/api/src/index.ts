@@ -60,6 +60,7 @@ import {
 } from '@in-midst-my-life/core';
 import { PostgresDIDRegistry } from './repositories/did-registry';
 import { versionPrefix } from './middleware/versioning';
+import scalarApiReference from '@scalar/fastify-api-reference';
 
 initializeTracing();
 initializeSentry();
@@ -188,6 +189,29 @@ export function buildServer(options: ApiServerOptions = {}) {
     ],
     maxAge: 86400, // 24 hours
   });
+
+  // Interactive API documentation UI at /api/docs
+  if (process.env['NODE_ENV'] !== 'test') {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any -- Fastify plugin type mismatch
+    fastify.register(scalarApiReference as any, {
+      routePrefix: '/api/docs',
+      configuration: {
+        theme: 'kepler',
+        spec: {
+          url: '/api/docs/openapi.yaml',
+        },
+      },
+    });
+
+    // Serve the OpenAPI spec file
+    fastify.get('/api/docs/openapi.yaml', async (_request, reply) => {
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      const specPath = path.join(__dirname, '..', 'openapi.yaml');
+      const content = await fs.readFile(specPath, 'utf8');
+      return reply.type('text/yaml').send(content);
+    });
+  }
 
   const requestStartTimes = new WeakMap<object, number>();
 

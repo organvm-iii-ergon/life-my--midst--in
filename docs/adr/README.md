@@ -179,9 +179,31 @@ When a decision is no longer recommended but still in use:
 ### Application
 - ADR 005: Mask System
 - ADR 006: Next.js Frontend
-
-### Coming Soon
-- ADR 007: GraphQL vs REST API
+- ADR 007: REST API with Hybrid Versioning
 - ADR 008: Hunter Protocol Architecture
-- ADR 009: Deployment Strategy (Docker vs k8s)
-- ADR 010: Authentication & Authorization
+
+### Deployment & Security
+- ADR 009: Deployment Strategy (Docker + K8s)
+- ADR 010: Authentication & Authorization (JWT + RBAC)
+
+### API & Security
+
+- [ADR 007: REST API with Hybrid URL/Header Versioning](./007-rest-api-with-hybrid-versioning.md)
+  - REST over GraphQL for simplicity and caching
+  - Dual URL path + Accept-Version header versioning
+  - 90-day deprecation sunset on unversioned root routes
+
+- [ADR 008: Hunter Protocol Architecture](./008-hunter-protocol-architecture.md)
+  - Modular 4-tool agent (find, analyze, tailor, write)
+  - Core/Orchestrator split for testability
+  - Pluggable job search providers with mask integration
+
+- [ADR 009: Deployment Strategy — Docker + Kubernetes](./009-deployment-strategy.md)
+  - Docker Compose for local development
+  - Kubernetes + Helm for production
+  - GitHub Actions CI/CD with GHCR
+
+- [ADR 010: Authentication & Authorization — JWT with RBAC](./010-authentication-authorization.md)
+  - JWT bearer tokens with role + permission claims
+  - Three-tier middleware (required, optional, permission-gated)
+  - Ownership guard for GDPR-aligned resource access
