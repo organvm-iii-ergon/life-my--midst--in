@@ -4,15 +4,14 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSubscription } from '@/lib/api-client';
 import { NeoCard } from '@in-midst-my-life/design-system';
+import { useAuth } from '@/hooks/useAuth';
 
 function SuccessContent() {
   const router = useRouter();
   const [subscription, setSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Note: searchParams.get('session_id') would be used for Stripe session verification in production
-  const profileId = '00000000-0000-0000-0000-000000000001'; // TODO: Get from auth context
+  const { profileId } = useAuth();
 
   useEffect(() => {
     async function fetchSubscription() {
@@ -20,6 +19,7 @@ function SuccessContent() {
         // Wait a few seconds for webhook to process
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
+        if (!profileId) return;
         const response = await getSubscription(profileId);
         if (!response.ok) {
           throw new Error(response.message || 'Failed to fetch subscription');
@@ -34,7 +34,7 @@ function SuccessContent() {
     }
 
     if (profileId) {
-      fetchSubscription();
+      void fetchSubscription();
     }
   }, [profileId]);
 

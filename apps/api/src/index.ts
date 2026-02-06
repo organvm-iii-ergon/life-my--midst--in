@@ -61,6 +61,8 @@ import {
 import { PostgresDIDRegistry } from './repositories/did-registry';
 import { versionPrefix } from './middleware/versioning';
 import scalarApiReference from '@scalar/fastify-api-reference';
+import { JWTAuth } from './services/auth';
+import { createAuthMiddleware, createOptionalAuthMiddleware } from './middleware/auth';
 
 initializeTracing();
 initializeSentry();
@@ -147,6 +149,14 @@ export function buildServer(options: ApiServerOptions = {}) {
       },
       webhookSecret: process.env['STRIPE_WEBHOOK_SECRET'] || 'whsec_test_mock',
     });
+
+  // JWT authentication — uses env var or a dev-only default for test/development
+  const jwtSecret =
+    process.env['JWT_SECRET'] || // allow-secret
+    (process.env['NODE_ENV'] === 'production'
+      ? undefined
+      : 'dev-only-secret-do-not-use-in-prod-32chars!'); // allow-secret
+  const jwtAuth = jwtSecret ? new JWTAuth({ secret: jwtSecret }) : undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any -- Fastify plugin type mismatch
   fastify.register(rawBody as any, {
@@ -309,6 +319,48 @@ export function buildServer(options: ApiServerOptions = {}) {
       reply.header('X-API-Version', '1');
       done();
     });
+
+    // ── Auth middleware (secure by default) ────────────────────────────
+    // Routes listed here are publicly accessible without a token.
+    // Everything else requires a valid JWT Bearer token.
+    const publicRoutes = new Set([
+      // Stripe webhooks use their own signature verification
+      '/billing/webhooks/stripe',
+      // Agent interface has its own bearer-token auth (agent tokens, not JWT)
+      '/agent/v1/query',
+    ]);
+
+    // Routes that accept optional auth (enrich request.user if present, but don't block)
+    const optionalAuthRoutes = new Set([
+      // Public profile reads — guests can view, authenticated users get extra data
+      '/profiles',
+      '/taxonomy/masks',
+      '/taxonomy/epochs',
+      '/taxonomy/stages',
+    ]);
+
+    if (jwtAuth) {
+      const authMiddleware = createAuthMiddleware(jwtAuth);
+      const optionalAuth = createOptionalAuthMiddleware(jwtAuth);
+
+      scope.addHook('onRequest', async (request, reply) => {
+        const url = request.url.split('?')[0] ?? '';
+
+        // Skip auth for exact public route matches
+        if (publicRoutes.has(url)) return;
+
+        // Check prefix-based optional auth (GET on taxonomy/profiles listing)
+        const isOptional =
+          request.method === 'GET' &&
+          [...optionalAuthRoutes].some((prefix) => url === prefix || url.startsWith(prefix + '/'));
+
+        if (isOptional) {
+          await optionalAuth(request, reply);
+        } else {
+          await authMiddleware(request, reply);
+        }
+      });
+    }
 
     // Add deprecation headers for deprecated scope (root routes)
     if (isDeprecated) {

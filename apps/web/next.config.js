@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Produce a self-contained server bundle for Docker deployment
+  output: 'standalone',
+
   // Configure webpack to handle server-only dependencies
   webpack: (config, { isServer }) => {
     if (!isServer) {

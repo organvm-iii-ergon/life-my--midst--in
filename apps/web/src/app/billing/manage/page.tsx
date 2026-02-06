@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getSubscription, cancelSubscription } from '@/lib/api-client';
 import { NeoCard } from '@in-midst-my-life/design-system';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ManageSubscriptionPage() {
   const router = useRouter();
@@ -11,14 +12,15 @@ export default function ManageSubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const profileId = '00000000-0000-0000-0000-000000000001'; // TODO: Get from auth context
+  const { profileId } = useAuth();
 
   useEffect(() => {
-    fetchSubscription();
-  }, []);
+    if (profileId) void fetchSubscription();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId]);
 
   async function fetchSubscription() {
+    if (!profileId) return;
     try {
       const response = await getSubscription(profileId);
       if (!response.ok) {
@@ -39,6 +41,7 @@ export default function ManageSubscriptionPage() {
 
     setCancelLoading(true);
     try {
+      if (!profileId) return;
       const response = await cancelSubscription(profileId, true); // Cancel at period end
       if (!response.ok) {
         throw new Error(response.message || 'Failed to cancel subscription');

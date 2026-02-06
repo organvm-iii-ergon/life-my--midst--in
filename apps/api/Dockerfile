@@ -1,63 +1,101 @@
-# Multi-stage build for API service
-FROM node:20-alpine AS builder
+# =============================================================================
+# apps/api/Dockerfile
+# Multi-stage production build for the Fastify API service
+# Build context: repository root (.)
+# Usage: docker build -f apps/api/Dockerfile -t midst-api .
+# =============================================================================
 
-WORKDIR /build
+# ── Stage 1: Base ────────────────────────────────────────────────────────────
+FROM node:22-alpine AS base
 
-# Install pnpm
-RUN npm install -g pnpm
-
-# Copy monorepo files
-COPY pnpm-workspace.yaml pnpm-lock.yaml ./
-
-# Copy packages and apps
-COPY packages ./packages
-COPY apps/api ./apps/api
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Build packages
-RUN pnpm --filter @in-midst-my-life/schema build
-RUN pnpm --filter @in-midst-my-life/core build
-RUN pnpm --filter @in-midst-my-life/content-model build
-
-# Build API
-RUN pnpm --filter @in-midst-my-life/api build
-
-# Production image
-FROM node:20-alpine
-
+RUN corepack enable
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# ── Stage 2: Dependencies ────────────────────────────────────────────────────
+# Install all deps using only package.json files for optimal layer caching.
+FROM base AS deps
 
-# Install pnpm
-RUN npm install -g pnpm
+# Root workspace configuration
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+# All workspace package.json files (apps + packages)
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY apps/orchestrator/package.json ./apps/orchestrator/
+COPY packages/schema/package.json ./packages/schema/
+COPY packages/core/package.json ./packages/core/
+COPY packages/content-model/package.json ./packages/content-model/
+COPY packages/design-system/package.json ./packages/design-system/
 
-# Copy from builder
-COPY --from=builder --chown=nodejs:nodejs /build/packages ./packages
-COPY --from=builder --chown=nodejs:nodejs /build/apps/api ./apps/api
+RUN pnpm install --frozen-lockfile
 
-# Install production dependencies only
-COPY pnpm-workspace.yaml pnpm-lock.yaml ./
+# ── Stage 3: Build ───────────────────────────────────────────────────────────
+# Copy full source and build via Turborepo (handles dependency graph).
+FROM base AS build
+
+COPY --from=deps /app/ ./
+COPY . .
+
+RUN pnpm build
+
+# ── Stage 4: Production dependencies ─────────────────────────────────────────
+# Reinstall with --prod to strip devDependencies for a leaner image.
+FROM base AS prod-deps
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY apps/orchestrator/package.json ./apps/orchestrator/
+COPY packages/schema/package.json ./packages/schema/
+COPY packages/core/package.json ./packages/core/
+COPY packages/content-model/package.json ./packages/content-model/
+COPY packages/design-system/package.json ./packages/design-system/
+
 RUN pnpm install --frozen-lockfile --prod
 
-# Switch to non-root user
+# ── Stage 5: Runner ──────────────────────────────────────────────────────────
+FROM node:22-alpine AS runner
+
+RUN apk add --no-cache dumb-init curl
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nodejs
+
+# Copy production node_modules
+COPY --from=prod-deps --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=nodejs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=prod-deps --chown=nodejs:nodejs /app/packages/schema/node_modules ./packages/schema/node_modules
+COPY --from=prod-deps --chown=nodejs:nodejs /app/packages/core/node_modules ./packages/core/node_modules
+COPY --from=prod-deps --chown=nodejs:nodejs /app/packages/content-model/node_modules ./packages/content-model/node_modules
+
+# Copy built artifacts
+COPY --from=build --chown=nodejs:nodejs /app/apps/api/dist ./apps/api/dist
+COPY --from=build --chown=nodejs:nodejs /app/apps/api/package.json ./apps/api/
+COPY --from=build --chown=nodejs:nodejs /app/packages/schema/dist ./packages/schema/dist
+COPY --from=build --chown=nodejs:nodejs /app/packages/schema/package.json ./packages/schema/
+COPY --from=build --chown=nodejs:nodejs /app/packages/core/dist ./packages/core/dist
+COPY --from=build --chown=nodejs:nodejs /app/packages/core/package.json ./packages/core/
+COPY --from=build --chown=nodejs:nodejs /app/packages/content-model/dist ./packages/content-model/dist
+COPY --from=build --chown=nodejs:nodejs /app/packages/content-model/package.json ./packages/content-model/
+
+# Root package.json + pnpm workspace config (needed for pnpm hoisted resolution)
+COPY --from=build --chown=nodejs:nodejs /app/package.json ./
+COPY --from=build --chown=nodejs:nodejs /app/pnpm-workspace.yaml ./
+
+# Copy API OpenAPI spec and migration files (may be needed at runtime)
+COPY --from=build --chown=nodejs:nodejs /app/apps/api/openapi.yaml ./apps/api/
+COPY --from=build --chown=nodejs:nodejs /app/apps/api/migrations ./apps/api/migrations
+
 USER nodejs
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-# Expose port
 EXPOSE 3001
 
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
 
-# Start application
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "apps/api/dist/index.js"]

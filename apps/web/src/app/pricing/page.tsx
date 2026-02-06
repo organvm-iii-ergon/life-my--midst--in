@@ -3,19 +3,21 @@
 import React, { useState } from 'react';
 import { PricingCard } from '@/components/marketing/PricingCard';
 import { createCheckoutSession } from '@/lib/api-client';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function PricingPage() {
-  const [loading, setLoading] = useState<string | null>(null); // Track which tier is loading
+  const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Get profileId (from auth context or session)
-  // For now, hardcode for testing
-  const profileId = '00000000-0000-0000-0000-000000000001'; // TODO: Get from auth context
+  const { profileId } = useAuth();
 
   const handleUpgrade = async (
     tier: 'PRO' | 'ENTERPRISE',
     interval: 'monthly' | 'yearly' = 'monthly',
   ) => {
+    if (!profileId) {
+      setError('No profile found. Please create a profile first.');
+      return;
+    }
     setLoading(`${tier}-${interval}`);
     setError(null);
 

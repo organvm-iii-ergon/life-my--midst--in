@@ -1,9 +1,71 @@
-node_modules
-.DS_Store
+# =============================================================================
+# .dockerignore
+# Exclude files that should not be sent to the Docker build context.
+# Keeps builds fast and images small.
+# =============================================================================
+
+# Version control
 .git
-.turbo
-.next
+.gitignore
+
+# Dependencies (reinstalled inside the container)
+node_modules
+**/node_modules
+
+# Build outputs (rebuilt inside the container)
 dist
+**/dist
+.next
+**/.next
 build
+**/build
+
+# Turborepo cache
+.turbo
+**/.turbo
+
+# Test and coverage artifacts
 coverage
+**/coverage
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/test/
+**/tests/
+**/__tests__/
+**/e2e/
+playwright-report
+
+# IDE and OS files
+.DS_Store
+**/.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment files (secrets must not leak into images)
+.env
+.env.*
+!.env.example
+
+# Documentation (not needed at runtime)
+docs/
+*.md
+!README.md
+LICENSE
+
+# CI/CD configuration
+.github
+.husky
+
+# Docker files (prevent recursive context)
+**/Dockerfile
+docker-compose*.yml
+
+# Misc
 *.log
+*.tsbuildinfo
+**/*.tsbuildinfo
+.eslintcache

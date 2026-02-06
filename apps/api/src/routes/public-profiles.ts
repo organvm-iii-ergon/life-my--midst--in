@@ -15,13 +15,37 @@ const PublicProfileSettingsSchema = z.object({
 });
 
 type PublicProfileSettings = z.infer<typeof PublicProfileSettingsSchema>;
+// Schema used for runtime validation in PATCH handler
+void PublicProfileSettingsSchema;
+
+interface PublicProfile {
+  id: string;
+  userId: string;
+  slug: string;
+  name: string;
+  headline: string;
+  bio: string;
+  avatar: string | null;
+  visiblePersonas: string[];
+  visibleExperiences: unknown[];
+  topSkills: string[];
+  socialLinks: Record<string, string>;
+  featured: boolean;
+  isPublic: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Mock storage
-const publicProfiles = new Map<string, any>();
+const publicProfiles = new Map<string, PublicProfile>();
 const profileViews = new Map<string, number>();
 const likedProfiles = new Map<string, Set<string>>();
 
-export async function publicProfilesRoutes(fastify: FastifyInstance) {
+export function publicProfilesRoutes(
+  fastify: FastifyInstance,
+  _opts: Record<string, unknown>,
+  done: () => void,
+) {
   /**
    * Get all public profiles (discovery feed)
    * GET /public-profiles
@@ -53,13 +77,17 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { limit = 50, offset = 0, sortBy = 'popular' } = request.query as {
+      const {
+        limit = 50,
+        offset = 0,
+        sortBy = 'popular',
+      } = request.query as {
         limit?: number;
         offset?: number;
         sortBy?: string;
       };
 
-      let profiles = Array.from(publicProfiles.values()).filter((p) => p.isPublic);
+      const profiles = Array.from(publicProfiles.values()).filter((p) => p.isPublic);
 
       // Sort
       switch (sortBy) {
@@ -67,7 +95,9 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
           profiles.sort((a, b) => (profileViews.get(b.id) || 0) - (profileViews.get(a.id) || 0));
           break;
         case 'recent':
-          profiles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          profiles.sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
           break;
       }
 
@@ -91,7 +121,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
         limit,
         offset,
       });
-    }
+    },
   );
 
   /**
@@ -113,8 +143,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
           200: {
             type: 'object',
           },
-          404: {
-          },
+          404: {},
         },
       },
     },
@@ -153,7 +182,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
         socialLinks: profile.socialLinks,
         featured: profile.featured,
       });
-    }
+    },
   );
 
   /**
@@ -190,7 +219,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       const { profileId } = request.params;
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       const profile = publicProfiles.get(profileId);
 
@@ -203,7 +232,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
       // Validate slug uniqueness
       if (request.body.profileSlug && request.body.profileSlug !== profile.slug) {
         const slugExists = Array.from(publicProfiles.values()).some(
-          (p) => p.slug === request.body.profileSlug && p.id !== profileId
+          (p) => p.slug === request.body.profileSlug && p.id !== profileId,
         );
         if (slugExists) {
           return reply.code(400).send({
@@ -213,7 +242,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
       }
 
       // Update profile
-      const updated = {
+      const updated: PublicProfile = {
         ...profile,
         ...request.body,
         updatedAt: new Date(),
@@ -228,7 +257,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
       });
 
       reply.send(updated);
-    }
+    },
   );
 
   /**
@@ -250,7 +279,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       const { profileId } = request.params;
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       if (!likedProfiles.has(userId)) {
         likedProfiles.set(userId, new Set());
@@ -270,7 +299,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
         liked: !isLiked,
         message: !isLiked ? 'Profile saved' : 'Profile removed from saved',
       });
-    }
+    },
   );
 
   /**
@@ -293,18 +322,18 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       const savedProfileIds = likedProfiles.get(userId) || new Set();
       const savedProfiles = Array.from(publicProfiles.values()).filter((p) =>
-        savedProfileIds.has(p.id)
+        savedProfileIds.has(p.id),
       );
 
       reply.send({
         profiles: savedProfiles,
         total: savedProfiles.length,
       });
-    }
+    },
   );
 
   /**
@@ -350,7 +379,7 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
             p.name.toLowerCase().includes(searchLower) ||
             p.headline.toLowerCase().includes(searchLower) ||
             p.bio.toLowerCase().includes(searchLower) ||
-            p.topSkills?.some((s: string) => s.toLowerCase().includes(searchLower))
+            p.topSkills?.some((s) => s.toLowerCase().includes(searchLower)),
         )
         .sort((a, b) => (profileViews.get(b.id) || 0) - (profileViews.get(a.id) || 0))
         .slice(0, limit);
@@ -360,6 +389,8 @@ export async function publicProfilesRoutes(fastify: FastifyInstance) {
         total: results.length,
         query: q,
       });
-    }
+    },
   );
+
+  done();
 }

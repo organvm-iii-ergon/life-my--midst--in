@@ -1,64 +1,72 @@
-# Multi-stage build for Web service
-FROM node:20-alpine AS builder
+# =============================================================================
+# apps/web/Dockerfile
+# Multi-stage production build for the Next.js 15 frontend
+# Build context: repository root (.)
+# Usage: docker build -f apps/web/Dockerfile -t midst-web .
+#
+# Requires `output: 'standalone'` in next.config.js
+# =============================================================================
 
-WORKDIR /build
+# ── Stage 1: Base ────────────────────────────────────────────────────────────
+FROM node:22-alpine AS base
 
-# Install pnpm
-RUN npm install -g pnpm
-
-# Copy monorepo files
-COPY pnpm-workspace.yaml pnpm-lock.yaml ./
-
-# Copy packages and apps
-COPY packages ./packages
-COPY apps/web ./apps/web
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Build packages
-RUN pnpm --filter @in-midst-my-life/schema build
-RUN pnpm --filter @in-midst-my-life/core build
-RUN pnpm --filter @in-midst-my-life/content-model build
-RUN pnpm --filter @in-midst-my-life/design-system build
-
-# Build Next.js app
-RUN pnpm --filter @in-midst-my-life/web build
-
-# Production image
-FROM node:20-alpine
-
+RUN corepack enable
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
+# ── Stage 2: Dependencies ────────────────────────────────────────────────────
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY apps/orchestrator/package.json ./apps/orchestrator/
+COPY packages/schema/package.json ./packages/schema/
+COPY packages/core/package.json ./packages/core/
+COPY packages/content-model/package.json ./packages/content-model/
+COPY packages/design-system/package.json ./packages/design-system/
+
+RUN pnpm install --frozen-lockfile
+
+# ── Stage 3: Build ───────────────────────────────────────────────────────────
+FROM base AS build
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY --from=deps /app/ ./
+COPY . .
+
+# Build the full monorepo via Turborepo; Next.js standalone output lands in
+# apps/web/.next/standalone (includes server.js + bundled node_modules)
+RUN pnpm build
+
+# ── Stage 4: Runner ──────────────────────────────────────────────────────────
+FROM node:22-alpine AS runner
+
 RUN apk add --no-cache dumb-init
 
-# Install pnpm
-RUN npm install -g pnpm
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Copy from builder
-COPY --from=builder --chown=nodejs:nodejs /build/packages ./packages
-COPY --from=builder --chown=nodejs:nodejs /build/apps/web ./apps/web
+# Next.js standalone output includes its own node_modules and server entrypoint.
+# Copy the standalone bundle (contains the full server + dependencies).
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 
-# Copy only necessary Next.js files
-COPY pnpm-workspace.yaml pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
+# Static assets are NOT included in standalone and must be copied separately.
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
-# Switch to non-root user
-USER nodejs
+# Copy public assets (favicon, images, etc.)
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || exit 1
+USER nextjs
 
-# Expose port
 EXPOSE 3000
 
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-
-# Start Next.js application
-CMD ["pnpm", "--filter", "@in-midst-my-life/web", "start"]
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "apps/web/server.js"]

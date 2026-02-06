@@ -17,11 +17,38 @@ const CreateThreadSchema = z.object({
 type SendMessageRequest = z.infer<typeof SendMessageSchema>;
 type CreateThreadRequest = z.infer<typeof CreateThreadSchema>;
 
-// Mock storage
-const threads = new Map<string, any>();
-const messages = new Map<string, any>();
+// Data interfaces for mock storage
+interface Thread {
+  id: string;
+  participantIds: string[];
+  subject?: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
 
-export async function messagingRoutes(fastify: FastifyInstance) {
+interface Message {
+  id: string;
+  threadId: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  type: string;
+  repliedToId?: string;
+  readBy: string[];
+  readAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Mock storage
+const threads = new Map<string, Thread>();
+const messages = new Map<string, Message>();
+
+export function messagingRoutes(
+  fastify: FastifyInstance,
+  _opts: Record<string, unknown>,
+  done: () => void,
+) {
   /**
    * Send a message
    * POST /messages
@@ -58,13 +85,13 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       try {
         const sendMessageRequest = SendMessageSchema.parse(request.body);
-        const senderId = request.user?.id || 'user-id'; // In production, from auth
+        const senderId = request.user?.sub || 'user-id'; // In production, from auth
 
         // Create or get thread
         let threadId = Array.from(threads.values()).find(
           (t) =>
             t.participantIds.includes(senderId) &&
-            t.participantIds.includes(sendMessageRequest.receiverId)
+            t.participantIds.includes(sendMessageRequest.receiverId),
         )?.id;
 
         if (!threadId) {
@@ -78,7 +105,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
 
         // Create message
         const messageId = crypto.randomUUID();
-        const message = {
+        const message: Message = {
           id: messageId,
           threadId,
           senderId,
@@ -122,7 +149,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
           });
         }
       }
-    }
+    },
   );
 
   /**
@@ -152,15 +179,21 @@ export async function messagingRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
       const { limit = 50, offset = 0 } = request.query as { limit?: number; offset?: number };
 
       const userThreads = Array.from(threads.values())
         .filter((t) => t.participantIds.includes(userId))
-        .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt || b.createdAt).getTime() -
+            new Date(a.updatedAt || a.createdAt).getTime(),
+        )
         .slice(offset, offset + limit);
 
-      const total = Array.from(threads.values()).filter((t) => t.participantIds.includes(userId)).length;
+      const total = Array.from(threads.values()).filter((t) =>
+        t.participantIds.includes(userId),
+      ).length;
 
       reply.send({
         threads: userThreads,
@@ -168,7 +201,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         limit,
         offset,
       });
-    }
+    },
   );
 
   /**
@@ -207,7 +240,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const { threadId } = request.params;
       const { limit = 50, offset = 0 } = request.query as { limit?: number; offset?: number };
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       const thread = threads.get(threadId);
       if (!thread) {
@@ -242,7 +275,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         limit,
         offset,
       });
-    }
+    },
   );
 
   /**
@@ -271,14 +304,14 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       try {
         const createThreadRequest = CreateThreadSchema.parse(request.body);
-        const userId = request.user?.id || 'user-id';
+        const userId = request.user?.sub || 'user-id';
 
         if (!createThreadRequest.participantIds.includes(userId)) {
           createThreadRequest.participantIds.push(userId);
         }
 
         const threadId = crypto.randomUUID();
-        const thread = {
+        const thread: Thread = {
           id: threadId,
           participantIds: createThreadRequest.participantIds,
           subject: createThreadRequest.subject,
@@ -302,7 +335,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
           });
         }
       }
-    }
+    },
   );
 
   /**
@@ -332,8 +365,11 @@ export async function messagingRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const userId = request.user?.id || 'user-id';
-      const { unreadOnly = false, limit = 50 } = request.query as { unreadOnly?: boolean; limit?: number };
+      const userId = request.user?.sub || 'user-id';
+      const { unreadOnly = false, limit = 50 } = request.query as {
+        unreadOnly?: boolean;
+        limit?: number;
+      };
 
       // Mock notifications
       const userNotifications = [
@@ -366,7 +402,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         unreadCount,
         total: userNotifications.length,
       });
-    }
+    },
   );
 
   /**
@@ -388,7 +424,7 @@ export async function messagingRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       const { id } = request.params;
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       // Mock implementation
       fastify.log.info({
@@ -402,6 +438,8 @@ export async function messagingRoutes(fastify: FastifyInstance) {
         read: true,
         readAt: new Date(),
       });
-    }
+    },
   );
+
+  done();
 }

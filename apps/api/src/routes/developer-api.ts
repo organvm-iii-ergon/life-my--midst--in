@@ -11,7 +11,9 @@ const CreateOAuthAppSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500),
   redirectUris: z.array(z.string().url()),
-  permissions: z.array(z.enum(['read:profile', 'read:personas', 'write:feedback', 'read:messages'])),
+  permissions: z.array(
+    z.enum(['read:profile', 'read:personas', 'write:feedback', 'read:messages']),
+  ),
 });
 
 type CreateOAuthAppRequest = z.infer<typeof CreateOAuthAppSchema>;
@@ -35,7 +37,7 @@ const oauthApps = new Map<string, OAuthApp>();
 const authorizationCodes = new Map<string, { userId: string; clientId: string; expiresAt: Date }>();
 const accessTokens = new Map<string, { userId: string; clientId: string; permissions: string[] }>();
 
-export async function developerApiRoutes(fastify: FastifyInstance) {
+export function developerApiRoutes(fastify: FastifyInstance, _opts: unknown, done: () => void) {
   /**
    * Create OAuth Application
    * POST /developers/apps
@@ -53,7 +55,10 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
             redirectUris: { type: 'array', items: { type: 'string', format: 'uri' } },
             permissions: {
               type: 'array',
-              items: { type: 'string', enum: ['read:profile', 'read:personas', 'write:feedback', 'read:messages'] },
+              items: {
+                type: 'string',
+                enum: ['read:profile', 'read:personas', 'write:feedback', 'read:messages'],
+              },
             },
           },
         },
@@ -67,7 +72,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       try {
         const createRequest = CreateOAuthAppSchema.parse(request.body);
-        const userId = request.user?.id || 'user-id';
+        const userId = request.user?.sub || 'user-id';
 
         const appId = crypto.randomUUID();
         const clientId = `imml_${crypto.getRandomValues(new Uint8Array(16)).join('')}`;
@@ -118,7 +123,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
           });
         }
       }
-    }
+    },
   );
 
   /**
@@ -140,7 +145,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       const userApps = Array.from(oauthApps.values())
         .filter((app) => app.userId === userId && !app.revokedAt)
@@ -159,7 +164,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         apps: userApps,
         total: userApps.length,
       });
-    }
+    },
   );
 
   /**
@@ -188,7 +193,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { client_id, redirect_uri, scope: _scope, state } = request.query as {
+      const { client_id, redirect_uri, state } = request.query as {
         client_id?: string;
         redirect_uri?: string;
         scope?: string;
@@ -214,7 +219,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       // In production, show user consent screen here
       // For now, generate auth code
       const authCode = crypto.randomUUID();
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       authorizationCodes.set(authCode, {
         userId,
@@ -228,7 +233,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       if (state) redirectUrl.searchParams.append('state', state);
 
       return reply.redirect(redirectUrl.toString());
-    }
+    },
   );
 
   /**
@@ -259,7 +264,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { grant_type, client_id, client_secret, code, refresh_token: _refresh_token } = request.body as {
+      const { grant_type, client_id, client_secret, code } = request.body as {
         grant_type?: string;
         client_id?: string;
         client_secret?: string;
@@ -269,7 +274,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
 
       // Find app
       const app = Array.from(oauthApps.values()).find(
-        (a) => a.clientId === client_id && a.clientSecret === client_secret
+        (a) => a.clientId === client_id && a.clientSecret === client_secret,
       );
 
       if (!app) {
@@ -297,7 +302,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       // Handle refresh token grant
       if (grant_type === 'refresh_token') {
         // Validate refresh token (simplified)
-        userId = request.user?.id || null;
+        userId = request.user?.sub || null;
       }
 
       if (!userId) {
@@ -330,7 +335,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         token_type: 'Bearer',
         expires_in: expiresIn,
       });
-    }
+    },
   );
 
   /**
@@ -373,7 +378,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         scope: tokenData.permissions.join(' '),
         token_type: 'Bearer',
       });
-    }
+    },
   );
 
   /**
@@ -419,7 +424,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
         avatar: 'https://example.com/avatar.jpg',
         createdAt: '2024-01-01T00:00:00Z',
       });
-    }
+    },
   );
 
   /**
@@ -470,7 +475,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
           },
         ],
       });
-    }
+    },
   );
 
   /**
@@ -492,7 +497,7 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       const { appId } = request.params;
-      const userId = request.user?.id || 'user-id';
+      const userId = request.user?.sub || 'user-id';
 
       const app = oauthApps.get(appId);
 
@@ -514,6 +519,8 @@ export async function developerApiRoutes(fastify: FastifyInstance) {
       reply.send({
         message: 'App revoked successfully',
       });
-    }
+    },
   );
+
+  done();
 }

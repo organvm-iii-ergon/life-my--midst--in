@@ -1,7 +1,7 @@
-import { FastifyRequest } from "fastify";
+import type { UserClaims } from './services/auth';
 
-declare module "fastify" {
+declare module 'fastify' {
   interface FastifyRequest {
-    user?: any;
+    user?: UserClaims;
   }
 }

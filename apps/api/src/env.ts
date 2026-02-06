@@ -33,6 +33,9 @@ const envSchema = z
     STRIPE_ENTERPRISE_MONTHLY: z.string().optional(),
     STRIPE_ENTERPRISE_YEARLY: z.string().optional(),
 
+    // Authentication
+    JWT_SECRET: z.string().min(32).optional(),
+
     // Encryption (optional, generates ephemeral key if missing)
     PROFILE_KEY_ENC_KEY: z.string().optional(),
   })
