@@ -87,6 +87,9 @@ export function Hero({
         <a className="button ghost" href={`${apiBase}/openapi.yaml`}>
           OpenAPI
         </a>
+        <a className="button ghost" href={`/settings/profile?profileId=${profileId}`}>
+          Settings
+        </a>
       </div>
     </section>
   );

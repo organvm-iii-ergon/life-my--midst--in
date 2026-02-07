@@ -9,6 +9,7 @@ import {
   selectWeightedMasks,
   MASK_TAXONOMY,
   type InterviewerProfile,
+  type ScoringWeights,
 } from '@in-midst-my-life/content-model';
 import type {
   InterviewSessionRepo,
@@ -16,6 +17,7 @@ import type {
 } from '../repositories/interview-sessions';
 import { createInterviewSessionRepo } from '../repositories/interview-sessions';
 import type { PubSubEngine } from '../services/pubsub';
+import type { SettingsRepo } from '../repositories/settings';
 import { interviewScoreUpdatedTopic, interviewCompletedTopic } from '../services/pubsub';
 
 const InterviewAnswerSchema = z.object({
@@ -275,10 +277,23 @@ const compatibilityAnalyzer = new CompatibilityAnalyzer();
 const followUpGenerator = new FollowUpGenerator();
 
 export const interviewRoutes: FastifyPluginAsync = async (server) => {
-  // Resolve dependencies: repo + pubsub are injected via server.decorate or fallback
+  // Resolve dependencies: repo + pubsub + settingsRepo are injected via server.decorate or fallback
   const repo: InterviewSessionRepo =
     (server as any)['interviewSessionRepo'] ?? createInterviewSessionRepo();
   const pubsub: PubSubEngine | undefined = (server as any)['pubsub'];
+  const settingsRepo: SettingsRepo | undefined = (server as any)['settingsRepo'];
+
+  /** Read scoring weights from system settings (best-effort, falls back to default 1.0 each) */
+  async function loadScoringWeights(): Promise<ScoringWeights | undefined> {
+    if (!settingsRepo) return undefined;
+    try {
+      const raw = await settingsRepo.getSystem('interview.scoringWeights');
+      if (raw && typeof raw === 'object') return raw as ScoringWeights;
+    } catch {
+      // Settings read failure is non-fatal — use default weights
+    }
+    return undefined;
+  }
 
   /**
    * GET /interviews/:profileId/questions
@@ -407,7 +422,8 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
         const profileResponse = await fetch(`http://localhost:3001/profiles/${session.profileId}`);
         if (profileResponse.ok) {
           const profile = (await profileResponse.json()) as Profile;
-          const analysis = compatibilityAnalyzer.analyzeCompatibility(profile, partial);
+          const weights = await loadScoringWeights();
+          const analysis = compatibilityAnalyzer.analyzeCompatibility(profile, partial, weights);
 
           incrementalScore = {
             sessionId,
@@ -481,8 +497,13 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
     // Build interviewer profile from session data
     const interviewerProfile = buildInterviewerProfile(session);
 
-    // Analyze compatibility
-    const analysis = compatibilityAnalyzer.analyzeCompatibility(profile, interviewerProfile);
+    // Analyze compatibility (apply admin-configured scoring weights if available)
+    const weights = await loadScoringWeights();
+    const analysis = compatibilityAnalyzer.analyzeCompatibility(
+      profile,
+      interviewerProfile,
+      weights,
+    );
     const now = new Date().toISOString();
 
     // Persist final results

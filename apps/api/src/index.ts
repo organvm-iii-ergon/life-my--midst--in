@@ -50,6 +50,7 @@ import { registerBillingRoutes } from './routes/billing';
 import { registerAdminLicensingRoutes } from './routes/admin-licensing';
 import { registerAdminServiceStatusRoutes } from './routes/admin-service-status';
 import { registerAdminSettingsRoutes } from './routes/admin-settings';
+import { registerUserSettingsRoutes } from './routes/user-settings';
 import {
   createSettingsRepo,
   InMemorySettingsRepo,
@@ -527,6 +528,7 @@ export function buildServer(options: ApiServerOptions = {}) {
           );
     scope.decorate('interviewSessionRepo', interviewSessionRepo);
     scope.decorate('pubsub', pubsub);
+    scope.decorate('settingsRepo', settingsRepo);
     scope.register(interviewRoutes);
     scope.register(registerHunterProtocolRoutes, {
       prefix: '/profiles',
@@ -543,6 +545,7 @@ export function buildServer(options: ApiServerOptions = {}) {
     scope.register(registerAdminLicensingRoutes, licensingService);
     scope.register(registerAdminServiceStatusRoutes);
     scope.register(registerAdminSettingsRoutes, { settingsRepo });
+    scope.register(registerUserSettingsRoutes, { settingsRepo });
     scope.register(registerArtifactRoutes);
     scope.register(sbtRoutes);
     scope.register(marketplaceRoutes);

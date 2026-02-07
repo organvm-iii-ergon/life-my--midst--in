@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { CompatibilityAnalyzer, type InterviewerProfile } from '../src/compatibility';
+import {
+  CompatibilityAnalyzer,
+  type InterviewerProfile,
+  type ScoringWeights,
+} from '../src/compatibility';
 import type { Profile } from '@in-midst-my-life/schema';
 
 /** Minimal profile fixture for testing */
@@ -248,6 +252,66 @@ describe('CompatibilityAnalyzer', () => {
       const top = result.maskResonance[0];
       expect(top).toBeDefined();
       expect(top!.reasoning.length).toBeGreaterThan(10);
+    });
+  });
+
+  describe('weighted scoring', () => {
+    it('default weights (all 1.0) match unweighted behavior', () => {
+      const profile = makeProfile();
+      const interviewer = makeInterviewer();
+      const unweighted = analyzer.analyzeCompatibility(profile, interviewer);
+      const defaultWeights: ScoringWeights = {
+        skillMatch: 1,
+        valuesAlign: 1,
+        growthFit: 1,
+        sustainability: 1,
+        compensationFit: 1,
+      };
+      const weighted = analyzer.analyzeCompatibility(profile, interviewer, defaultWeights);
+      expect(weighted.scores.overall).toBe(unweighted.scores.overall);
+      expect(weighted.scores.skillMatch).toBe(unweighted.scores.skillMatch);
+    });
+
+    it('custom weights change overall score', () => {
+      const profile = makeProfile();
+      const interviewer = makeInterviewer({ marketCompensationScore: 95 });
+
+      const evenResult = analyzer.analyzeCompatibility(profile, interviewer);
+
+      // Heavily weight compensation (which is 95) — overall should shift upward
+      const compWeighted = analyzer.analyzeCompatibility(profile, interviewer, {
+        skillMatch: 0.1,
+        valuesAlign: 0.1,
+        growthFit: 0.1,
+        sustainability: 0.1,
+        compensationFit: 5,
+      });
+
+      expect(compWeighted.scores.overall).toBeGreaterThan(evenResult.scores.overall);
+      // Individual category scores should remain unchanged
+      expect(compWeighted.scores.compensationFit).toBe(evenResult.scores.compensationFit);
+      expect(compWeighted.scores.skillMatch).toBe(evenResult.scores.skillMatch);
+    });
+
+    it('zeroing a weight excludes that category', () => {
+      const profile = makeProfile();
+      const interviewer = makeInterviewer({ marketCompensationScore: 10 });
+
+      const withComp = analyzer.analyzeCompatibility(profile, interviewer);
+      const withoutComp = analyzer.analyzeCompatibility(profile, interviewer, {
+        compensationFit: 0,
+      });
+
+      // With compensationFit at 10, excluding it should raise the overall
+      expect(withoutComp.scores.overall).toBeGreaterThan(withComp.scores.overall);
+    });
+
+    it('undefined weights parameter defaults to equal weights', () => {
+      const profile = makeProfile();
+      const interviewer = makeInterviewer();
+      const withUndefined = analyzer.analyzeCompatibility(profile, interviewer, undefined);
+      const withoutWeights = analyzer.analyzeCompatibility(profile, interviewer);
+      expect(withUndefined.scores.overall).toBe(withoutWeights.scores.overall);
     });
   });
 });

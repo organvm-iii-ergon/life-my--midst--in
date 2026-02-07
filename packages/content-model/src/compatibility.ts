@@ -44,16 +44,32 @@ export interface CompatibilityAnalysis {
 }
 
 /**
+ * Optional scoring weights for each compatibility category.
+ * Default is 1.0 for each — higher values amplify that category's
+ * contribution to the overall score.
+ */
+export interface ScoringWeights {
+  skillMatch?: number;
+  valuesAlign?: number;
+  growthFit?: number;
+  sustainability?: number;
+  compensationFit?: number;
+}
+
+/**
  * Compatibility Analysis Engine
  * Analyzes job requirements + interviewer answers against candidate profile
  */
 export class CompatibilityAnalyzer {
   /**
-   * Analyze overall compatibility
+   * Analyze overall compatibility.
+   * An optional `weights` parameter multiplies each category score
+   * before computing the weighted average. Default weights are all 1.0.
    */
   analyzeCompatibility(
     candidateProfile: Profile,
     interviewer: InterviewerProfile,
+    weights?: ScoringWeights,
   ): CompatibilityAnalysis {
     const skillMatch = this.analyzeSkillMatch(candidateProfile, interviewer);
     const valuesAlign = this.analyzeValuesAlignment(candidateProfile, interviewer);
@@ -65,9 +81,27 @@ export class CompatibilityAnalyzer {
     const redFlags = this.identifyRedFlags(candidateProfile, interviewer);
     const maskResonance = this.analyzeMaskResonance(candidateProfile, interviewer);
 
-    const overall = Math.round(
-      (skillMatch + valuesAlign + growthFit + sustainability + compensationFit) / 5,
-    );
+    // Apply weights (default 1.0 for each)
+    const w = {
+      skillMatch: weights?.skillMatch ?? 1,
+      valuesAlign: weights?.valuesAlign ?? 1,
+      growthFit: weights?.growthFit ?? 1,
+      sustainability: weights?.sustainability ?? 1,
+      compensationFit: weights?.compensationFit ?? 1,
+    };
+    const totalWeight =
+      w.skillMatch + w.valuesAlign + w.growthFit + w.sustainability + w.compensationFit;
+    const overall =
+      totalWeight > 0
+        ? Math.round(
+            (skillMatch * w.skillMatch +
+              valuesAlign * w.valuesAlign +
+              growthFit * w.growthFit +
+              sustainability * w.sustainability +
+              compensationFit * w.compensationFit) /
+              totalWeight,
+          )
+        : 0;
 
     const recommendations = this.generateRecommendations(
       skillMatch,
