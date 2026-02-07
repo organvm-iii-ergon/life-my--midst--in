@@ -33,7 +33,7 @@ services:
     volumes:
       - redisdata_prod:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a \"$REDIS_PASSWORD\" ping || redis-cli ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -47,7 +47,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
       PORT: 3001
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
@@ -71,7 +71,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-midstsvc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-midst}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
       PORT: 3002
     depends_on:
       postgres:

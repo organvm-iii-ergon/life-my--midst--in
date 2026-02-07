@@ -72,7 +72,8 @@ POSTGRES_PASSWORD=<secure-password>
 POSTGRES_DB=midst
 
 # Redis
-REDIS_URL=redis://redis:6379
+REDIS_PASSWORD=<secure-redis-password>
+REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
 REDIS_PORT=6379
 
 # API Configuration
@@ -566,7 +567,8 @@ The workflow runs on pushes to `master` and can be triggered manually via `workf
 |----------|----------|---------|-------------|
 | `DATABASE_URL` | Yes | - | PostgreSQL connection string |
 | `POSTGRES_URL` | Yes | - | Same as DATABASE_URL (alias) |
-| `REDIS_URL` | No | - | Redis connection string (optional caching) |
+| `REDIS_URL` | No | - | Redis connection string (include password: `redis://:pass@host:6379`) |
+| `REDIS_PASSWORD` | Prod | - | Redis `requirepass` value; wired into REDIS_URL in docker-compose.prod |
 | `PROFILE_REPO` | Yes | `postgres` | Profile repository type |
 | `NODE_ENV` | Yes | `development` | Environment (development/production) |
 | `PORT` | No | `3001` | API server port |
