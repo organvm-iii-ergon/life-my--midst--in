@@ -29,16 +29,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
+      - name: Extract metadata (API)
+        id: meta-api
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api
           tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract metadata (Web)
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract metadata (Orchestrator)
+        id: meta-orchestrator
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-orchestrator
+          tags: |
+            type=sha,prefix=
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push API image
@@ -47,10 +62,10 @@ jobs:
           context: .
           file: ./apps/api/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-api
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-api
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-api,mode=max
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:buildcache,mode=max
 
       - name: Build and push Web image
         uses: docker/build-push-action@v6
@@ -58,10 +73,10 @@ jobs:
           context: .
           file: ./apps/web/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-web
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-web
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-web,mode=max
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:buildcache,mode=max
 
       - name: Build and push Orchestrator image
         uses: docker/build-push-action@v6
@@ -69,10 +84,10 @@ jobs:
           context: .
           file: ./apps/orchestrator/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-orchestrator
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-orchestrator
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-orchestrator,mode=max
+          tags: ${{ steps.meta-orchestrator.outputs.tags }}
+          labels: ${{ steps.meta-orchestrator.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-orchestrator:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-orchestrator:buildcache,mode=max
 
   deploy:
     needs: build-and-push
@@ -100,10 +115,8 @@ jobs:
           helm upgrade --install in-midst-my-life ./infra/helm \
             --namespace production \
             --create-namespace \
-            --values infra/helm/values.yaml \
-            --set "api.image.tag=${IMAGE_TAG}" \
-            --set "web.image.tag=${IMAGE_TAG}" \
-            --set "orchestrator.image.tag=${IMAGE_TAG}" \
+            --values infra/helm/values-production.yaml \
+            --set "image.tag=${IMAGE_TAG}" \
             --timeout 10m
 
           # Wait for rollout

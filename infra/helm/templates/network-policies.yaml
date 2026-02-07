@@ -1,0 +1,193 @@
+# API: allow ingress from web and orchestrator; egress to postgres and redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "inmidst.apiName" . }}
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "inmidst.apiName" . }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.webName" . }}
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.orchestratorName" . }}
+      {{- if .Values.ingress.enabled }}
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.ingress.className }}
+      {{- end }}
+      ports:
+        - port: {{ .Values.api.service.port }}
+          protocol: TCP
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.name" . }}-postgres
+      ports:
+        - port: {{ .Values.postgres.port }}
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.name" . }}-redis
+      ports:
+        - port: {{ .Values.redis.port }}
+          protocol: TCP
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+# Web: allow ingress from ingress controller; egress to API
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "inmidst.webName" . }}
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "inmidst.webName" . }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      {{- if .Values.ingress.enabled }}
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.ingress.className }}
+      {{- else }}
+        - {} # Allow all ingress when no ingress controller
+      {{- end }}
+      ports:
+        - port: {{ .Values.web.service.port }}
+          protocol: TCP
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.apiName" . }}
+      ports:
+        - port: {{ .Values.api.service.port }}
+          protocol: TCP
+    - to: []
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+# Orchestrator: egress to postgres, redis, and external APIs
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "inmidst.orchestratorName" . }}
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "inmidst.orchestratorName" . }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.name" . }}-postgres
+      ports:
+        - port: {{ .Values.postgres.port }}
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.name" . }}-redis
+      ports:
+        - port: {{ .Values.redis.port }}
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.apiName" . }}
+      ports:
+        - port: {{ .Values.api.service.port }}
+          protocol: TCP
+    # Allow DNS and external HTTPS (cloud APIs, Serper, etc.)
+    - to: []
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+        - port: 443
+          protocol: TCP
+---
+# PostgreSQL: allow ingress only from API, orchestrator, and migration jobs
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "inmidst.name" . }}-postgres
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "inmidst.name" . }}-postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.apiName" . }}
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.orchestratorName" . }}
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: migration
+      ports:
+        - port: {{ .Values.postgres.port }}
+          protocol: TCP
+---
+# Redis: allow ingress only from API and orchestrator
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "inmidst.name" . }}-redis
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "inmidst.name" . }}-redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.apiName" . }}
+        - podSelector:
+            matchLabels:
+              app: {{ include "inmidst.orchestratorName" . }}
+      ports:
+        - port: {{ .Values.redis.port }}
+          protocol: TCP

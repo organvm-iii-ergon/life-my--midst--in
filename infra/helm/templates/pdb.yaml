@@ -1,0 +1,43 @@
+{{- if gt (int .Values.api.replicaCount) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "inmidst.apiName" . }}
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ include "inmidst.apiName" . }}
+{{- end }}
+---
+{{- if gt (int .Values.web.replicaCount) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "inmidst.webName" . }}
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ include "inmidst.webName" . }}
+{{- end }}
+---
+# Orchestrator is single-replica; allow disruption for rolling updates
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "inmidst.orchestratorName" . }}
+  labels:
+    {{- include "inmidst.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  minAvailable: 0
+  selector:
+    matchLabels:
+      app: {{ include "inmidst.orchestratorName" . }}

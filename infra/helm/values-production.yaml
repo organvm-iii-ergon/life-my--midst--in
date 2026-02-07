@@ -1,0 +1,123 @@
+# Production values for inmidst Helm chart
+#
+# Usage:
+#   helm upgrade --install inmidst ./infra/helm \
+#     -f infra/helm/values-production.yaml \
+#     --set secrets.postgresPassword=<REAL_PASSWORD> \
+#     --set secrets.jwtSecret=<REAL_JWT_SECRET> \
+#     --set secrets.redisPassword=<REAL_REDIS_PASSWORD> \
+#     --set image.tag=<GIT_SHA_OR_VERSION>
+#
+# Required --set overrides (DO NOT put real secrets in this file):
+#   - secrets.postgresPassword
+#   - secrets.jwtSecret
+#   - secrets.redisPassword
+
+image:
+  pullPolicy: Always
+
+# --- API ---
+api:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  env:
+    NODE_ENV: production
+    PORT: "3001"
+    LOG_LEVEL: info
+    LOG_FORMAT: json
+
+# --- Web ---
+web:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  env:
+    NODE_ENV: production
+
+# --- Orchestrator ---
+orchestrator:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+  autoscaling:
+    enabled: false
+  env:
+    NODE_ENV: production
+    PORT: "3002"
+    ORCH_WORKER_ENABLED: "true"
+    ORCH_SCHEDULER_ENABLED: "true"
+    LOG_LEVEL: info
+
+# --- PostgreSQL ---
+postgres:
+  storage: 50Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+
+# --- Redis ---
+redis:
+  storage: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# --- Ingress ---
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - host: app.in-midst-my-life.dev
+      paths:
+        - path: /
+          service: web
+        - path: /api
+          service: api
+  tls:
+    - secretName: inmidst-tls
+      hosts:
+        - app.in-midst-my-life.dev
+
+# --- Backups ---
+backup:
+  schedule: "0 3 * * *"  # Daily at 3 AM UTC
+  storage: 10Gi

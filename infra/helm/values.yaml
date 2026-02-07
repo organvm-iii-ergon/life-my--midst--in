@@ -173,6 +173,11 @@ redis:
       cpu: 250m
       memory: 256Mi
 
+# --- Backups ---
+backup:
+  schedule: "0 3 * * *"  # Daily at 3 AM UTC
+  storage: 5Gi
+
 # --- Ingress ---
 ingress:
   enabled: false
