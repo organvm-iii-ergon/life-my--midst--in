@@ -30,6 +30,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Husky + lint-staged pre-commit hooks (ESLint + Prettier on staged `*.{ts,tsx}`)
 - API route authentication audit documented in `apps/api/ROUTES.md`
 - TypeScript strict mode re-enabled in `apps/api` and `apps/web`
+- Bundle analyzer (`@next/bundle-analyzer`) and Web Vitals instrumentation
+- CI bundle size check workflow
+- Helm secrets extraction and backup/restore strategy (`docs/BACKUP-RESTORE.md`)
+- Playwright E2E tests for navigation and admin flows
+- Blog section with 5 posts and dynamic `[slug]` routing
+- About page with team and project information
+- Pricing page redesign with 3 subscription tiers
+- Admin settings page for feature flags and service configuration
+- Docker healthchecks and production Compose file (`docker-compose.prod.yml`)
+- Comprehensive feature audit trail (`docs/FEATURE-AUDIT.md`)
+
+### Changed
+- Updated `CONSOLIDATED-SPECIFICATIONS.md` implementation snapshot to reflect feature completeness
+- Updated `MANIFEST.md` from "90% Core Complete" to "Feature Complete" with corrected status tables
+- Replaced `docs/SECURITY.md` TODO placeholder with security contact email
 
 ### Fixed
 - Fastify plugin hang in billing routes (missing `done` callback after async removal)
