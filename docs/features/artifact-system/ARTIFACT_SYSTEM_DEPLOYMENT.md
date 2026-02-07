@@ -1,8 +1,15 @@
 # Artifact System Deployment Guide
 
-**Version**: 1.0  
-**Last Updated**: January 16, 2026  
+**Version**: 1.0
+**Last Updated**: January 16, 2026
 **Audience**: DevOps Engineers, System Administrators
+
+> **Implementation Status**: Core infrastructure (database tables, API routes,
+> provider interfaces) is implemented. The local filesystem provider is fully
+> functional. Cloud providers (Google Drive, Dropbox, iCloud) have interface
+> implementations but require OAuth credentials to be configured. LLM-powered
+> classification falls back to heuristic matching when `OPENAI_API_KEY` is not
+> set. S3/MinIO artifact storage is planned but not yet wired.
 
 ## Table of Contents
 

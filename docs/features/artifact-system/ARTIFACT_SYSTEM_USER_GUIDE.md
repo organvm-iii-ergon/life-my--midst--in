@@ -1,8 +1,16 @@
 # Artifact System User Guide
 
-**Version**: 1.0  
-**Last Updated**: January 16, 2026  
+**Version**: 1.0
+**Last Updated**: January 16, 2026
 **Audience**: End Users
+
+> **Implementation Status**: The artifact system API routes and database
+> schema are implemented. Cloud storage discovery (Google Drive, Dropbox)
+> has provider interfaces and a working local filesystem provider. LLM-based
+> classification is stubbed with heuristic fallback — full AI classification
+> requires an `OPENAI_API_KEY`. The web UI for artifact review is partially
+> implemented. See `ARTIFACT_SYSTEM_DEPLOYMENT.md` for current deployment
+> requirements.
 
 ## Table of Contents
 
