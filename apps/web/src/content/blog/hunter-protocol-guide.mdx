@@ -1,0 +1,65 @@
+---
+title: "Getting Started with the Hunter Protocol"
+date: "2026-01-29"
+author: "The Team"
+excerpt: "A practical guide to using the Hunter Protocol for intelligent job searching, compatibility analysis, and resume tailoring."
+tags: [hunter, guide, jobs]
+---
+
+## What is the Hunter Protocol?
+
+The Hunter Protocol is our agent-driven job search system. Instead of manually browsing job boards and tailoring your resume for each application, the Hunter Protocol automates the entire workflow:
+
+1. **Search** — Find relevant jobs using semantic keyword matching
+2. **Analyze** — Score compatibility between your profile and each opportunity
+3. **Tailor** — Generate a mask-specific resume optimized for the role
+4. **Apply** — Produce cover letters that speak in the voice of your selected persona
+
+## Setting Up Your First Search
+
+Navigate to the Hunter dashboard from any profile page. You'll see a search interface that accepts:
+
+- **Keywords** — Skills, technologies, or role titles (e.g., "TypeScript", "Staff Engineer")
+- **Remote preference** — Filter by remote, hybrid, or on-site
+- **Max results** — Control how many opportunities to evaluate
+
+```
+POST /profiles/:id/hunter/search
+{
+  "keywords": ["TypeScript", "distributed systems"],
+  "remote_requirement": "hybrid",
+  "max_results": 10
+}
+```
+
+The search engine returns scored results with metadata about each opportunity.
+
+## Understanding Compatibility Scores
+
+When you analyze a job, the system evaluates three dimensions:
+
+- **Technical fit** — How well your skills match the requirements
+- **Experience alignment** — Whether your career stage matches expectations
+- **Cultural signals** — Subtle indicators from the job description
+
+Each dimension contributes to an overall compatibility score and a recommendation: *strong match*, *moderate fit*, or *stretch role*.
+
+## Choosing the Right Mask
+
+Your identity masks aren't just presentation layers — they're strategic tools. For a systems architecture role, the **Architect** mask emphasizes design decisions and technical leadership. For a data-heavy position, the **Analyst** mask foregrounds quantitative work and analytical methodology.
+
+The `personaId` parameter in the API calls maps directly to your configured masks. Experiment with different masks for the same job to see how the narrative shifts.
+
+## Resume Tailoring
+
+The tailoring engine doesn't just shuffle bullet points. It:
+
+- **Emphasizes** experiences that align with the job requirements
+- **De-emphasizes** work that's less relevant (without removing it)
+- **Reframes** accomplishments in the language of the target role
+
+The result is a resume that reads like it was written specifically for that position — because it was.
+
+## What's Next
+
+The Hunter Protocol is evolving. Upcoming features include batch application workflows, interview preparation agents, and follow-up tracking. Watch the [blog](/blog) for updates.

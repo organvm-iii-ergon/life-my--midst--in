@@ -2,6 +2,7 @@ import type React from 'react';
 import Link from 'next/link';
 
 const navLinks = [
+  { href: '/about', label: 'About' },
   { href: '/blog', label: 'Blog' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/dashboard', label: 'Dashboard' },
@@ -87,6 +88,7 @@ export default function MarketingLayout({ children }: Readonly<{ children: React
           </p>
         </div>
         <div style={{ display: 'flex', gap: '1.5rem' }}>
+          <Link href="/about">About</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/pricing">Pricing</Link>
           <a href="https://github.com/in-midst-my-life" target="_blank" rel="noopener noreferrer">
