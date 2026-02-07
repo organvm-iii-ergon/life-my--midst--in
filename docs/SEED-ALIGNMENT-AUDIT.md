@@ -490,12 +490,11 @@ These ideas appear in the originals but not in `CONSOLIDATED-SPECIFICATIONS.md`:
 - **Current State**: Masks selected manually, not triggered by interviewer answers
 - **Recommendation**: Wire `selectBestMask()` to interview answer analysis
 
-### G13: Custom User-Created Masks ([#36](https://github.com/4444J99/life-my--midst--in/issues/36))
+### ~~G13: Custom User-Created Masks ([#36](https://github.com/4444J99/life-my--midst--in/issues/36))~~ — RESOLVED
 
-- **Severity**: Low (Phase 2 feature)
+- **Severity**: ~~Low~~ **None**
 - **Seed Source**: ADR-005 (promises user-created masks in Phase 2)
-- **Current State**: 16 predefined masks only; no custom mask creation UI or API
-- **Recommendation**: Implement as planned Phase 2 feature
+- **Resolution**: Admin mask management page (`/admin/masks`) with full CRUD via `MaskEditor`. `MaskSelector` now fetches custom masks from API alongside predefined taxonomy. Admin layout with cross-page navigation added.
 
 ### G14: Hunter Protocol Provider Implementations ([#37](https://github.com/4444J99/life-my--midst--in/issues/37))
 
@@ -946,7 +945,7 @@ Gap types: **-D** = Drift, **-C** = Commitment, **-S** = Staleness
 |-----|--------|--------|
 | **G14** | Real job search provider | 4-6 hours |
 | **G15** | Connect agents to LLM executor | 8-12 hours |
-| **G13** | Custom mask creation | 6-8 hours |
+| ~~**G13**~~ | ~~Custom mask creation~~ | ~~RESOLVED~~ |
 | **G10** | Blockchain/SBT integration | Significant (future) |
 
 ### Priority 6 — Expanded Audit Gaps (G16-G25)

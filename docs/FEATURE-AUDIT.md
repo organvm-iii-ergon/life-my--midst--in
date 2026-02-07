@@ -89,6 +89,8 @@ Each requirement was traced to its implementation file(s). Evidence paths are re
 | `selectBestMask()` algorithm | ✅ | `packages/content-model/src/` |
 | Redaction support | ✅ | Optional `redaction` field on MaskSchema |
 | Theatrical metadata (nomen, motto, visibility_scope) | ✅ | `packages/schema/src/mask.ts` |
+| Custom mask creation UI | ✅ | `apps/web/src/app/admin/masks/page.tsx`, `MaskEditor.tsx` |
+| Custom masks in MaskSelector | ✅ | `MaskSelector.tsx` fetches API + taxonomy |
 
 ---
 
