@@ -5,6 +5,7 @@
 
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { JWTAuth, Permission, hasPermission } from '../services/auth';
+import type { TokenBlocklist } from '../services/token-blocklist';
 
 /**
  * Extend FastifyRequest to include authenticated user claims
@@ -14,7 +15,7 @@ import { JWTAuth, Permission, hasPermission } from '../services/auth';
 /**
  * Factory function to create JWT authentication middleware
  */
-export function createAuthMiddleware(jwtAuth: JWTAuth) {
+export function createAuthMiddleware(jwtAuth: JWTAuth, blocklist?: TokenBlocklist) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     // Skip JWT verification if user is already set (e.g. by test mock hook)
     if (request.user) return;
@@ -45,6 +46,18 @@ export function createAuthMiddleware(jwtAuth: JWTAuth) {
         error: 'token_verification_failed',
         message: 'Token verification failed',
       });
+    }
+
+    // Check revocation blocklist (if configured and token has a jti)
+    if (blocklist && claims.jti) {
+      const revoked = await blocklist.isBlocked(claims.jti);
+      if (revoked) {
+        return reply.code(401).send({
+          ok: false,
+          error: 'token_revoked',
+          message: 'Token has been revoked',
+        });
+      }
     }
 
     // Attach claims to request

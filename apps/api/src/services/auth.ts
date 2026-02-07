@@ -3,8 +3,9 @@
  * Provides token generation, verification, and middleware for protected endpoints.
  */
 
-import * as jose from "jose";
-import type { JWTPayload } from "jose";
+import * as jose from 'jose';
+import * as crypto from 'node:crypto';
+import type { JWTPayload } from 'jose';
 
 export interface AuthConfig {
   /**
@@ -91,14 +92,14 @@ export class JWTAuth {
 
   constructor(config: AuthConfig) {
     if (!config.secret || config.secret.length < 32) {
-      throw new Error("JWT secret must be at least 32 characters long");
+      throw new Error('JWT secret must be at least 32 characters long');
     }
 
     this.config = {
       expiresIn: 3600, // 1 hour
       refreshExpiresIn: 604800, // 7 days
-      issuer: "in-midst-my-life-api",
-      ...config
+      issuer: 'in-midst-my-life-api',
+      ...config,
     };
 
     // Convert string secret to Uint8Array for jose
@@ -113,50 +114,53 @@ export class JWTAuth {
     const accessExpiresAt = now + (this.config.expiresIn || 3600);
     const refreshExpiresAt = now + (this.config.refreshExpiresIn || 604800);
 
-    // Create access token
+    // Create access token (jti enables revocation via blocklist)
     const accessToken = await new jose.SignJWT({
       ...claims,
-      type: "access"
+      type: 'access',
     })
-      .setProtectedHeader({ alg: "HS256" })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setJti(crypto.randomUUID())
       .setIssuedAt()
-      .setIssuer(this.config.issuer || "in-midst-my-life-api")
-      .setAudience(this.config.audience || "in-midst-my-life-api")
+      .setIssuer(this.config.issuer || 'in-midst-my-life-api')
+      .setAudience(this.config.audience || 'in-midst-my-life-api')
       .setExpirationTime(accessExpiresAt)
       .sign(this.secret);
 
-    // Create refresh token
+    // Create refresh token (jti enables revocation via blocklist)
     const refreshToken = await new jose.SignJWT({
       sub: claims.sub,
-      type: "refresh"
+      type: 'refresh',
     })
-      .setProtectedHeader({ alg: "HS256" })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setJti(crypto.randomUUID())
       .setIssuedAt()
-      .setIssuer(this.config.issuer || "in-midst-my-life-api")
+      .setIssuer(this.config.issuer || 'in-midst-my-life-api')
       .setExpirationTime(refreshExpiresAt)
       .sign(this.secret);
 
     return {
       accessToken,
       refreshToken,
-      tokenType: "Bearer",
-      expiresIn: this.config.expiresIn || 3600
+      tokenType: 'Bearer',
+      expiresIn: this.config.expiresIn || 3600,
     };
   }
 
   /**
    * Verify a JWT token
    */
-  async verifyToken(token: string): Promise<UserClaims | null> { // allow-secret
+  async verifyToken(token: string): Promise<UserClaims | null> {
+    // allow-secret
     try {
       const verified = await jose.jwtVerify(token, this.secret, {
-        issuer: this.config.issuer || "in-midst-my-life-api",
-        audience: this.config.audience || "in-midst-my-life-api"
+        issuer: this.config.issuer || 'in-midst-my-life-api',
+        audience: this.config.audience || 'in-midst-my-life-api',
       });
 
       return verified.payload as UserClaims;
     } catch (error) {
-      console.warn("Token verification failed", error);
+      console.warn('Token verification failed', error);
       return null;
     }
   }
@@ -167,7 +171,7 @@ export class JWTAuth {
   async refreshAccessToken(refreshToken: string, claims: UserClaims): Promise<AuthToken | null> {
     const verified = await this.verifyToken(refreshToken);
 
-    if (!verified || verified['type'] !== "refresh") {
+    if (!verified || verified['type'] !== 'refresh') {
       return null;
     }
 
@@ -178,7 +182,8 @@ export class JWTAuth {
   /**
    * Decode token without verification (use with caution)
    */
-  decodeToken(token: string): UserClaims | null { // allow-secret
+  decodeToken(token: string): UserClaims | null {
+    // allow-secret
     try {
       const decoded = jose.decodeJwt(token);
       return decoded as UserClaims;
@@ -190,7 +195,8 @@ export class JWTAuth {
   /**
    * Check if a token is expired
    */
-  isTokenExpired(token: string): boolean { // allow-secret
+  isTokenExpired(token: string): boolean {
+    // allow-secret
     const decoded = this.decodeToken(token);
     if (!decoded || !decoded.exp) return true;
 
@@ -204,8 +210,8 @@ export class JWTAuth {
   static extractToken(authHeader?: string): string | null {
     if (!authHeader) return null;
 
-    const parts = authHeader.split(" ");
-    if (parts.length !== 2 || parts[0]!.toLowerCase() !== "bearer") {
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0]!.toLowerCase() !== 'bearer') {
       return null;
     }
 
@@ -220,22 +226,22 @@ export enum UserRole {
   /**
    * Admin with full system access
    */
-  ADMIN = "admin",
+  ADMIN = 'admin',
 
   /**
    * User who owns/manages a profile
    */
-  OWNER = "owner",
+  OWNER = 'owner',
 
   /**
    * Verified user with profile access
    */
-  USER = "user",
+  USER = 'user',
 
   /**
    * Public visitor with read-only access
    */
-  GUEST = "guest"
+  GUEST = 'guest',
 }
 
 /**
@@ -243,26 +249,26 @@ export enum UserRole {
  */
 export enum Permission {
   // Profile permissions
-  READ_PROFILE = "read:profile",
-  WRITE_PROFILE = "write:profile",
-  DELETE_PROFILE = "delete:profile",
+  READ_PROFILE = 'read:profile',
+  WRITE_PROFILE = 'write:profile',
+  DELETE_PROFILE = 'delete:profile',
 
   // Mask permissions
-  READ_MASK = "read:mask",
-  WRITE_MASK = "write:mask",
-  DELETE_MASK = "delete:mask",
+  READ_MASK = 'read:mask',
+  WRITE_MASK = 'write:mask',
+  DELETE_MASK = 'delete:mask',
 
   // Timeline permissions
-  READ_TIMELINE = "read:timeline",
-  WRITE_TIMELINE = "write:timeline",
+  READ_TIMELINE = 'read:timeline',
+  WRITE_TIMELINE = 'write:timeline',
 
   // Narrative permissions
-  READ_NARRATIVE = "read:narrative",
-  WRITE_NARRATIVE = "write:narrative",
-  APPROVE_NARRATIVE = "approve:narrative",
+  READ_NARRATIVE = 'read:narrative',
+  WRITE_NARRATIVE = 'write:narrative',
+  APPROVE_NARRATIVE = 'approve:narrative',
 
   // Admin permissions
-  ADMIN_ACCESS = "admin:access"
+  ADMIN_ACCESS = 'admin:access',
 }
 
 /**
@@ -281,7 +287,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     Permission.READ_NARRATIVE,
     Permission.WRITE_NARRATIVE,
     Permission.APPROVE_NARRATIVE,
-    Permission.ADMIN_ACCESS
+    Permission.ADMIN_ACCESS,
   ],
   [UserRole.OWNER]: [
     Permission.READ_PROFILE,
@@ -292,7 +298,7 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     Permission.WRITE_TIMELINE,
     Permission.READ_NARRATIVE,
     Permission.WRITE_NARRATIVE,
-    Permission.APPROVE_NARRATIVE
+    Permission.APPROVE_NARRATIVE,
   ],
   [UserRole.USER]: [
     Permission.READ_PROFILE,
@@ -300,9 +306,9 @@ export const RolePermissions: Record<UserRole, Permission[]> = {
     Permission.READ_MASK,
     Permission.READ_TIMELINE,
     Permission.READ_NARRATIVE,
-    Permission.WRITE_NARRATIVE
+    Permission.WRITE_NARRATIVE,
   ],
-  [UserRole.GUEST]: [Permission.READ_PROFILE, Permission.READ_MASK, Permission.READ_TIMELINE]
+  [UserRole.GUEST]: [Permission.READ_PROFILE, Permission.READ_MASK, Permission.READ_TIMELINE],
 };
 
 /**

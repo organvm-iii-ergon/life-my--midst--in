@@ -79,6 +79,7 @@ import { versionPrefix } from './middleware/versioning';
 import scalarApiReference from '@scalar/fastify-api-reference';
 import { JWTAuth } from './services/auth';
 import { createAuthMiddleware, createOptionalAuthMiddleware } from './middleware/auth';
+import { InMemoryTokenBlocklist, type TokenBlocklist } from './services/token-blocklist';
 
 initializeTracing();
 initializeSentry();
@@ -190,6 +191,9 @@ export function buildServer(options: ApiServerOptions = {}) {
       ? undefined
       : 'dev-only-secret-do-not-use-in-prod-32chars!'); // allow-secret
   const jwtAuth = jwtSecret ? new JWTAuth({ secret: jwtSecret }) : undefined;
+
+  // Token revocation blocklist (ADR-010) — InMemory for now; swap to RedisTokenBlocklist in production
+  const tokenBlocklist: TokenBlocklist = new InMemoryTokenBlocklist();
 
   // Security headers (CSP, HSTS, X-Frame-Options, etc.)
   if (process.env['NODE_ENV'] !== 'test') {
@@ -432,7 +436,7 @@ export function buildServer(options: ApiServerOptions = {}) {
     ];
 
     if (jwtAuth && !options.disableAuth) {
-      const authMiddleware = createAuthMiddleware(jwtAuth);
+      const authMiddleware = createAuthMiddleware(jwtAuth, tokenBlocklist);
       const optionalAuth = createOptionalAuthMiddleware(jwtAuth);
 
       scope.addHook('onRequest', async (request, reply) => {
@@ -561,6 +565,42 @@ export function buildServer(options: ApiServerOptions = {}) {
       narrativeRepo,
       pubsub,
     });
+
+    // Token revocation endpoint (ADR-010)
+    if (jwtAuth) {
+      scope.post('/auth/revoke', async (request, reply) => {
+        if (!request.user) {
+          return reply.code(401).send({
+            ok: false,
+            error: 'unauthorized',
+            message: 'Authentication required',
+          });
+        }
+
+        // Extract the token being used (to get its jti and exp)
+        const authHeader = request.headers.authorization;
+        const token = JWTAuth.extractToken(authHeader);
+        if (!token) {
+          return reply.code(400).send({
+            ok: false,
+            error: 'bad_request',
+            message: 'No token to revoke',
+          });
+        }
+
+        const decoded = jwtAuth.decodeToken(token);
+        if (!decoded?.jti || !decoded.exp) {
+          return reply.code(400).send({
+            ok: false,
+            error: 'bad_request',
+            message: 'Token does not contain a revocable identifier',
+          });
+        }
+
+        await tokenBlocklist.add(decoded.jti, decoded.exp);
+        return reply.code(200).send({ ok: true, message: 'Token revoked' });
+      });
+    }
   };
 
   // Register v1 API routes (canonical)
