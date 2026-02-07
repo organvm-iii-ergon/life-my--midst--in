@@ -1,5 +1,19 @@
 # Default values for inmidst Helm chart
 # Override per environment via -f values-production.yaml
+#
+# IMPORTANT: Override secrets in production via:
+#   helm install inmidst ./infra/helm -f values-production.yaml
+#   --set secrets.postgresPassword=<real-password>
+#   --set secrets.jwtSecret=<real-secret>
+# Or use external secret management (Vault, sealed-secrets, SOPS).
+
+# --- Secrets (override in production!) ---
+secrets:
+  postgresPassword: changeme
+  jwtSecret: changeme-jwt-secret
+  redisPassword: ""
+  # stripeSecretKey: ""
+  # stripeWebhookSecret: ""
 
 image:
   repository: ghcr.io/4444j99/inmidst
@@ -126,7 +140,6 @@ orchestrator:
 migrations:
   enabled: true
   env:
-    DATABASE_URL: postgresql://inmidst:changeme@inmidst-postgres:5432/midst_prod
     REDIS_URL: redis://inmidst-redis:6379
 
 # --- PostgreSQL ---
@@ -135,7 +148,7 @@ postgres:
   image: pgvector/pgvector:pg15
   port: 5432
   username: inmidst
-  password: changeme
+  # Password is managed via secrets.postgresPassword (see secrets.yaml template)
   database: midst_prod
   storage: 10Gi
   resources:
@@ -165,6 +178,8 @@ ingress:
   enabled: false
   className: nginx
   annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
     - host: app.example.com
       paths:

@@ -25,6 +25,15 @@ spec:
             - name: {{ $key }}
               value: "{{ $value }}"
             {{- end }}
+            - name: DATABASE_URL
+              value: "postgresql://{{ .Values.postgres.username }}:$(POSTGRES_PASSWORD)@{{ include "inmidst.name" . }}-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "inmidst.fullname" . }}-secrets
+                  key: postgres-password
+            - name: REDIS_URL
+              value: "redis://{{ include "inmidst.name" . }}-redis:{{ .Values.redis.port }}"
           ports:
             - containerPort: {{ .Values.orchestrator.service.port }}
               name: http

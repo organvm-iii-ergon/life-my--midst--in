@@ -25,6 +25,13 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "inmidst.fullname" . }}-secrets
+                  key: postgres-password
+            - name: DATABASE_URL
+              value: "postgresql://{{ .Values.postgres.username }}:$(POSTGRES_PASSWORD)@{{ include "inmidst.name" . }}-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
           command: ["/bin/sh", "-c"]
           args:
             - |
