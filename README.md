@@ -12,11 +12,25 @@
 
 ---
 
+## The Problem
+
+Traditional CVs and resumes are static, one-dimensional documents that force professionals to flatten their multifaceted identity into a single narrative. They cannot adapt to different audiences, evolve with career transitions, or provide verifiable proof of claims. This creates a fundamental mismatch between how professionals actually work — wearing different hats in different contexts — and how they present themselves on paper.
+
+## The Approach
+
+This project reimagines the CV as an **identity operating system** built on three key ideas:
+
+1. **CV as Ledger**: Treat the complete work history as an immutable, append-only record (analogous to a blockchain), from which audience-specific views are derived on demand.
+2. **Mask-Based Filtering**: 16 identity masks (Analyst, Architect, Narrator, etc.) act as lenses that reshape the same underlying data for different professional contexts.
+3. **Verifiable Identity**: W3C Decentralized Identifiers and Verifiable Credentials provide cryptographic proof of claims without revealing unnecessary personal data.
+
+## The Outcome
+
+A feature-complete full-stack system (Next.js 16 + Fastify + PostgreSQL) that generates context-aware professional profiles, supports temporal career navigation through 8 epochs, automates job search via the Hunter Protocol, and exports to JSON-LD, PDF, and Verifiable Credential formats — all from a single source of truth.
+
+---
+
 ## Overview
-
-Your professional identity is not one-dimensional — you are an **Analyst** in boardrooms, an **Artisan** in creative projects, an **Architect** in systems thinking. But a traditional CV is singular, static, and context-blind.
-
-**in–midst–my–life** treats a CV as a **verifiable, append-only ledger** (analogous to a blockchain) from which multiple context-specific views are derived as **mask-filtered snapshots**:
 
 - **16 identity masks** filter the same underlying truth for different audiences
 - **8 temporal epochs** (Initiation through Legacy) structure career narrative
