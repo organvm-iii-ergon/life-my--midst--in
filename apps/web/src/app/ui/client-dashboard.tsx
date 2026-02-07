@@ -243,8 +243,6 @@ export default function ClientDashboard() {
 
       const cid = await VC.calculateCID(vc);
       setLastMintedCID(cid);
-      console.log('Minted VC:', vc);
-      console.log('CID:', cid);
     } catch (e) {
       console.error('Minting failed', e);
     }
