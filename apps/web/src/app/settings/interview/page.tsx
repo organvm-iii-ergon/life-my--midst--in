@@ -87,9 +87,13 @@ export default function InterviewSettingsPage() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const pid = urlParams.get('profileId') || '00000000-0000-0000-0000-000000000001';
+    const pid = urlParams.get('profileId') || '';
     setProfileId(pid);
-    void loadSettings(pid);
+    if (pid) {
+      void loadSettings(pid);
+    } else {
+      setIsLoading(false);
+    }
   }, [loadSettings]);
 
   const saveSetting = async (key: string, value: unknown) => {
@@ -136,6 +140,32 @@ export default function InterviewSettingsPage() {
             }}
           />
           <p className="section-subtitle">Loading interview settings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileId) {
+    return (
+      <div className="page">
+        <div className="section" style={{ textAlign: 'center', padding: '3rem' }}>
+          <MessageCircle
+            style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              margin: '0 auto 1rem',
+              color: 'var(--stone)',
+            }}
+          />
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: '0 0 0.5rem' }}>
+            No profile selected
+          </h2>
+          <p className="section-subtitle" style={{ margin: '0 0 1rem' }}>
+            Select a profile from the dashboard to configure interview preferences.
+          </p>
+          <a href="/dashboard" className="button">
+            Go to Dashboard
+          </a>
         </div>
       </div>
     );
