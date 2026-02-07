@@ -33,6 +33,10 @@ export default [
       'no-console': 'off',
       'react/no-unescaped-entities': 'off',
       '@next/next/no-html-link-for-pages': 'warn',
+      // eslint-config-next@16 introduces new React compiler rules that produce
+      // false positives for standard async-data-fetch and WebSocket-callback patterns
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/purity': 'warn',
     },
   },
 

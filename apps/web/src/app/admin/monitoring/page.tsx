@@ -31,6 +31,25 @@ interface Alert {
   resolved: boolean;
 }
 
+const INITIAL_ALERTS: Alert[] = [
+  {
+    id: '1',
+    severity: 'warning',
+    title: 'Redis Memory Usage High',
+    description: 'Redis memory usage is at 78% capacity. Consider cache eviction or scaling.',
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
+    resolved: false,
+  },
+  {
+    id: '2',
+    severity: 'info',
+    title: 'Deployment Successful',
+    description: 'API v1.2.3 deployed successfully. 0 errors in health checks.',
+    timestamp: new Date(Date.now() - 7200000).toISOString(),
+    resolved: false,
+  },
+];
+
 export default function MonitoringDashboard() {
   const [services] = useState<ServiceHealth[]>([
     {
@@ -89,24 +108,7 @@ export default function MonitoringDashboard() {
     activeRequests: 123,
   });
 
-  const [alerts, setAlerts] = useState<Alert[]>([
-    {
-      id: '1',
-      severity: 'warning',
-      title: 'Redis Memory Usage High',
-      description: 'Redis memory usage is at 78% capacity. Consider cache eviction or scaling.',
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      resolved: false,
-    },
-    {
-      id: '2',
-      severity: 'info',
-      title: 'Deployment Successful',
-      description: 'API v1.2.3 deployed successfully. 0 errors in health checks.',
-      timestamp: new Date(Date.now() - 7200000).toISOString(),
-      resolved: false,
-    },
-  ]);
+  const [alerts, setAlerts] = useState<Alert[]>(INITIAL_ALERTS);
 
   const [autoRefresh, setAutoRefresh] = useState(true);
 
