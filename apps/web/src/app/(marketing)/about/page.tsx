@@ -120,6 +120,41 @@ export default function AboutPage() {
         </div>
       </div>
 
+      <div className="section" style={{ marginBottom: '2rem' }}>
+        <h2
+          style={{
+            fontFamily: 'var(--font-display), Georgia, serif',
+            fontSize: '1.4rem',
+            marginBottom: '0.75rem',
+          }}
+        >
+          Principles of Dignity
+        </h2>
+        <p style={{ lineHeight: 1.7, color: 'var(--ink)', marginBottom: '1rem' }}>
+          We are bound by a covenant: every person is a complete human, not a simplified unit for
+          filtering. The traditional hiring system reduces breadth to a red flag and treats lived
+          experience as irrelevant. We replace that system with one built on dignity.
+        </p>
+        <ul style={{ lineHeight: 1.8, paddingLeft: '1.2rem', color: 'var(--ink)' }}>
+          <li>
+            <strong>Complete humans</strong> — We recognize capability across all dimensions:
+            parenting, art, recovery, code, teaching, and everything between
+          </li>
+          <li>
+            <strong>Authentic masks</strong> — Every persona is genuinely you in that context, not a
+            performance demanded by the system
+          </li>
+          <li>
+            <strong>Inverted power</strong> — Both parties evaluate each other transparently; the
+            interviewer becomes the interviewee
+          </li>
+          <li>
+            <strong>Time and dignity</strong> — We refuse to participate in systems that destroy
+            people through 2000-application loops that yield nothing
+          </li>
+        </ul>
+      </div>
+
       <div className="section">
         <h2
           style={{

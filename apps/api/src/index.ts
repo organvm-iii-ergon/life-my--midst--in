@@ -29,6 +29,7 @@ import { registerArtifactRoutes } from './routes/artifacts';
 import { registerIntegrationRoutes } from './routes/integrations';
 import { registerSearchRoutes } from './routes/search';
 import { registerDidRoutes } from './routes/did';
+import { registerIdentityRoutes } from './routes/identity';
 import { registerGraphQLRoute } from './routes/graphql';
 import { InMemoryPubSub } from './services/pubsub';
 import type { ProfileRepo } from './repositories/profiles';
@@ -509,6 +510,7 @@ export function buildServer(options: ApiServerOptions = {}) {
       },
     });
     scope.register(registerDidRoutes, { prefix: '/did' });
+    scope.register(registerIdentityRoutes, { prefix: '/profiles' });
     scope.register(registerGraphQLRoute, {
       profileRepo: options.profileRepo ?? profileRepo,
       maskRepo,
