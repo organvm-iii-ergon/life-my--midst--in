@@ -1,0 +1,12 @@
+# Default owner for everything
+* @4444J99
+
+# Applications
+/apps/     @4444J99
+/packages/ @4444J99
+
+# Documentation
+/docs/     @4444J99
+
+# Infrastructure
+/infra/    @4444J99

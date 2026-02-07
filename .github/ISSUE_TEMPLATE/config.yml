@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability
+    url: https://github.com/4444J99/life-my--midst--in/security/advisories/new
+    about: Report security issues privately via GitHub Security Advisories
+  - name: Documentation
+    url: https://github.com/4444J99/life-my--midst--in/tree/master/docs
+    about: Browse project documentation
