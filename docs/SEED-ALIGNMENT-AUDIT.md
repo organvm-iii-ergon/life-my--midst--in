@@ -836,12 +836,11 @@ Master table of all 129 documents in the project. Tier column: **S** = Seed (cov
 
 Gap types: **-D** = Drift, **-C** = Commitment, **-S** = Staleness
 
-### G16-D: Phase 9 Community Marketplace Not Implemented
+### ~~G16-D: Phase 9 Community Marketplace Not Implemented~~ — RESOLVED
 
-- **Severity**: Medium
+- **Severity**: ~~Medium~~ **None**
 - **Source**: `docs/phases/PHASE-9-PLAN.md` (Epic 4: marketplace functionality)
-- **Current State**: Zero codebase matches for "marketplace"; community features split across messaging.ts, public-profiles.ts
-- **Recommendation**: Either implement marketplace or update PHASE-9-PLAN to reflect actual scope
+- **Resolution**: Minimum Viable Marketplace implemented: `packages/schema/src/marketplace.ts` (Zod schemas for listings, reviews, imports), `apps/api/migrations/020_marketplace.sql` (3 tables with GIN indexes), `apps/api/src/repositories/marketplace.ts` (InMemory + Postgres repos), `apps/api/src/routes/marketplace.ts` (CRUD + search/filter/sort + reviews + imports), `apps/web/src/app/marketplace/` (browse grid + detail page with reviews), "Publish to Marketplace" button in MaskEditor. Template sharing, ratings, search, and import functionality covers the core marketplace claim.
 
 ### ~~G17-D: CI/CD Pipeline Overstated in PHASE-7-SUMMARY~~ — RESOLVED
 
@@ -951,7 +950,7 @@ Gap types: **-D** = Drift, **-C** = Commitment, **-S** = Staleness
 
 | Gap | Action | Effort | Type |
 |-----|--------|--------|------|
-| **G16-D** | Implement community marketplace or downgrade Phase 9 claims | 40+ hours | Drift |
+| ~~**G16-D**~~ | ~~Implement community marketplace or downgrade Phase 9 claims~~ | ~~RESOLVED~~ | Drift |
 | **G17-D** | Update PHASE-7-SUMMARY CI/CD pipeline description | 30 min | Drift |
 | ~~**G18-C**~~ | ~~WCAG 2.1 AA critical-path~~ | ~~RESOLVED~~ | Commitment |
 | **G19-C** | Add `@fastify/helmet`; document WebSocket auth gap | 2-3 hours | Commitment |
@@ -1002,7 +1001,7 @@ Across **129 documents** — 30 archived originals, 42 non-archived docs, 12 ADR
 | Tier 2 (spot-checked, 1+ claim) | 9 |
 | Tier 3 (classified) | 115 |
 | Gaps registered (G1-G25) | 25 |
-| Gap severity: High | 3 (G10, G16, G18) |
+| Gap severity: High | 3 (~~G10~~, ~~G16~~, ~~G18~~ — all RESOLVED) |
 | Gap severity: Medium | 9 |
 | Gap severity: Low | 13 |
 | GitHub issues created | #24-#38 (G1-G15), #39-#48 (G16-G25) |
@@ -1015,7 +1014,7 @@ Across **129 documents** — 30 archived originals, 42 non-archived docs, 12 ADR
 - **Ontological taxonomy** (16 masks, 9 personalities, 8 stages, 8 epochs, 8 settings, 6 scaenae) is complete with relationship maps
 - **12 ADRs** show 9 fully aligned, 3 partially aligned, 0 contradicted
 - **COVENANT commitments** (6 core + designer/user/system) are all honored
-- **Phase completion reports** (6-9) are largely accurate — Phase 9 community/marketplace is the major exception (G16-D)
+- **Phase completion reports** (6-9) are largely accurate — Phase 9 marketplace now implemented via Minimum Viable Marketplace (G16-D RESOLVED)
 - **Forward commitments** in ACCESSIBILITY.md and SECURITY.md exceed current implementation (G18-C, G19-C)
 - **22 documents** have staleness concerns (outdated references, missing banners, or stale completion claims)
 - **0 contradictions** between FEATURE-AUDIT and SEED-ALIGNMENT-AUDIT

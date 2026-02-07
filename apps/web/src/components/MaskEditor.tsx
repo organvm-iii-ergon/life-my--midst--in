@@ -87,6 +87,14 @@ export function MaskEditor({
   const [history, setHistory] = useState<EditorState[]>([state]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
+  // Marketplace publish state
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [publishTitle, setPublishTitle] = useState('');
+  const [publishDescription, setPublishDescription] = useState('');
+  const [publishTags, setPublishTags] = useState('');
+  const [publishing, setPublishing] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
+
   // Undo/redo support
   const handleUndo = useCallback(() => {
     if (historyIndex > 0) {
@@ -545,7 +553,9 @@ export function MaskEditor({
       </div>
 
       {/* Action Buttons */}
-      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+      <div
+        style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}
+      >
         <button
           onClick={() => {
             const resetState = initialMask
@@ -575,6 +585,17 @@ export function MaskEditor({
           Reset
         </button>
         <button
+          onClick={() => {
+            setPublishTitle(state.name);
+            setShowPublishModal(true);
+          }}
+          disabled={isLoading || !state.name}
+          style={{ padding: '0.75rem 1.5rem' }}
+          className="button secondary"
+        >
+          Publish to Marketplace
+        </button>
+        <button
           onClick={handleSave}
           disabled={isLoading || !state.name}
           style={{ padding: '0.75rem 1.5rem' }}
@@ -583,6 +604,169 @@ export function MaskEditor({
           {isLoading ? 'Saving...' : initialMask ? 'Update Mask' : 'Create Mask'}
         </button>
       </div>
+
+      {/* Publish to Marketplace Modal */}
+      {showPublishModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setShowPublishModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Publish to Marketplace"
+        >
+          <div
+            className="card"
+            style={{ padding: '1.5rem', maxWidth: '500px', width: '90%' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ margin: '0 0 1rem' }}>Publish to Marketplace</h3>
+
+            {publishSuccess ? (
+              <div>
+                <p style={{ color: 'var(--ds-success, #2d7d46)', fontWeight: 600 }}>
+                  Published successfully!
+                </p>
+                <button
+                  className="button"
+                  onClick={() => {
+                    setShowPublishModal(false);
+                    setPublishSuccess(false);
+                  }}
+                  style={{ marginTop: '0.75rem', padding: '0.5rem 1rem' }}
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label
+                    htmlFor="publish-title"
+                    style={{
+                      display: 'block',
+                      marginBottom: '0.35rem',
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    Title
+                  </label>
+                  <input
+                    id="publish-title"
+                    className="input"
+                    value={publishTitle}
+                    onChange={(e) => setPublishTitle(e.target.value)}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label
+                    htmlFor="publish-description"
+                    style={{
+                      display: 'block',
+                      marginBottom: '0.35rem',
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    Description
+                  </label>
+                  <textarea
+                    id="publish-description"
+                    className="input"
+                    value={publishDescription}
+                    onChange={(e) => setPublishDescription(e.target.value)}
+                    placeholder="Describe what this mask template is best used for..."
+                    rows={3}
+                    style={{ width: '100%', resize: 'vertical' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label
+                    htmlFor="publish-tags"
+                    style={{
+                      display: 'block',
+                      marginBottom: '0.35rem',
+                      fontWeight: 600,
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    Tags (comma-separated)
+                  </label>
+                  <input
+                    id="publish-tags"
+                    className="input"
+                    value={publishTags}
+                    onChange={(e) => setPublishTags(e.target.value)}
+                    placeholder="e.g. technical, interview, creative"
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                  <button
+                    className="button secondary"
+                    onClick={() => setShowPublishModal(false)}
+                    style={{ padding: '0.5rem 1rem' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="button"
+                    disabled={publishing || !publishTitle}
+                    onClick={async () => {
+                      setPublishing(true);
+                      try {
+                        const baseUrl = apiBaseUrl.replace(/\/taxonomy$/, '');
+                        const res = await fetch(`${baseUrl}/marketplace/listings`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            title: publishTitle,
+                            description: publishDescription,
+                            maskConfig: {
+                              name: state.name,
+                              ontology: state.ontology,
+                              functionalScope: state.functionalScope,
+                              tone: state.tone,
+                              rhetoricalMode: state.rhetoricalMode,
+                              compressionRatio: state.compressionRatio,
+                            },
+                            tags: publishTags
+                              .split(',')
+                              .map((t) => t.trim())
+                              .filter(Boolean),
+                          }),
+                        });
+                        if (res.ok) {
+                          setPublishSuccess(true);
+                        } else {
+                          const data = await res.json();
+                          setError(data.error || 'Publish failed');
+                        }
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Publish failed');
+                      } finally {
+                        setPublishing(false);
+                      }
+                    }}
+                    style={{ padding: '0.5rem 1rem' }}
+                  >
+                    {publishing ? 'Publishing...' : 'Publish'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

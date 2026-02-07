@@ -32,6 +32,7 @@ import { registerIntegrationRoutes } from './routes/integrations';
 import { registerSearchRoutes } from './routes/search';
 import { registerDidRoutes } from './routes/did';
 import sbtRoutes from './routes/sbt';
+import marketplaceRoutes from './routes/marketplace';
 import { registerIdentityRoutes } from './routes/identity';
 import { registerGraphQLRoute } from './routes/graphql';
 import { InMemoryPubSub } from './services/pubsub';
@@ -427,6 +428,7 @@ export function buildServer(options: ApiServerOptions = {}) {
       '/taxonomy/masks',
       '/taxonomy/epochs',
       '/taxonomy/stages',
+      '/marketplace',
     ];
 
     if (jwtAuth && !options.disableAuth) {
@@ -539,6 +541,7 @@ export function buildServer(options: ApiServerOptions = {}) {
     scope.register(registerAdminSettingsRoutes, { settingsRepo });
     scope.register(registerArtifactRoutes);
     scope.register(sbtRoutes);
+    scope.register(marketplaceRoutes);
     scope.register(registerIntegrationRoutes);
     scope.register(registerSearchRoutes, {
       prefix: '/search',
