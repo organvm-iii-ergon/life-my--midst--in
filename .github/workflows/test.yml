@@ -108,6 +108,16 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Check bundle size budget
+        run: |
+          BUNDLE_SIZE=$(du -sk apps/web/.next/static/ | cut -f1)
+          BUDGET_KB=2048
+          echo "Bundle size: ${BUNDLE_SIZE}KB (budget: ${BUDGET_KB}KB)"
+          if [ "$BUNDLE_SIZE" -gt "$BUDGET_KB" ]; then
+            echo "::error::Bundle size ${BUNDLE_SIZE}KB exceeds budget of ${BUDGET_KB}KB"
+            exit 1
+          fi
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

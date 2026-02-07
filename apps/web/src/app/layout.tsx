@@ -2,6 +2,7 @@ import type React from 'react';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { getServerEnv } from '@/env';
+import { WebVitals } from '@/components/WebVitals';
 
 // Validate server environment on first render
 getServerEnv();
@@ -43,7 +44,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="app-body">{children}</body>
+      <body className="app-body">
+        <WebVitals />
+        {children}
+      </body>
     </html>
   );
 }
