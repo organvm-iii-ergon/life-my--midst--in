@@ -97,3 +97,6 @@ export * from './compatibility';
 
 // Tone analysis
 export * from './tone';
+
+// Follow-up question generation
+export * from './follow-up-generator';

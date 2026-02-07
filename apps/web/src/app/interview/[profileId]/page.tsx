@@ -28,6 +28,7 @@ export default function InterviewPage() {
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [suggestedFollowUps, setSuggestedFollowUps] = useState<string[]>([]);
 
   // Interview state
   const [interviewerName, setInterviewerName] = useState('');
@@ -98,7 +99,7 @@ export default function InterviewPage() {
 
     // Save answer to backend
     try {
-      await fetch(`/api/interviews/sessions/${sessionId}/answer`, {
+      const res = await fetch(`/api/interviews/sessions/${sessionId}/answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,8 +107,11 @@ export default function InterviewPage() {
           timestamp: new Date().toISOString(),
         }),
       });
+      const data = (await res.json()) as { suggestedFollowUps?: string[] };
+      setSuggestedFollowUps(data.suggestedFollowUps ?? []);
     } catch (error) {
       console.error('Error saving answer:', error);
+      setSuggestedFollowUps([]);
     }
 
     setCurrentAnswer('');
@@ -247,9 +251,22 @@ export default function InterviewPage() {
                 {currentQuestion.question}
               </h2>
 
-              {currentQuestion.followUp && (
+              {suggestedFollowUps.length > 0 ? (
+                <div className="mb-6 p-4 bg-purple-500/20 border border-purple-400/30 rounded-lg">
+                  <p className="text-xs font-semibold text-purple-300 uppercase tracking-wider mb-2">
+                    Suggested follow-ups based on compatibility gaps
+                  </p>
+                  <ul className="text-gray-300 space-y-1">
+                    {suggestedFollowUps.map((q, i) => (
+                      <li key={i} className="italic text-sm">
+                        → {q}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : currentQuestion.followUp ? (
                 <p className="text-gray-300 italic mb-6">Follow-up: {currentQuestion.followUp}</p>
-              )}
+              ) : null}
             </div>
 
             {/* Answer Input */}
