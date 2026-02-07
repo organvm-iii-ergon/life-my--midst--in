@@ -1,6 +1,8 @@
 # C1: CI/CD Activation - Completion Checklist
 
-**Task ID:** C1  
+> **Historical Document** — This file documents work completed during CI/CD activation. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
+**Task ID:** C1
 **Priority:** P1  
 **Effort:** 4 EU  
 **Date Completed:** 2026-01-17  

@@ -1,6 +1,8 @@
 # Workstream D: Frontend UI - Completion Report
 
-**Date**: 2026-01-16  
+> **Historical Document** — This file documents work completed during the frontend UI workstream. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
+**Date**: 2026-01-16
 **Duration**: Implementation Phase  
 **Status**: ✅ Complete
 

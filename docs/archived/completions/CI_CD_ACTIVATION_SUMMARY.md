@@ -1,6 +1,8 @@
 # CI/CD Activation Summary
 
-**Task:** C1: CI/CD Activation (P1, 4 EU)  
+> **Historical Document** — This file documents work completed during CI/CD activation. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
+**Task:** C1: CI/CD Activation (P1, 4 EU)
 **Date:** 2026-01-17  
 **Status:** ✅ COMPLETE
 

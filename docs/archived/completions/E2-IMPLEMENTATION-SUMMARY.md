@@ -1,5 +1,7 @@
 # E2: Performance & Monitoring - Implementation Summary
 
+> **Historical Document** — This file documents work completed during the performance and monitoring phase. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
 ## ✅ Completed Tasks (8 EU)
 
 ### 1. Monitoring Stack Setup ✅

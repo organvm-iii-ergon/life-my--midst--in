@@ -1,6 +1,8 @@
 # C2 Web Dashboard Refactor - Completion Report
 
-**Workstream:** C2 - Web Dashboard Refactor  
+> **Historical Document** — This file documents work completed during the web dashboard refactor. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
+**Workstream:** C2 - Web Dashboard Refactor
 **Priority:** P1  
 **Effort:** 5 EU  
 **Status:** ✅ COMPLETE

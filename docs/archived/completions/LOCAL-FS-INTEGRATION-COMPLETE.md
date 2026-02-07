@@ -1,6 +1,8 @@
 # LocalFilesystemProvider Implementation - Completion Report
 
-**Date**: 2026-01-16  
+> **Historical Document** — This file documents work completed during the local filesystem integration phase. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
+**Date**: 2026-01-16
 **Duration**: 45 minutes  
 **Status**: ✅ Complete  
 **Commit**: `feat: Add LocalFsIntegration for testing artifact pipeline`

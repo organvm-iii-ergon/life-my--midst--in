@@ -1,6 +1,8 @@
 # D2 Advanced Features - Implementation Complete
 
-**Date**: 2026-01-17  
+> **Historical Document** — This file documents work completed during the advanced features phase. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
+**Date**: 2026-01-17
 **Status**: ✅ Complete  
 **Effort**: 10 EU (actual: ~8 EU)
 

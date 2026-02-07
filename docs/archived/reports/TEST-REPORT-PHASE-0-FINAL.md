@@ -1,5 +1,7 @@
 # Phase 0 Integration Test Report (Final)
 
+> **Historical Document** — This file documents Phase 0 test results at time of completion. The test infrastructure has evolved since this was written. See `docs/README.md` for current documentation.
+
 **Date**: 2026-01-13
 **Executor**: AI (Gemini)
 **Scope**: Hunter Protocol, Curriculum Vitae, Aetas, Narratives

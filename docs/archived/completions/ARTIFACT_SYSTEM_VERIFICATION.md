@@ -1,5 +1,7 @@
 # Artifact Catcher System - End-to-End Verification
 
+> **Historical Document** — This file documents the artifact system verification at time of implementation. The implementation has evolved since this was written. See `docs/README.md` for current documentation and `docs/FEATURE-AUDIT.md` for current feature status.
+
 **Status**: ✅ **All Core Components Complete & Wired**
 **Date**: 2026-01-16
 **Last Updated**: Post-Repository-Scheduler-Integration
