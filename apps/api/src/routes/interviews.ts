@@ -1,14 +1,20 @@
-import type { FastifyPluginAsync } from "fastify";
-import { z } from "zod";
-import type { Profile } from "@in-midst-my-life/schema";
-import { CompatibilityAnalyzer, type InterviewerProfile } from "@in-midst-my-life/content-model";
+/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
+import type { FastifyPluginAsync } from 'fastify';
+import { z } from 'zod';
+import type { Profile } from '@in-midst-my-life/schema';
+import {
+  CompatibilityAnalyzer,
+  selectWeightedMasks,
+  MASK_TAXONOMY,
+  type InterviewerProfile,
+} from '@in-midst-my-life/content-model';
 
 const InterviewAnswerSchema = z.object({
   questionId: z.string(),
   answer: z.string(),
   duration: z.number(), // seconds
   timestamp: z.string().datetime(),
-  tone: z.enum(["defensive", "neutral", "transparent", "enthusiastic"]).optional()
+  tone: z.enum(['defensive', 'neutral', 'transparent', 'enthusiastic']).optional(),
 });
 
 const InterviewSessionSchema = z.object({
@@ -20,21 +26,21 @@ const InterviewSessionSchema = z.object({
   jobRequirements: z.array(
     z.object({
       skill: z.string(),
-      level: z.enum(["novice", "intermediate", "advanced", "expert"]),
-      required: z.boolean()
-    })
+      level: z.enum(['novice', 'intermediate', 'advanced', 'expert']),
+      required: z.boolean(),
+    }),
   ),
   salaryRange: z
     .object({
       min: z.number(),
-      max: z.number()
+      max: z.number(),
     })
     .optional(),
   answers: z.array(InterviewAnswerSchema),
-  status: z.enum(["in-progress", "completed", "archived"]),
+  status: z.enum(['in-progress', 'completed', 'archived']),
   compatibilityScore: z.number().optional(),
   createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime()
+  updatedAt: z.string().datetime(),
 });
 
 type InterviewSession = z.infer<typeof InterviewSessionSchema>;
@@ -42,87 +48,267 @@ type InterviewSession = z.infer<typeof InterviewSessionSchema>;
 // Mock storage (would be replaced with database)
 const sessions = new Map<string, InterviewSession>();
 
-const DEFAULT_INTERVIEW_QUESTIONS = [
+type QuestionCategory =
+  | 'culture'
+  | 'growth'
+  | 'sustainability'
+  | 'authenticity'
+  | 'team'
+  | 'technical'
+  | 'leadership'
+  | 'values';
+
+interface InterviewQuestion {
+  id: string;
+  category: QuestionCategory;
+  question: string;
+  expectedDuration: number;
+  followUp?: string;
+  /** Tags that trigger this question (matched against job requirements/context) */
+  contextTags?: string[];
+}
+
+/**
+ * Full question pool — dynamically filtered based on job context.
+ * The GET /questions endpoint selects from this pool based on
+ * the job title, required skills, and requested categories.
+ */
+const QUESTION_POOL: InterviewQuestion[] = [
+  // ── Culture ──
   {
-    id: "q-culture-1",
-    category: "culture" as const,
+    id: 'q-culture-1',
+    category: 'culture',
     question:
-      "Describe a time you made a decision that prioritized people over metrics. What was the outcome?",
+      'Describe a time you made a decision that prioritized people over metrics. What was the outcome?',
     expectedDuration: 120,
-    followUp: "How did you know it was the right call?"
+    followUp: 'How did you know it was the right call?',
   },
   {
-    id: "q-culture-2",
-    category: "culture" as const,
-    question: "What does 'psychological safety' mean in your organization, and how do you foster it?",
-    expectedDuration: 90
+    id: 'q-culture-2',
+    category: 'culture',
+    question:
+      "What does 'psychological safety' mean in your organization, and how do you foster it?",
+    expectedDuration: 90,
   },
   {
-    id: "q-growth-1",
-    category: "growth" as const,
+    id: 'q-culture-3',
+    category: 'culture',
+    question: 'How do you handle disagreements between team members with strongly held opinions?',
+    expectedDuration: 90,
+    contextTags: ['collaboration', 'teamwork', 'management'],
+  },
+  // ── Growth ──
+  {
+    id: 'q-growth-1',
+    category: 'growth',
     question:
       "What's the steepest learning curve someone on your team has climbed? How did you support them?",
-    expectedDuration: 120
-  },
-  {
-    id: "q-growth-2",
-    category: "growth" as const,
-    question:
-      "How many people from this role have been promoted? What skills helped them get promoted?",
-    expectedDuration: 90
-  },
-  {
-    id: "q-sustainability-1",
-    category: "sustainability" as const,
-    question:
-      "Tell me about a hire that looked perfect on paper but was a terrible fit. What did you learn?",
     expectedDuration: 120,
-    followUp: "How have you applied that lesson since?"
   },
   {
-    id: "q-sustainability-2",
-    category: "sustainability" as const,
+    id: 'q-growth-2',
+    category: 'growth',
+    question:
+      'How many people from this role have been promoted? What skills helped them get promoted?',
+    expectedDuration: 90,
+  },
+  {
+    id: 'q-growth-3',
+    category: 'growth',
+    question: 'What training budget or professional development opportunities do you offer?',
+    expectedDuration: 60,
+    contextTags: ['career', 'development', 'learning'],
+  },
+  // ── Sustainability ──
+  {
+    id: 'q-sustainability-1',
+    category: 'sustainability',
+    question:
+      'Tell me about a hire that looked perfect on paper but was a terrible fit. What did you learn?',
+    expectedDuration: 120,
+    followUp: 'How have you applied that lesson since?',
+  },
+  {
+    id: 'q-sustainability-2',
+    category: 'sustainability',
     question:
       "What's your team's turnover rate, and what do you think are the main reasons people leave?",
-    expectedDuration: 90
+    expectedDuration: 90,
   },
+  // ── Authenticity ──
   {
-    id: "q-authenticity-1",
-    category: "authenticity" as const,
-    question: "When was the last time you changed your mind about something important?",
+    id: 'q-authenticity-1',
+    category: 'authenticity',
+    question: 'When was the last time you changed your mind about something important?',
     expectedDuration: 60,
-    followUp: "What made you realize you were wrong?"
+    followUp: 'What made you realize you were wrong?',
   },
   {
-    id: "q-authenticity-2",
-    category: "authenticity" as const,
+    id: 'q-authenticity-2',
+    category: 'authenticity',
     question:
-      "If someone failed in this role, what would that failure look like? Be specific and honest.",
-    expectedDuration: 120
+      'If someone failed in this role, what would that failure look like? Be specific and honest.',
+    expectedDuration: 120,
+  },
+  // ── Team ──
+  {
+    id: 'q-team-1',
+    category: 'team',
+    question:
+      'Describe your ideal team member. What traits are non-negotiable, and which can you work with?',
+    expectedDuration: 120,
   },
   {
-    id: "q-team-1",
-    category: "team" as const,
+    id: 'q-team-2',
+    category: 'team',
+    question: 'How does your team handle on-call, overtime, or crunch periods?',
+    expectedDuration: 90,
+    contextTags: ['engineering', 'operations', 'devops', 'infrastructure'],
+  },
+  // ── Technical ──
+  {
+    id: 'q-technical-1',
+    category: 'technical',
+    question: 'Walk me through your deployment pipeline. How often do you ship to production?',
+    expectedDuration: 120,
+    contextTags: ['engineering', 'software', 'development', 'devops'],
+  },
+  {
+    id: 'q-technical-2',
+    category: 'technical',
     question:
-      "Describe your ideal team member. What traits are non-negotiable, and which can you work with?",
-    expectedDuration: 120
-  }
+      "What's your approach to technical debt? How do you balance feature work with maintenance?",
+    expectedDuration: 90,
+    contextTags: ['engineering', 'software', 'architecture'],
+  },
+  {
+    id: 'q-technical-3',
+    category: 'technical',
+    question: 'How do you evaluate architectural decisions? Who has input, and who has final say?',
+    expectedDuration: 90,
+    contextTags: ['architecture', 'engineering', 'systems'],
+  },
+  // ── Leadership ──
+  {
+    id: 'q-leadership-1',
+    category: 'leadership',
+    question: 'How do you measure your own success as a leader? What metrics matter to you?',
+    expectedDuration: 90,
+    contextTags: ['management', 'leadership', 'director', 'vp'],
+  },
+  {
+    id: 'q-leadership-2',
+    category: 'leadership',
+    question:
+      'Describe a project that failed under your leadership. What would you do differently?',
+    expectedDuration: 120,
+    contextTags: ['management', 'leadership', 'senior'],
+  },
+  // ── Values ──
+  {
+    id: 'q-values-1',
+    category: 'values',
+    question:
+      'What does your organization do when business objectives conflict with employee wellbeing?',
+    expectedDuration: 120,
+  },
+  {
+    id: 'q-values-2',
+    category: 'values',
+    question:
+      'How transparent is compensation within the team? Can people discuss salaries openly?',
+    expectedDuration: 60,
+    contextTags: ['compensation', 'equity', 'transparency'],
+  },
 ];
+
+/**
+ * Select questions dynamically based on job context.
+ * Prioritizes questions whose contextTags match the job's skills/title,
+ * ensures category diversity, and caps at the requested limit.
+ */
+function selectQuestions(options: {
+  categories?: QuestionCategory[];
+  jobTitle?: string;
+  skills?: string[];
+  limit?: number;
+}): InterviewQuestion[] {
+  const limit = options.limit ?? 9;
+  const jobContext = new Set(
+    [...(options.skills ?? []), ...(options.jobTitle ?? '').toLowerCase().split(/\s+/)].map((s) =>
+      s.toLowerCase(),
+    ),
+  );
+
+  // Filter by requested categories (if any)
+  const pool = options.categories?.length
+    ? QUESTION_POOL.filter((q) => options.categories!.includes(q.category))
+    : [...QUESTION_POOL];
+
+  // Score by context relevance
+  const scored = pool.map((q) => {
+    const tagScore = (q.contextTags ?? []).filter((t) => jobContext.has(t.toLowerCase())).length;
+    return { question: q, score: tagScore };
+  });
+
+  // Sort: context-relevant first, then shuffle within same score for variety
+  scored.sort((a, b) => b.score - a.score);
+
+  // Pick up to `limit`, ensuring category diversity (max 3 per category)
+  const selected: InterviewQuestion[] = [];
+  const categoryCount = new Map<string, number>();
+
+  for (const { question } of scored) {
+    if (selected.length >= limit) break;
+    const count = categoryCount.get(question.category) ?? 0;
+    if (count >= 3) continue;
+    selected.push(question);
+    categoryCount.set(question.category, count + 1);
+  }
+
+  return selected;
+}
 
 export const interviewRoutes: FastifyPluginAsync = async (server) => {
   /**
    * GET /interviews/:profileId/questions
-   * Get interview questions for a candidate's profile
+   * Get interview questions for a candidate's profile.
+   *
+   * Query params:
+   *   - jobTitle: string — filters questions relevant to the role
+   *   - skills: comma-separated — matches question contextTags
+   *   - categories: comma-separated QuestionCategory values
+   *   - limit: number (default 9, max 20)
    */
-  server.get("/interviews/:profileId/questions", async (req, _reply) => {
-    const { profileId: _profileId } = req.params as { profileId: string };
+  server.get('/interviews/:profileId/questions', async (req, _reply) => {
+    const query = req.query as {
+      jobTitle?: string;
+      skills?: string;
+      categories?: string;
+      limit?: string;
+    };
 
-    // Could customize questions based on profile/industry
-    // For now, return default set
+    const skills = query.skills
+      ?.split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const categories = query.categories
+      ?.split(',')
+      .map((c) => c.trim())
+      .filter(Boolean) as QuestionCategory[] | undefined;
+    const limit = Math.min(Number(query.limit) || 9, 20);
+
+    const questions = selectQuestions({
+      jobTitle: query.jobTitle,
+      skills,
+      categories,
+      limit,
+    });
+
     return {
-      questions: DEFAULT_INTERVIEW_QUESTIONS,
-      count: DEFAULT_INTERVIEW_QUESTIONS.length,
-      estimatedDuration: DEFAULT_INTERVIEW_QUESTIONS.reduce((sum, q) => sum + q.expectedDuration, 0)
+      questions,
+      count: questions.length,
+      estimatedDuration: questions.reduce((sum, q) => sum + q.expectedDuration, 0),
     };
   });
 
@@ -130,7 +316,7 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
    * POST /interviews/:profileId/start
    * Start a new interview session
    */
-  server.post("/interviews/:profileId/start", async (req, reply) => {
+  server.post('/interviews/:profileId/start', async (req, reply) => {
     const { profileId } = req.params as { profileId: string };
     const body = z
       .object({
@@ -140,11 +326,11 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
         jobRequirements: z.array(
           z.object({
             skill: z.string(),
-            level: z.enum(["novice", "intermediate", "advanced", "expert"]),
-            required: z.boolean()
-          })
+            level: z.enum(['novice', 'intermediate', 'advanced', 'expert']),
+            required: z.boolean(),
+          }),
         ),
-        salaryRange: z.object({ min: z.number(), max: z.number() }).optional()
+        salaryRange: z.object({ min: z.number(), max: z.number() }).optional(),
       })
       .parse(req.body);
 
@@ -160,9 +346,9 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
       jobRequirements: body.jobRequirements,
       salaryRange: body.salaryRange,
       answers: [],
-      status: "in-progress",
+      status: 'in-progress',
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
     };
 
     sessions.set(sessionId, session);
@@ -170,8 +356,8 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
     return reply.status(201).send({
       sessionId,
       profileId,
-      status: "in-progress",
-      createdAt: now
+      status: 'in-progress',
+      createdAt: now,
     });
   });
 
@@ -179,13 +365,13 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
    * POST /interviews/sessions/:sessionId/answer
    * Record an answer to an interview question
    */
-  server.post("/interviews/sessions/:sessionId/answer", async (req, reply) => {
+  server.post('/interviews/sessions/:sessionId/answer', async (req, reply) => {
     const { sessionId } = req.params as { sessionId: string };
     const body = InterviewAnswerSchema.parse(req.body);
 
     const session = sessions.get(sessionId);
     if (!session) {
-      return reply.status(404).send({ error: "Interview session not found" });
+      return reply.status(404).send({ error: 'Interview session not found' });
     }
 
     session.answers.push(body);
@@ -195,7 +381,7 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
     return reply.send({
       sessionId,
       answerRecorded: true,
-      totalAnswers: session.answers.length
+      totalAnswers: session.answers.length,
     });
   });
 
@@ -203,18 +389,18 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
    * POST /interviews/sessions/:sessionId/complete
    * Complete the interview and analyze compatibility
    */
-  server.post("/interviews/sessions/:sessionId/complete", async (req, reply) => {
+  server.post('/interviews/sessions/:sessionId/complete', async (req, reply) => {
     const { sessionId } = req.params as { sessionId: string };
 
     const session = sessions.get(sessionId);
     if (!session) {
-      return reply.status(404).send({ error: "Interview session not found" });
+      return reply.status(404).send({ error: 'Interview session not found' });
     }
 
     // Fetch candidate profile
     const profileResponse = await fetch(`http://localhost:3001/profiles/${session.profileId}`);
     if (!profileResponse.ok) {
-      return reply.status(404).send({ error: "Candidate profile not found" });
+      return reply.status(404).send({ error: 'Candidate profile not found' });
     }
     const profile = (await profileResponse.json()) as Profile;
 
@@ -227,14 +413,14 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
       salaryRange: session.salaryRange as any,
       answers: Object.fromEntries(session.answers.map((a) => [a.questionId, a.answer])),
       culture: session.answers
-        .filter((a) => a.questionId.includes("culture"))
+        .filter((a) => a.questionId.includes('culture'))
         .map((a) => a.answer)
-        .join(" "),
+        .join(' '),
       growth: session.answers
-        .filter((a) => a.questionId.includes("growth"))
+        .filter((a) => a.questionId.includes('growth'))
         .map((a) => a.answer)
-        .join(" "),
-      kpis: [] // Could extract from answers
+        .join(' '),
+      kpis: [], // Could extract from answers
     };
 
     // Analyze compatibility
@@ -242,7 +428,7 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
     const analysis = analyzer.analyzeCompatibility(profile, interviewerProfile);
 
     // Update session
-    session.status = "completed";
+    session.status = 'completed';
     session.compatibilityScore = analysis.scores.overall;
     session.updatedAt = new Date().toISOString();
     sessions.set(sessionId, session);
@@ -251,7 +437,7 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
       sessionId,
       profileId: session.profileId,
       organization: session.organizationName,
-      compatibility: analysis
+      compatibility: analysis,
     });
   });
 
@@ -259,22 +445,68 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
    * GET /interviews/sessions/:sessionId
    * Get interview session details and analysis
    */
-  server.get("/interviews/sessions/:sessionId", async (req, reply) => {
+  server.get('/interviews/sessions/:sessionId', async (req, reply) => {
     const { sessionId } = req.params as { sessionId: string };
 
     const session = sessions.get(sessionId);
     if (!session) {
-      return reply.status(404).send({ error: "Interview session not found" });
+      return reply.status(404).send({ error: 'Interview session not found' });
     }
 
     return reply.send(session);
   });
 
   /**
+   * POST /interviews/sessions/:sessionId/suggest-masks
+   * Suggest identity masks based on accumulated interview context.
+   * Uses job requirements, answers, and session metadata as scoring input.
+   */
+  server.post('/interviews/sessions/:sessionId/suggest-masks', async (req, reply) => {
+    const { sessionId } = req.params as { sessionId: string };
+
+    const session = sessions.get(sessionId);
+    if (!session) {
+      return reply.status(404).send({ error: 'Interview session not found' });
+    }
+
+    // Build context from job requirements + answer content
+    const contexts = [
+      session.jobTitle.toLowerCase(),
+      ...session.jobRequirements.map((r) => r.skill.toLowerCase()),
+    ];
+    const tags = [
+      ...session.answers
+        .flatMap((a) => a.questionId.split('-').filter((s) => s !== 'q'))
+        .filter(Boolean),
+      ...session.jobRequirements.filter((r) => r.required).map((r) => r.skill.toLowerCase()),
+    ];
+
+    // selectWeightedMasks scoring only reads contexts/tags/availableMasks
+    // from the view config — profile is unused by the mask weight algorithm
+    const weighted = selectWeightedMasks({
+      contexts,
+      tags,
+      availableMasks: MASK_TAXONOMY,
+      profile: {} as any,
+    });
+
+    return reply.send({
+      sessionId,
+      suggestions: weighted.slice(0, 5).map((w) => ({
+        maskId: w.mask.id,
+        maskName: w.mask.name,
+        ontology: w.mask.ontology,
+        score: w.score,
+        functionalScope: w.mask.functional_scope,
+      })),
+    });
+  });
+
+  /**
    * GET /interviews/:profileId/history
    * Get interview history for a candidate
    */
-  server.get("/interviews/:profileId/history", async (req, _reply) => {
+  server.get('/interviews/:profileId/history', async (req, _reply) => {
     const { profileId } = req.params as { profileId: string };
 
     const history = Array.from(sessions.values()).filter((s) => s.profileId === profileId);
@@ -282,10 +514,12 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
     return {
       profileId,
       totalInterviews: history.length,
-      completedInterviews: history.filter((s) => s.status === "completed").length,
+      completedInterviews: history.filter((s) => s.status === 'completed').length,
       averageCompatibility: Math.round(
-        history.filter((s) => s.compatibilityScore).reduce((sum, s) => sum + (s.compatibilityScore ?? 0), 0) /
-          Math.max(1, history.filter((s) => s.compatibilityScore).length)
+        history
+          .filter((s) => s.compatibilityScore)
+          .reduce((sum, s) => sum + (s.compatibilityScore ?? 0), 0) /
+          Math.max(1, history.filter((s) => s.compatibilityScore).length),
       ),
       interviews: history.map((s) => ({
         sessionId: s.id,
@@ -294,8 +528,8 @@ export const interviewRoutes: FastifyPluginAsync = async (server) => {
         status: s.status,
         compatibilityScore: s.compatibilityScore,
         createdAt: s.createdAt,
-        completedAt: s.status === "completed" ? s.updatedAt : undefined
-      }))
+        completedAt: s.status === 'completed' ? s.updatedAt : undefined,
+      })),
     };
   });
 };
