@@ -1,5 +1,26 @@
 # The Inverted Interview: A Paradigm Shift
 
+## Implementation Status
+
+The Inverted Interview vision is **substantially realized** in the codebase:
+
+| Feature | Status | Location |
+|---------|--------|----------|
+| **Compatibility Analysis Engine** | Built | `packages/content-model/src/compatibility.ts` |
+| **5-Factor Scoring** (skill, values, growth, sustainability, compensation) | Built | `CompatibilityAnalyzer` class |
+| **Mask Resonance Analysis** | Built | `analyzeMaskResonance()` in compatibility engine |
+| **Role-Family Curation** | Built | `packages/content-model/src/role-families.ts` |
+| **Tone Analysis** | Built | `packages/content-model/src/tone.ts` |
+| **Follow-Up Generation** | Built | `packages/content-model/src/follow-up-generator.ts` |
+| **Live Compatibility Dashboard** | Built | `apps/web/src/components/CompatibilityDashboard.tsx` |
+| **Market Rate Analysis** | Built | `packages/content-model/src/market-rate.ts` |
+| **Green/Red Flag Detection** | Built | Part of `CompatibilityAnalyzer` |
+| **Interview Question Flow** | Designed | Full question bank in this document |
+| **Real-Time Video/Audio Analysis** | Future | Requires LLM integration layer |
+| **Multi-Party Interviews** | Future | See "Future Extensions" below |
+
+---
+
 ## Concept
 
 You share a link. When an employer/partner visits, **they answer your questions**. Their answers—combined with job requirements that **appear from the sides of the stage** (injected into the system)—are analyzed against your profiles, masks, and growth objectives.

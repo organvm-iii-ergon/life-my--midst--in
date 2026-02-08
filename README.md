@@ -1,6 +1,6 @@
 # in–midst–my–life
 
-> A programmable identity operating system that transforms a static CV into a dynamic, mask-filtered, verifiable professional profile.
+> The employer becomes the interviewee.
 
 [![CI](https://github.com/4444J99/life-my--midst--in/actions/workflows/test.yml/badge.svg)](https://github.com/4444J99/life-my--midst--in/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/4444J99/life-my--midst--in/branch/master/graph/badge.svg)](https://codecov.io/gh/4444J99/life-my--midst--in)
@@ -12,33 +12,62 @@
 
 ---
 
-## The Problem
+## The Vision: The Inverted Interview
 
-Traditional CVs and resumes are static, one-dimensional documents that force professionals to flatten their multifaceted identity into a single narrative. They cannot adapt to different audiences, evolve with career transitions, or provide verifiable proof of claims. This creates a fundamental mismatch between how professionals actually work — wearing different hats in different contexts — and how they present themselves on paper.
+In a traditional hiring process, the employer asks all the questions. This project
+inverts that dynamic: **the employer becomes the interviewee**.
 
-## The Approach
+A recruiter or hiring manager visits the candidate's link, answers questions about
+their role, team, and culture — and the system assembles a CV view curated specifically
+for what they're seeking. The candidate's complete identity is a structured ledger;
+what the employer sees is a dynamically filtered, role-specific snapshot.
 
-This project reimagines the CV as an **identity operating system** built on three key ideas:
+This is not deception. It is **strategic curation** — the same person, presented
+through the lens most relevant to the opportunity.
 
-1. **CV as Ledger**: Treat the complete work history as an immutable, append-only record (analogous to a blockchain), from which audience-specific views are derived on demand.
-2. **Mask-Based Filtering**: 16 identity masks (Analyst, Architect, Narrator, etc.) act as lenses that reshape the same underlying data for different professional contexts.
-3. **Verifiable Identity**: W3C Decentralized Identifiers and Verifiable Credentials provide cryptographic proof of claims without revealing unnecessary personal data.
+See [docs/INVERTED-INTERVIEW.md](docs/INVERTED-INTERVIEW.md) for the full paradigm design.
 
-## The Outcome
+---
 
-A feature-complete full-stack system (Next.js 16 + Fastify + PostgreSQL) that generates context-aware professional profiles, supports temporal career navigation through 8 epochs, automates job search via the Hunter Protocol, and exports to JSON-LD, PDF, and Verifiable Credential formats — all from a single source of truth.
+## How It Works
+
+### The Problem
+
+Traditional CVs are static, one-dimensional documents that force professionals to flatten
+their multifaceted identity into a single narrative. They cannot adapt to different audiences,
+evolve with career transitions, or provide verifiable proof of claims.
+
+### The Approach
+
+This project reimagines the CV as an **identity operating system** built on three ideas:
+
+1. **CV as Ledger**: The complete work history is an immutable, append-only record from which audience-specific views are derived on demand.
+2. **Mask-Based Filtering**: 16 identity masks (Analyst, Architect, Narrator, etc.) reshape the same underlying data for different professional contexts.
+3. **Role-Family Curation**: When an employer states their role (e.g., "Senior Frontend Engineer"), the system maps it to a role family and selects the optimal mask blend — so "UI Developer" and "React Lead" produce the same curated view.
+
+### The Outcome
+
+A feature-complete full-stack system (Next.js 16 + Fastify + PostgreSQL) that:
+- Generates context-aware professional profiles through the Inverted Interview flow
+- Supports temporal career navigation through 8 epochs
+- Automates job search via the Hunter Protocol
+- Exports to JSON-LD, PDF, and Verifiable Credential formats
+
+All from a single source of truth.
 
 ---
 
 ## Overview
 
+- **Inverted Interview** — employers answer *your* questions; the system evaluates fit
 - **16 identity masks** filter the same underlying truth for different audiences
+- **10 role families** map job titles to curated mask blends (Frontend, Backend, DevOps, etc.)
+- **5-factor compatibility scoring** (skill match, values alignment, growth fit, sustainability, compensation)
 - **8 temporal epochs** (Initiation through Legacy) structure career narrative
-- **6 theatrical stages** (Scaenae) control visibility by context
 - **W3C Verifiable Credentials** and DID resolution provide cryptographic proof
 - **Autonomous job search** (Hunter Protocol) finds, analyzes, and tailors applications
 
-The project is **feature-complete** with 65+ commits across all roadmap phases.
+The project is **feature-complete** with 68+ commits across all roadmap phases.
 
 ---
 
@@ -79,13 +108,13 @@ curl http://localhost:3001/taxonomy/masks # list all 16 masks
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                  THEATRICAL METAPHOR                      │
-│  CV = Ledger  │  Resume = Snapshot  │  Mask = Filter     │
-│  Epoch = Arc  │  Scaena = Stage     │  Tabula = Registry │
+│               THE INVERTED INTERVIEW                      │
+│  Employer visits link → answers questions → system        │
+│  assembles role-curated CV from mask-filtered ledger      │
 ├──────────────────────────────────────────────────────────┤
 │  Frontend (Next.js 16)    │  API (Fastify)               │
 │    Dashboard, Mask Editor │    Profile CRUD, Narrative    │
-│    Timeline, Admin, Blog  │    Multi-format Export, Auth  │
+│    Interview Flow, Admin  │    Multi-format Export, Auth  │
 ├──────────────────────────────────────────────────────────┤
 │  Orchestrator (Node.js)   │  Data Layer                  │
 │    10 Agent Roles         │    PostgreSQL + pgvector      │
@@ -117,18 +146,28 @@ Not personalities — **professional lenses** that filter the same underlying tr
 | **Expressive** (how you express) | Artisan, Architect, Narrator, Provoker, Mediator |
 | **Operational** (how you execute) | Executor, Steward, Integrator, Custodian, Calibrator |
 
+### Role Families
+
+When an employer states their role, the system maps it to a **role family** with a curated mask blend:
+
+| Role Family | Primary Masks | Example Titles |
+|-------------|--------------|----------------|
+| Frontend Engineering | Architect, Artisan, Integrator | UI Developer, React Lead, Frontend Engineer |
+| Backend Engineering | Architect, Analyst, Steward | API Developer, Platform Engineer |
+| Engineering Management | Steward, Strategist, Mediator | Tech Lead, Engineering Manager |
+| DevOps / SRE | Custodian, Architect, Executor | SRE, Infrastructure Engineer |
+| Product Design | Artisan, Observer, Narrator | UX Designer, Product Designer |
+
+See [`packages/content-model/src/role-families.ts`](packages/content-model/src/role-families.ts) for the full 10-family taxonomy.
+
 ### Epochs
 
 Professional identity evolves through temporal arcs:
 
 ```
-Initiation → Emergence → Consolidation → Divergence →
+Initiation → Expansion → Consolidation → Divergence →
 Mastery → Reinvention → Transmission → Legacy
 ```
-
-### Scaenae (Stages)
-
-Theatrical contexts that control mask visibility: **Academica**, **Technica**, **Artistica**, **Civica**, **Domestica**, **Occulta**.
 
 ---
 
@@ -159,25 +198,19 @@ life-my--midst--in/
 ├── packages/
 │   ├── schema/               Zod schemas & TypeScript types
 │   ├── core/                 Business logic, mask matching, DIDs
-│   ├── content-model/        Narrative generation, JSON-LD
+│   ├── content-model/        Narrative generation, JSON-LD, role families
 │   └── design-system/        Shared UI primitives
-├── infra/
-│   ├── docker-compose.yml    Local development stack
-│   ├── Dockerfile            Container build
-│   └── helm/                 Kubernetes charts
-├── docs/                     Active documentation
+├── docs/
+│   ├── INVERTED-INTERVIEW.md The north-star paradigm design
+│   ├── seed.yaml             Repository constraints ("genome")
+│   ├── CONTRIBUTING.md       Contribution guidelines
+│   ├── CHANGELOG.md          Release history
 │   ├── adr/                  15 Architecture Decision Records
-│   ├── archived/             Historical design documents (64 files)
-│   ├── features/             Hunter Protocol & Artifact System
-│   ├── operations/           Runbooks & troubleshooting
-│   └── phases/               Completed phase reports
+│   └── archived/             Historical design documents (64 files)
+├── infra/                    Docker Compose, Helm charts, Dockerfiles
 ├── scripts/                  Dev utilities (dev-up.sh, dev-shell.sh)
-├── CLAUDE.md                 AI development guidance
 ├── config/                   Tool configs (Lighthouse CI)
-└── docs/
-    ├── seed.yaml             Repository constraints ("genome")
-    ├── CONTRIBUTING.md       Contribution guidelines
-    └── CHANGELOG.md          Release history
+└── CLAUDE.md                 AI development guidance
 ```
 
 ---
@@ -212,25 +245,11 @@ pnpm --filter api migrate    # run API migrations
 pnpm --filter api seed       # seed demo data
 ```
 
-### Single Workspace
-
-```bash
-pnpm --filter @in-midst-my-life/api dev
-pnpm --filter @in-midst-my-life/web test
-pnpm --filter @in-midst-my-life/schema build
-```
-
 ---
 
 ## Deployment
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/SELF-HOSTING.md](docs/SELF-HOSTING.md) for full guides.
-
-Infrastructure includes:
-- **Docker Compose** for local development (`infra/docker-compose.yml`)
-- **Helm charts** for Kubernetes (`infra/helm/`)
-- **GitHub Actions** CI/CD (test, build, CodeQL, deploy, Lighthouse, release)
-- **Dependabot** for automated dependency updates
 
 ---
 
@@ -251,16 +270,16 @@ Please also read the [Code of Conduct](docs/CODE_OF_CONDUCT.md) and [Security Po
 
 | Document | Purpose |
 |----------|---------|
+| [docs/INVERTED-INTERVIEW.md](docs/INVERTED-INTERVIEW.md) | The Inverted Interview paradigm |
 | [CLAUDE.md](CLAUDE.md) | Development guidance and architecture patterns |
-| [CONTRIBUTING.md](docs/CONTRIBUTING.md) | How to contribute |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | How to contribute |
 | [docs/MANIFEST.md](docs/MANIFEST.md) | Complete project overview and file catalog |
 | [docs/DEFINITIONS.md](docs/DEFINITIONS.md) | Unified terminology glossary |
 | [docs/DECISION-LOG.md](docs/DECISION-LOG.md) | Architecture decision records |
 | [docs/SECURITY.md](docs/SECURITY.md) | Security checklist |
-| [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | In-depth development guide |
 | [docs/seed.yaml](docs/seed.yaml) | Repository constraints |
 
-Historical design documents (foundations, specifications, architecture discussions) are preserved in [`docs/archived/`](docs/archived/).
+Historical design documents are preserved in [`docs/archived/`](docs/archived/).
 
 ---
 

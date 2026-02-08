@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is an **implemented interactive CV/résumé system** (`in–midst–my-life`) that transforms a static resume into a dynamic, queryable, multi-perspective profile with mask-based identity filtering and blockchain-inspired verification capabilities.
+This is an **implemented interactive CV/résumé system** (`in–midst–my-life`) built around the **Inverted Interview** paradigm: an employer visits the candidate's link, answers questions about their role and culture, and the system assembles a role-curated CV view from the candidate's identity ledger. See `docs/INVERTED-INTERVIEW.md` for the full paradigm design.
 
 The project has progressed from design documents to a working monorepo implementation with:
 - **3 applications** (Next.js frontend, Fastify backend API, Node.js orchestrator)
 - **4 core packages** (schema, content-model, core utilities, design-system)
 - **PostgreSQL + Redis** persistence layer with migration scripts
+- **Compatibility engine** with 5-factor scoring, role-family mapping, and mask resonance
 - **Comprehensive test coverage** via Vitest with integration test support
 
 ## Project Structure
