@@ -118,8 +118,8 @@ importers:
         specifier: ^1.39.0
         version: 1.39.0
       '@scalar/fastify-api-reference':
-        specifier: 1.44.14
-        version: 1.44.14
+        specifier: 1.44.15
+        version: 1.44.15
       '@sentry/node':
         specifier: ^10.34.0
         version: 10.34.0
@@ -2522,8 +2522,8 @@ packages:
     resolution: {integrity: sha512-cQWMHsGD9jCiYHi91acR3tOsj+qGk+dRQ2W+N5+au1NZ/GkUNT5TUEufekn/sj1S8af+lOnn3y0xXoTI34jCog==}
     engines: {node: '>=20'}
 
-  '@scalar/fastify-api-reference@1.44.14':
-    resolution: {integrity: sha512-1Gmfh7z9hcvC7dhq4jhIruaaSGZDSdEBk6OLO6LpQklNpzi0PQGBVDFetEbvA4fPLcMfw/j8sXv9lTnVfUc5+w==}
+  '@scalar/fastify-api-reference@1.44.15':
+    resolution: {integrity: sha512-7A085iFu4vvmQ8i4Gc7sKuDQk7nOoBs2HcLIxcFgYjEQ/GY32m93JTXI5fhm6p8yjubqysEvnwUDr6W1S4qLOw==}
     engines: {node: '>=20'}
 
   '@scalar/helpers@0.2.11':
@@ -7178,8 +7178,8 @@ packages:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
 
-  type-fest@5.4.3:
-    resolution: {integrity: sha512-AXSAQJu79WGc79/3e9/CR77I/KQgeY1AhNvcShIH4PTcGYyC4xv6H4R4AUOwkPS5799KlVDAu8zExeCrkGquiA==}
+  type-fest@5.4.4:
+    resolution: {integrity: sha512-JnTrzGu+zPV3aXIUhnyWJj4z/wigMsdYajGLIYakqyOW1nPllzXEJee0QQbHj+CTIQtXGlAjuK0UY+2xTyjVAw==}
     engines: {node: '>=20'}
 
   type-is@1.6.18:
@@ -9941,7 +9941,7 @@ snapshots:
     dependencies:
       '@scalar/types': 0.6.2
 
-  '@scalar/fastify-api-reference@1.44.14':
+  '@scalar/fastify-api-reference@1.44.15':
     dependencies:
       '@scalar/core': 0.3.37
       '@scalar/openapi-parser': 0.24.8
@@ -9981,7 +9981,7 @@ snapshots:
     dependencies:
       '@scalar/helpers': 0.2.11
       nanoid: 5.1.6
-      type-fest: 5.4.3
+      type-fest: 5.4.4
       zod: 4.3.6
 
   '@scure/base@1.2.6': {}
@@ -10707,6 +10707,14 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 6.4.1(@types/node@20.19.27)(jiti@1.21.7)(tsx@4.21.0)(yaml@2.8.2)
+
+  '@vitest/mocker@4.0.18(vite@6.4.1(@types/node@20.19.27)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))':
+    dependencies:
+      '@vitest/spy': 4.0.18
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 6.4.1(@types/node@20.19.27)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)
 
   '@vitest/mocker@4.0.18(vite@6.4.1(@types/node@25.2.1)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
@@ -15578,7 +15586,7 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
 
-  type-fest@5.4.3:
+  type-fest@5.4.4:
     dependencies:
       tagged-tag: 1.0.0
 
@@ -15927,7 +15935,7 @@ snapshots:
   vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@20.19.27)(jiti@2.6.1)(jsdom@27.4.0)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@25.2.1)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@20.19.27)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
