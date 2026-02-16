@@ -1,0 +1,72 @@
+# Render Blueprint for in-midst-my-life (Neon DB variant)
+# One-click deploy: https://render.com/deploy?repo=https://github.com/organvm-iii-ergon/life-my--midst--in
+#
+# Database: Uses existing Neon PostgreSQL (not Render's managed DB).
+# Set DATABASE_URL in the Render dashboard after deploy.
+
+services:
+  # Next.js Web Application
+  - type: web
+    name: inmidst-web
+    runtime: node
+    plan: free
+    buildCommand: pnpm install && pnpm --filter @in-midst-my-life/web build
+    startCommand: pnpm --filter @in-midst-my-life/web start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: inmidst-api
+          property: host
+
+  # Fastify API
+  - type: web
+    name: inmidst-api
+    runtime: node
+    plan: free
+    buildCommand: pnpm install && pnpm --filter @in-midst-my-life/api build
+    startCommand: pnpm --filter @in-midst-my-life/api start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PROFILE_KEY_ENC_KEY
+        generateValue: true
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: inmidst-redis
+          property: connectionString
+
+  # Orchestrator Worker
+  - type: worker
+    name: inmidst-orchestrator
+    runtime: node
+    plan: free
+    buildCommand: pnpm install && pnpm --filter @in-midst-my-life/orchestrator build
+    startCommand: pnpm --filter @in-midst-my-life/orchestrator start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: inmidst-redis
+          property: connectionString
+
+  # Redis (in-memory cache and task queue)
+  - type: redis
+    name: inmidst-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
