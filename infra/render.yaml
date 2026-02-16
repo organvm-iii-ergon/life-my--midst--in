@@ -66,14 +66,14 @@ services:
           name: inmidst-redis
           property: connectionString
 
+  # Redis (in-memory cache and task queue)
+  - type: redis
+    name: inmidst-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
 databases:
   - name: inmidst-db
     plan: free
     databaseName: midst
     user: midst
-
-services:
-  - type: redis
-    name: inmidst-redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
