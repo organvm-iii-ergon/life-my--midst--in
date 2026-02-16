@@ -13,6 +13,13 @@
 [![Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/organvm-iii-ergon/life-my--midst--in)
 [![TypeScript](https://img.shields.io/badge/lang-TypeScript-informational)](https://github.com/organvm-iii-ergon/life-my--midst--in)
 
+[![Next.js](https://img.shields.io/badge/Next.js-16-000?style=flat-square&logo=next.js)]()
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)]()
+[![Fastify](https://img.shields.io/badge/Fastify-5-000?style=flat-square&logo=fastify)]()
+[![Docker](https://img.shields.io/badge/Docker-4%20services-2496ED?style=flat-square&logo=docker)](infra/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-database-4169E1?style=flat-square&logo=postgresql)]()
+[![Redis](https://img.shields.io/badge/Redis-cache-DC382D?style=flat-square&logo=redis)]()
+[![Tailwind](https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=flat-square&logo=tailwindcss)]()
 
 > *The employer becomes the interviewee.*
 
