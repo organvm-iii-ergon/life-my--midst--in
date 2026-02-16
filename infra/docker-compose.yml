@@ -61,7 +61,7 @@ services:
       retries: 3
 
   grafana:
-    image: grafana/grafana:12.3.2
+    image: grafana/grafana:12.3.3
     container_name: inmidst-grafana
     restart: unless-stopped
     ports:
