@@ -447,7 +447,8 @@ export function buildServer(options: ApiServerOptions = {}) {
         // Skip if user is already authenticated (e.g. by test mock hook)
         if (request.user) return;
 
-        const url = request.url.split('?')[0] ?? '';
+        // Strip version prefix so auth rules match regardless of /v1/ or root scope
+        const url = (request.url.split('?')[0] ?? '').replace(/^\/v\d+/, '');
 
         // 1. Exact public route match
         if (publicRoutes.has(url)) return;

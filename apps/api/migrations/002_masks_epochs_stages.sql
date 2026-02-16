@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS masks (
   include_tags text[] DEFAULT ARRAY[]::text[],
   exclude_tags text[] DEFAULT ARRAY[]::text[],
   priority_weights jsonb DEFAULT '{}'::jsonb,
+  redaction text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
