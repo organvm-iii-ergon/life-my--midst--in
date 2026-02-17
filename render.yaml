@@ -1,8 +1,11 @@
-# Render Blueprint for in-midst-my-life (Neon DB variant)
+# Render Blueprint for in-midst-my-life (Neon DB variant, free tier)
 # One-click deploy: https://render.com/deploy?repo=https://github.com/organvm-iii-ergon/life-my--midst--in
 #
 # Database: Uses existing Neon PostgreSQL (not Render's managed DB).
 # Set DATABASE_URL in the Render dashboard after deploy.
+#
+# Note: Orchestrator (worker) and Redis removed — not available on free plan.
+# API works without Redis. Orchestrator can be added on paid plan later.
 
 services:
   # Next.js Web Application
@@ -41,33 +44,3 @@ services:
         generateValue: true
       - key: PROFILE_KEY_ENC_KEY
         generateValue: true
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: inmidst-redis
-          property: connectionString
-
-  # Orchestrator Worker
-  - type: worker
-    name: inmidst-orchestrator
-    runtime: node
-    plan: free
-    buildCommand: pnpm install && pnpm --filter @in-midst-my-life/orchestrator build
-    startCommand: pnpm --filter @in-midst-my-life/orchestrator start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: inmidst-redis
-          property: connectionString
-
-  # Redis (in-memory cache and task queue)
-  - type: redis
-    name: inmidst-redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []
