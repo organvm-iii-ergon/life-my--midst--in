@@ -70,3 +70,4 @@ services:
     name: inmidst-redis
     plan: free
     maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
