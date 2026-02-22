@@ -19,7 +19,7 @@
   "dependencies": {
     "@in-midst-my-life/schema": "workspace:*",
     "cids": "^1.1.9",
-    "googleapis": "^170.1.0",
+    "googleapis": "^171.4.0",
     "jose": "^6.1.3",
     "multiformats": "^13.4.2",
     "openai": "^6.21.0",
