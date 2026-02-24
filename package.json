@@ -2,6 +2,7 @@
   "name": "in-midst-my-life",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.30.2",
   "description": "Interactive CV/resume system with mask-based identity filtering and narrative generation",
   "license": "MIT",
   "repository": {
