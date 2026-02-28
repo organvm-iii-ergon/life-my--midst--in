@@ -41,9 +41,10 @@ const nextConfig = {
     optimizePackageImports: ['@in-midst-my-life/core']
   },
 
-  // TypeScript strict mode
+  // TypeScript — skip type checking during build (CI handles it, prevents OOM on free-tier hosting)
   typescript: {
-    tsconfigPath: './tsconfig.json'
+    tsconfigPath: './tsconfig.json',
+    ignoreBuildErrors: true,
   },
 };
 
