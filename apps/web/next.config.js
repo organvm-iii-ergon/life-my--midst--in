@@ -4,9 +4,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Produce a self-contained server bundle for Docker deployment
-  output: 'standalone',
-
   // Configure webpack fallback for server-only dependencies (used with --webpack)
   webpack: (config, { isServer }) => {
     if (!isServer) {
