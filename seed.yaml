@@ -11,10 +11,12 @@ org: organvm-iii-ergon
 metadata:
   implementation_status: PRODUCTION
   tier: standard
-  promotion_status: CANDIDATE
-  last_validated: 2026-02-11
+  promotion_status: PUBLIC_PROCESS
+  last_validated: 2026-02-28
   generated: 2026-02-12
   sprint: AUTONOMY
+  deployment_url: https://inmidst-web.onrender.com
+  deployment_api_url: https://inmidst-api.onrender.com
 
 agents:
   - name: ci
