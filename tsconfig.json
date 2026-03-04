@@ -19,7 +19,10 @@
     "incremental": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true
+    "noPropertyAccessFromIndexSignature": true,
+    "paths": {
+      "@in-midst-my-life/*": ["./packages/*/src", "./apps/*/src"]
+    }
   },
   "include": ["apps", "packages", "scripts", "infra", "*.ts", "*.tsx"],
   "exclude": ["node_modules", "dist", "build", ".turbo"]
