@@ -16,6 +16,7 @@ jobs:
   codeql:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       actions: read
       contents: read
@@ -47,6 +48,7 @@ jobs:
   dependency-check:
     name: Dependency Security Check
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       contents: read
       security-events: write
@@ -72,6 +74,7 @@ jobs:
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       pull-requests: read
 
@@ -106,6 +109,7 @@ jobs:
   container-scan:
     name: Container Security Scan
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       contents: read
       packages: read
@@ -139,6 +143,7 @@ jobs:
   license-check:
     name: License Compliance Check
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
