@@ -34,7 +34,7 @@
     "@opentelemetry/semantic-conventions": "^1.39.0",
     "@scalar/fastify-api-reference": "1.44.15",
     "@sentry/node": "^10.34.0",
-    "fastify": "^5.7.3",
+    "fastify": "^5.8.1",
     "fastify-raw-body": "^5.0.0",
     "graphql": "^16.12.0",
     "graphql-ws": "6.0.7",
