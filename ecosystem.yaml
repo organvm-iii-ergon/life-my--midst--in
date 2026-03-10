@@ -1,0 +1,12 @@
+schema_version: '1.0'
+repo: life-my--midst--in
+organ: III
+display_name: "Inverted Interview CV platform \u2014 employer-as-interviewee identity\
+  \ operating system with 16 masks and W3C Verifiable Credentials"
+delivery:
+- platform: web_app
+  status: not_started
+revenue:
+- platform: freemium
+  status: planned
+  priority: critical
