@@ -550,3 +550,11 @@ Please also read the [Code of Conduct](docs/CODE_OF_CONDUCT.md) and [Security Po
 **[@4444j99](https://github.com/4444j99)**
 
 Part of the [ORGANVM](https://github.com/meta-organvm) system — eight organs coordinating theory, art, commerce, orchestration, public process, community, and communication.
+
+<!-- SYSTEM-NAV-START -->
+
+---
+
+<sub>[Case Study](https://4444j99.github.io/portfolio/projects/life-my-midst-in/) · [Portfolio](https://4444j99.github.io/portfolio/) · [System Directory](https://4444j99.github.io/portfolio/directory/) · [ORGAN III · Ergon](https://organvm-iii-ergon.github.io/) · Part of the <a href="https://4444j99.github.io/portfolio/directory/">ORGANVM eight-organ system</a></sub>
+
+<!-- SYSTEM-NAV-END -->
