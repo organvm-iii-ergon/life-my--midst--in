@@ -1,12 +1,64 @@
 schema_version: '1.0'
 repo: life-my--midst--in
 organ: III
-display_name: "Inverted Interview CV platform \u2014 employer-as-interviewee identity\
-  \ operating system with 16 masks and W3C Verifiable Credentials"
+display_name: "InMidst — Inverted Interview CV platform with 16 masks and W3C Verifiable Credentials"
+
 delivery:
 - platform: web_app
-  status: not_started
+  status: live
+  priority: critical
+  notes: "Deployed at inmidst-web.onrender.com"
+  next_action: "Monitor Render uptime, optimize cold start latency"
+- platform: api
+  status: live
+  priority: critical
+  notes: "API at inmidst-api.onrender.com"
+  next_action: "Add rate limiting and API key management"
+
 revenue:
 - platform: freemium
   status: planned
   priority: critical
+  notes: "Free identity creation, premium for advanced credential verification"
+  next_action: "Implement Stripe integration and tier gating"
+
+marketing:
+- platform: seo
+  status: planned
+  priority: high
+  notes: "Employer branding, identity verification, reverse interview keywords"
+  next_action: "Add landing page with SEO-optimized copy"
+- platform: content_marketing
+  status: not_started
+  priority: medium
+  notes: "Blog on employer accountability, identity systems, credential verification"
+  next_action: "Draft foundational article on inverted interviews"
+- platform: social_organic
+  status: not_started
+  priority: medium
+  notes: "LinkedIn and Twitter for employer branding community"
+  next_action: "Activate social presence via kerygma profile"
+
+community:
+- platform: discord
+  status: not_started
+  priority: medium
+  notes: "User community for employers and job seekers"
+  next_action: "Set up Discord server after user base grows"
+
+content:
+- platform: docs_site
+  status: not_started
+  priority: high
+  next_action: "Create user guide and API documentation"
+- platform: blog
+  status: not_started
+  priority: medium
+  next_action: "Draft 3 launch blog posts on the inverted interview concept"
+
+listings:
+- platform: product_hunt
+  status: planned
+  priority: high
+  target_date: "2026-Q3"
+  next_action: "Prepare PH launch after freemium model goes live"
