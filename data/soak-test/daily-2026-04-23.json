@@ -1,0 +1,315 @@
+{
+  "date": "2026-04-23",
+  "collected_at": "2026-04-23T13:18:01.289653+00:00",
+  "repo": {
+    "name": "life-my--midst--in",
+    "path": "/Users/4jp/Workspace/organvm/life-my--midst--in",
+    "branch": "master",
+    "head": "916c0105",
+    "dirty": true
+  },
+  "manual_pulse": {
+    "command": "organvm pulse scan --json",
+    "summary": {
+      "system_density": 0.545,
+      "total_entities": 147,
+      "active_edges": 43,
+      "event_frequency_24h": 3,
+      "compressed_text": "AMMOI:55% E:43 T:0 C:0 Ev24h:3 8o/147r/1654c [ORGAN-VI:76%, ORGAN-VII:75%, PERSONAL:68%]",
+      "organ_iii": {
+        "organ_id": "ORGAN-III",
+        "organ_name": "Commerce",
+        "repo_count": 32,
+        "module_count": 0,
+        "component_count": 299,
+        "internal_edges": 0,
+        "cross_edges": 3,
+        "avg_gate_pct": 54,
+        "event_frequency_24h": 0,
+        "active_agents": 0,
+        "tension_count": 0,
+        "density": 0.54
+      }
+    },
+    "raw": {
+      "timestamp": "2026-04-23T13:17:52.553613+00:00",
+      "system_density": 0.545,
+      "total_entities": 147,
+      "total_modules": 0,
+      "total_components": 1654,
+      "hierarchy_depth": 17,
+      "active_edges": 43,
+      "active_loops": 0,
+      "tension_count": 0,
+      "event_frequency_24h": 3,
+      "cluster_count": 0,
+      "orphan_count": 0,
+      "overcoupled_count": 0,
+      "inference_score": 0.0,
+      "density_delta_24h": null,
+      "density_delta_7d": null,
+      "density_delta_30d": null,
+      "organs": {
+        "ORGAN-I": {
+          "organ_id": "ORGAN-I",
+          "organ_name": "Theory",
+          "repo_count": 26,
+          "module_count": 0,
+          "component_count": 385,
+          "internal_edges": 2,
+          "cross_edges": 12,
+          "avg_gate_pct": 53,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.53
+        },
+        "ORGAN-II": {
+          "organ_id": "ORGAN-II",
+          "organ_name": "Art",
+          "repo_count": 32,
+          "module_count": 0,
+          "component_count": 189,
+          "internal_edges": 0,
+          "cross_edges": 2,
+          "avg_gate_pct": 48,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.48
+        },
+        "ORGAN-III": {
+          "organ_id": "ORGAN-III",
+          "organ_name": "Commerce",
+          "repo_count": 32,
+          "module_count": 0,
+          "component_count": 299,
+          "internal_edges": 0,
+          "cross_edges": 3,
+          "avg_gate_pct": 54,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.54
+        },
+        "ORGAN-IV": {
+          "organ_id": "ORGAN-IV",
+          "organ_name": "Orchestration",
+          "repo_count": 22,
+          "module_count": 0,
+          "component_count": 324,
+          "internal_edges": 3,
+          "cross_edges": 16,
+          "avg_gate_pct": 55,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.55
+        },
+        "ORGAN-V": {
+          "organ_id": "ORGAN-V",
+          "organ_name": "Public Process",
+          "repo_count": 6,
+          "module_count": 0,
+          "component_count": 12,
+          "internal_edges": 0,
+          "cross_edges": 2,
+          "avg_gate_pct": 60,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.6
+        },
+        "ORGAN-VI": {
+          "organ_id": "ORGAN-VI",
+          "organ_name": "Community",
+          "repo_count": 6,
+          "module_count": 0,
+          "component_count": 29,
+          "internal_edges": 6,
+          "cross_edges": 1,
+          "avg_gate_pct": 76,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.76
+        },
+        "ORGAN-VII": {
+          "organ_id": "ORGAN-VII",
+          "organ_name": "Marketing",
+          "repo_count": 6,
+          "module_count": 0,
+          "component_count": 23,
+          "internal_edges": 0,
+          "cross_edges": 0,
+          "avg_gate_pct": 75,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.75
+        },
+        "META-ORGANVM": {
+          "organ_id": "META-ORGANVM",
+          "organ_name": "Meta",
+          "repo_count": 14,
+          "module_count": 0,
+          "component_count": 393,
+          "internal_edges": 3,
+          "cross_edges": 10,
+          "avg_gate_pct": 63,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.63
+        },
+        "PERSONAL": {
+          "organ_id": "PERSONAL",
+          "organ_name": "Personal / Liminal",
+          "repo_count": 3,
+          "module_count": 0,
+          "component_count": 0,
+          "internal_edges": 0,
+          "cross_edges": 5,
+          "avg_gate_pct": 68,
+          "event_frequency_24h": 0,
+          "active_agents": 0,
+          "tension_count": 0,
+          "density": 0.68
+        }
+      },
+      "pulse_count": 0,
+      "pulse_interval": 900,
+      "temporal": null,
+      "flow_score": 0.0,
+      "flow_active": 0,
+      "flow_dormant": 43,
+      "compressed_text": "AMMOI:55% E:43 T:0 C:0 Ev24h:3 8o/147r/1654c [ORGAN-VI:76%, ORGAN-VII:75%, PERSONAL:68%]"
+    }
+  },
+  "status_command": {
+    "command": "organvm status",
+    "returncode": 0,
+    "stdout_lines": [
+      "ORGANVM System Pulse",
+      "  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550",
+      "",
+      "  Organs (10/10 operational)",
+      "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "    ORGAN-I             26 repos  (Theory)",
+      "    ORGAN-II            32 repos  (Art)",
+      "    ORGAN-III           32 repos  (Commerce)",
+      "    ORGAN-IV            22 repos  (Orchestration)",
+      "    ORGAN-V              6 repos  (Public Process)",
+      "    ORGAN-VI             6 repos  (Community)",
+      "    ORGAN-VII            6 repos  (Marketing)",
+      "    ORGAN-PSG            0 repos  (Process Sequence Governance)",
+      "    PERSONAL             3 repos  (Personal / Liminal)",
+      "    META-ORGANVM        14 repos  (Meta)",
+      "    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "    Total              147 repos  (91 active)",
+      "",
+      "  Soak Test (VIGILIA)",
+      "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "    Streak:    67/30 days [\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588] 100%",
+      "    Remaining: 0 days",
+      "",
+      "  Omega Score",
+      "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "    9/20 MET (45%), 2 in progress",
+      "",
+      "  Infrastructure",
+      "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "    CI workflows:  107",
+      "    Dep edges:     62",
+      "",
+      "  Atoms Pipeline",
+      "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+      "    Tasks:     11935 (4251 prompts)",
+      "    Links:     15967",
+      "    Last run:  2026-04-23T11:53:48"
+    ]
+  },
+  "refresh_probes": {
+    "full": {
+      "command": "organvm refresh --workspace . --dry-run",
+      "cwd": "/Users/4jp/Workspace/organvm/life-my--midst--in",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[DRY RUN] [6/10] Context sync error: Registry validation failed. Refusing to sync context files.\nRegistry Validation: 147 repos checked\nERRORS (1):\n  system-system--system: invalid tier 'sovereign'",
+      "timed_out": true,
+      "timeout_seconds": 8,
+      "analysis": {
+        "context_blocker": {
+          "status": "open",
+          "reason": "shared registry validation blocker",
+          "detail": "system-system--system: invalid tier 'sovereign'"
+        },
+        "planned_changes": []
+      }
+    },
+    "scoped": {
+      "command": "organvm refresh --workspace . --dry-run --skip-context --skip-organism --skip-legacy --skip-plans --skip-sop --skip-atoms",
+      "cwd": "/Users/4jp/Workspace/organvm/life-my--midst--in",
+      "returncode": 0,
+      "stdout": "[DRY RUN] [1/10] Metrics calculated -> /Users/4jp/Workspace/meta-organvm/organvm-corpvs-testamentvm/system-metrics.json\n  Repos: 147 (91 ACTIVE)\n[DRY RUN] [2/10] Variables manifest -> /Users/4jp/Workspace/meta-organvm/organvm-corpvs-testamentvm/system-vars.json (35 vars)\n[DRY RUN] [2\u00bd/10] Ontologia sync skipped (not installed)\n[DRY RUN] [2\u00be/10] System snapshot -> /Users/4jp/Workspace/meta-organvm/organvm-corpvs-testamentvm/system-snapshot.json (10 organs, 147 repos)\n[DRY RUN] [3/10] Variables resolved: 3 replacement(s) in 1/185 file(s)\n    README.md:7 total_repos: '127' -> '147'\n    README.md:7 total_organs: '8' -> '10'\n    README.md:7 total_words_short: '766K+' -> '0K+'\n[DRY RUN] [4/10] Legacy propagation skipped\n[DRY RUN] [5/10] JSON copies skipped\n[DRY RUN] [6/10] Context sync skipped\n[DRY RUN] [7/10] Organism skipped\n[DRY RUN] [8/10] Plan hygiene skipped\n[DRY RUN] [9/10] SOP check skipped\n[DRY RUN] [10/10] Atoms skipped\n\n[DRY RUN] Done. 3 variables resolved in 1 files.",
+      "stderr": "",
+      "timed_out": false,
+      "analysis": {
+        "context_blocker": null,
+        "planned_changes": [
+          {
+            "file": "README.md",
+            "variable": "total_repos",
+            "before": "127",
+            "after": "147"
+          },
+          {
+            "file": "README.md",
+            "variable": "total_organs",
+            "before": "8",
+            "after": "10"
+          },
+          {
+            "file": "README.md",
+            "variable": "total_words_short",
+            "before": "766K+",
+            "after": "0K+"
+          }
+        ]
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "refresh-context-blocked",
+      "severity": "warn",
+      "status": "open",
+      "summary": "Full organvm refresh is blocked by shared registry validation.",
+      "detail": "system-system--system: invalid tier 'sovereign'"
+    },
+    {
+      "id": "scoped-refresh-drift",
+      "severity": "info",
+      "status": "open",
+      "summary": "Scoped refresh reports repo-local metric drift.",
+      "detail": "3 variable replacement(s) pending."
+    }
+  ],
+  "verification": {
+    "ruff_check": {
+      "command": "ruff check .",
+      "status": "passed",
+      "detail": "All checks passed!"
+    },
+    "pyright": {
+      "command": "pyright",
+      "status": "passed",
+      "detail": "0 errors, 0 warnings, 0 informations"
+    },
+    "pytest": {
+      "command": "pytest -v",
+      "status": "passed",
+      "detail": "2 passed in 0.07s"
+    }
+  }
+}
