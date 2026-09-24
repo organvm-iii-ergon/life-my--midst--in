@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 env:
   NODE_VERSION: '22'
@@ -14,7 +14,6 @@ jobs:
   test:
     name: Lint, Typecheck & Test
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     services:
       postgres:
@@ -86,7 +85,6 @@ jobs:
     name: Build
     needs: test
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v7
