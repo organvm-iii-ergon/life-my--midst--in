@@ -6,7 +6,7 @@
 
 # in–midst–my–life
 
-[![CI](https://github.com/organvm-iii-ergon/life-my--midst--in/actions/workflows/test.yml/badge.svg)](https://github.com/organvm-iii-ergon/life-my--midst--in/actions/workflows/test.yml)
+[![CI](https://github.com/organvm-iii-ergon/life-my--midst--in/actions/workflows/ci.yml/badge.svg)](https://github.com/organvm-iii-ergon/life-my--midst--in/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)](https://github.com/organvm-iii-ergon/life-my--midst--in)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/organvm-iii-ergon/life-my--midst--in/blob/main/LICENSE)
 [![Organ III](https://img.shields.io/badge/Organ-III%20Ergon-F59E0B)](https://github.com/organvm-iii-ergon)
